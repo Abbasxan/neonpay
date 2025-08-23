@@ -1,18 +1,33 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "neon-stars-payments"
+name = "neonpay"
 version = "0.1.0"
-description = "Удобная библиотека для оплаты звёздами ⭐ в Telegram-ботах (Pyrogram)"
-authors = [
-  { name="Твоё Имя", email="you@example.com" }
-]
+description = "Простая библиотека для приёма оплат звёздами (XTR) в Telegram-ботах на Pyrogram"
 readme = "README.md"
-license = {text = "MIT"}
-dependencies = ["pyrogram>=2.0.0"]
-requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Abbas Sultanov", email = "youremail@example.com" }
+]
+keywords = ["telegram", "pyrogram", "payments", "stars", "xtr", "donations"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+requires-python = ">=3.9"
+
+dependencies = [
+    "pyrogram>=2.0.106",
+]
 
 [project.urls]
-Homepage = "https://github.com/Abbasxan/neon-stars-payments"
+Homepage = "https://github.com/Abbasxan/neonpay"
+Repository = "https://github.com/Abbasxan/neonpay"
+Issues = "https://github.com/Abbasxan/neonpay/issues"
+Telegram = "https://t.me/neonsahib"
