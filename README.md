@@ -1,6 +1,4 @@
-```
-markdown
-
+```markdown
 <h2 align="center">
     ──「 NEON STARS PAYMENTS 」──
 </h2>
@@ -26,11 +24,15 @@ markdown
 ---
 
 ## 📦 Установка
-
-```
-bash pip install neonpay
 ```
 
+```
+bash
+pip install neonpay
+
+```
+
+```
 ---
 
 ## 🚀 Пример использования
