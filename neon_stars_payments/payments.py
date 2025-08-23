@@ -1,67 +1,82 @@
 import json
 import random
-from pyrogram import errors
-from pyrogram.raw.types import LabeledPrice, Invoice, InputWebDocument
-from pyrogram.raw.functions.messages import SendMedia
-from pyrogram.raw.types import InputMediaInvoice, DataJSON
-
+from typing import Callable, Optional
+from pyrogram import Client
+from pyrogram.raw.types import (
+    LabeledPrice, Invoice, InputWebDocument,
+    InputMediaInvoice, DataJSON,
+    UpdateBotPrecheckoutQuery, MessageActionPaymentSentMe
+)
+from pyrogram.raw.functions.messages import SendMedia, SetBotPrecheckoutResults
 from .errors import StarsPaymentError
 
 
-async def send_invoice(
-    client,
-    user_id: int,
-    amount: int,
-    label: str,
-    title: str,
-    description: str,
-    photo_url: str = "https://telegram.org/img/t_logo.png"
-):
-    """
-    Отправляет пользователю счёт на оплату звёздами ⭐
+class NeonStars:
+    def __init__(self, app: Client, thank_you: str = "Спасибо за поддержку!"):
+        """
+        :param app: pyrogram.Client
+        :param thank_you: сообщение благодарности пользователю
+        """
+        self.app = app
+        self.thank_you = thank_you
+        self._payment_callback: Optional[Callable[[int, int], None]] = None
 
-    :param client: pyrogram.Client
-    :param user_id: ID пользователя
-    :param amount: Сумма в звёздах (XTR)
-    :param label: Текст метки (например, "☕ 10 ⭐")
-    :param title: Заголовок счёта
-    :param description: Описание
-    :param photo_url: Картинка для инвойса
-    """
-    invoice = Invoice(
-        currency="XTR",
-        prices=[LabeledPrice(label=label, amount=amount)],
-    )
+        # Подписка на raw обновления
+        app.add_handler(self._on_raw_update, group=-1)
 
-    payload = json.dumps({"user_id": user_id, "amount": amount}).encode()
+    def on_payment(self, callback: Callable[[int, int], None]):
+        """
+        Регистрирует callback, который будет вызван при успешной оплате.
+        callback(user_id: int, amount: int)
+        """
+        self._payment_callback = callback
 
-    try:
-        peer = await client.resolve_peer(user_id)
-    except errors.PeerIdInvalid:
-        raise StarsPaymentError("Пользователь не найден")
+    async def send_donate(self, user_id: int, amount: int, label: str,
+                          title: str, description: str,
+                          photo_url: str = "https://telegram.org/img/t_logo.png"):
+        """Отправить пользователю инвойс"""
+        try:
+            peer = await self.app.resolve_peer(user_id)
+        except Exception:
+            raise StarsPaymentError("Пользователь не найден")
 
-    try:
-        await client.invoke(
-            SendMedia(
-                peer=peer,
-                media=InputMediaInvoice(
-                    title=title,
-                    description=description,
-                    invoice=invoice,
-                    payload=payload,
-                    provider="",
-                    provider_data=DataJSON(data=r"{}"),
-                    photo=InputWebDocument(
-                        url=photo_url,
-                        size=0,
-                        mime_type="image/png",
-                        attributes=[],
-                    ),
-                    start_param="stars_payment",
-                ),
-                message=f"⭐ {label}\n\nСпасибо за поддержку!",
-                random_id=random.randint(100000, 999999),
-            )
+        invoice = Invoice(
+            currency="XTR",
+            prices=[LabeledPrice(label=label, amount=amount)],
         )
-    except errors.RPCError as e:
-        raise StarsPaymentError(f"Ошибка отправки счёта: {e}")
+
+        media = InputMediaInvoice(
+            title=title,
+            description=description,
+            invoice=invoice,
+            payload=json.dumps({"user_id": user_id, "amount": amount}).encode(),
+            provider="",
+            provider_data=DataJSON(data="{}"),
+            photo=InputWebDocument(url=photo_url, size=0, mime_type="image/png", attributes=[]),
+            start_param="stars_donate",
+        )
+
+        try:
+            await self.app.invoke(SendMedia(
+                peer=peer,
+                media=media,
+                message=f"{label}\n\n{description}\n\n{self.thank_you}",
+                random_id=random.getrandbits(64),
+            ))
+        except Exception as e:
+            raise StarsPaymentError(f"Ошибка отправки счета: {e}")
+
+    async def _on_raw_update(self, client, update, users, chats):
+        """Автоматическая обработка pre_checkout и успешной оплаты"""
+        if isinstance(update, UpdateBotPrecheckoutQuery):
+            await client.invoke(SetBotPrecheckoutResults(query_id=update.query_id, success=True))
+
+        if hasattr(update, "message") and hasattr(update.message, "action"):
+            action = update.message.action
+            if isinstance(action, MessageActionPaymentSentMe) and action.currency == "XTR":
+                user_id = update.message.from_id.user_id
+                amount = action.total_amount
+                print(f"✅ Пользователь {user_id} оплатил {amount} ⭐")
+                if self._payment_callback:
+                    await self._payment_callback(user_id, amount)
+
