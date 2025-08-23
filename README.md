@@ -1,10 +1,9 @@
-```markdown
 <h2 align="center">
-    ──「 NEON STARS PAYMENTS 」──
+    ──「 NEON STARS PAYMENTS API 」──
 </h2>
 
 <p align="center">
-  <img src=".github/neonpay-logo.jpg" width="150"/>
+  <img src="assets/neonpay-logo.png" width="150"/>
 </p>
 
 Библиотека для Telegram-ботов (Pyrogram), которая позволяет легко принимать оплату **звёздами (XTR)**.
@@ -24,15 +23,11 @@
 ---
 
 ## 📦 Установка
-```
 
-```
-bash
+```bash
 pip install neonpay
-
 ```
 
-```
 ---
 
 ## 🚀 Пример использования
@@ -87,9 +82,4 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-```
-
----
-
-> Добавьте файл логотипа `.github/neonpay-logo.png` в проект, чтобы он отображался корректно в README.
 ```
