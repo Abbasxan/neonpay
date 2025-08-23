@@ -1,12 +1,37 @@
-class StarsPaymentError(Exception):
+"""
+NEONPAY Error Classes
+Comprehensive error handling for payment processing
+"""
+
+
+class NeonPayError(Exception):
     """
-    Базовый класс ошибок для библиотеки NeonPay.
-
-    Используется для всех исключений, связанных с оплатой звёздами (XTR) в Telegram-ботах.
-
-    Примеры использования:
-
-        raise StarsPaymentError("Пользователь не найден")
-        raise StarsPaymentError("Ошибка отправки счета")
+    Base exception class for NEONPAY library
+    
+    All NEONPAY-specific exceptions inherit from this class.
     """
     pass
+
+
+class PaymentError(NeonPayError):
+    """Payment processing error"""
+    pass
+
+
+class ConfigurationError(NeonPayError):
+    """Configuration or setup error"""
+    pass
+
+
+class AdapterError(NeonPayError):
+    """Bot library adapter error"""
+    pass
+
+
+class ValidationError(NeonPayError):
+    """Data validation error"""
+    pass
+
+
+# Legacy compatibility
+StarsPaymentError = PaymentError

@@ -79,4 +79,3 @@ class NeonStars:
                 print(f"✅ Пользователь {user_id} оплатил {amount} ⭐")
                 if self._payment_callback:
                     await self._payment_callback(user_id, amount)
-

@@ -1,0 +1,48 @@
+{
+  "payment": {
+    "title": "Ödəniş",
+    "description": "Telegram Stars istifadə edərək ödənişinizi tamamlayın",
+    "button_pay": "💫 {amount} Stars ödə",
+    "button_cancel": "❌ Ləğv et",
+    "success": "✅ Ödəniş uğurlu!",
+    "success_with_amount": "✅ {amount} Stars ödənişi uğurla tamamlandı!",
+    "cancelled": "❌ Ödəniş ləğv edildi",
+    "failed": "❌ Ödəniş xətası: {error}",
+    "processing": "⏳ Ödəniş işlənir...",
+    "refunded": "💰 Ödəniş geri qaytarıldı",
+    "pending": "⏳ Ödəniş gözləyir...",
+    "expired": "⏰ Ödənişin müddəti bitdi"
+  },
+  "errors": {
+    "invalid_amount": "Yanlış ödəniş məbləği. Məbləğ müsbət rəqəm olmalıdır.",
+    "payment_not_found": "Ödəniş tapılmadı və ya müddəti bitib.",
+    "already_paid": "Bu ödəniş artıq tamamlanıb.",
+    "insufficient_stars": "Telegram Stars balansı kifayət etmir.",
+    "network_error": "Şəbəkə xətası baş verdi. Sonra yenidən cəhd edin.",
+    "unknown_error": "Naməlum xəta baş verdi. Dəstək xidməti ilə əlaqə saxlayın.",
+    "invalid_token": "Yanlış bot tokeni verildi.",
+    "api_error": "Telegram API xətası: {error}",
+    "validation_error": "Doğrulama xətası: {error}",
+    "timeout_error": "Vaxt bitdi. Yenidən cəhd edin."
+  },
+  "notifications": {
+    "payment_received": "💰 Yeni ödəniş alındı: {user}-dən {amount} Stars",
+    "refund_processed": "💸 Geri qaytarma işləndi: {user} üçün {amount} Stars",
+    "payment_started": "🚀 {amount} Stars üçün ödəniş prosesi başladı",
+    "payment_completed": "✅ Ödəniş tamamlandı: {amount} Stars"
+  },
+  "buttons": {
+    "pay_now": "💫 İndi ödə",
+    "cancel": "❌ Ləğv et",
+    "retry": "🔄 Yenidən cəhd et",
+    "back": "⬅️ Geri",
+    "continue": "➡️ Davam et"
+  },
+  "messages": {
+    "welcome": "{product_name}-ə xoş gəlmisiniz!",
+    "choose_payment": "Ödəniş üsulunu seçin:",
+    "payment_instructions": "{product_name} üçün {amount} Stars ödəmək üçün aşağıdakı düyməni basın",
+    "thank_you": "Alış-verişiniz üçün təşəkkür edirik!",
+    "contact_support": "Kömək lazımdırsa, dəstək komandamızla əlaqə saxlayın."
+  }
+}
