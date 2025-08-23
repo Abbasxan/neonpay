@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neonpay"
-version = "0.1.0"
+version = "0.0.1"
 description = "Простая библиотека для приёма оплат звёздами (XTR) в Telegram-ботах на Pyrogram"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Abbas Sultanov", email = "youremail@example.com" }
+    { name = "Abbas Sultanov", email = "sultanov.abas@outlook.com" }
 ]
 keywords = ["telegram", "pyrogram", "payments", "stars", "xtr", "donations"]
 classifiers = [
