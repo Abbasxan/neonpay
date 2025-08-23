@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neon-stars-payments"
+version = "0.1.0"
+description = "Удобная библиотека для оплаты звёздами ⭐ в Telegram-ботах (Pyrogram)"
+authors = [
+  { name="Твоё Имя", email="you@example.com" }
+]
+readme = "README.md"
+license = {text = "MIT"}
+dependencies = ["pyrogram>=2.0.0"]
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/Abbasxan/neon-stars-payments"
