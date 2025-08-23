@@ -3,7 +3,7 @@
 </h2>
 
 <p align="center">
-  <img src="assets/neonpay-logo.jpg" width="150"/>
+  <img src="logo/neonpay-logo.jpg" width="150"/>
 </p>
 
 Библиотека для Telegram-ботов (Pyrogram), которая позволяет легко принимать оплату **звёздами (XTR)**.
