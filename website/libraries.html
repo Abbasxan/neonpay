@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supported Libraries - NEONPAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #1f2937;
+            --card: #f8fafc;
+            --card-foreground: #1f2937;
+            --primary: #6366f1;
+            --primary-foreground: #ffffff;
+            --secondary: #f8fafc;
+            --secondary-foreground: #1f2937;
+            --muted: #e5e7eb;
+            --muted-foreground: #6b7280;
+            --accent: #4ade80;
+            --accent-foreground: #1f2937;
+            --border: #d1d5db;
+            --radius: 0.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .content > p {
+            text-align: center;
+            color: var(--muted-foreground);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .libraries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .library-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .library-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .library-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: var(--primary-foreground);
+        }
+
+        .library-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .library-description {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .library-content {
+            padding: 1.5rem;
+        }
+
+        .library-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .library-features li {
+            padding: 0.25rem 0;
+            color: var(--muted-foreground);
+            font-size: 0.9rem;
+        }
+
+        .library-features li:before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .code-example {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            overflow-x: auto;
+        }
+
+        .code-example .comment {
+            color: #9ca3af;
+        }
+
+        .code-example .keyword {
+            color: #8b5cf6;
+        }
+
+        .code-example .string {
+            color: #10b981;
+        }
+
+        .installation-section {
+            background: var(--secondary);
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .installation-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--foreground);
+        }
+
+        .installation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .installation-card {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .installation-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .install-command {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--background);
+                flex-direction: column;
+                padding: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .content h1 {
+                font-size: 2rem;
+            }
+
+            .libraries-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .installation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="index.html" class="logo">
+                ⚡ NEONPAY
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="quick-start.html">Quick Start</a></li>
+                <li><a href="api-docs.html">API Docs</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="libraries.html" class="active">Libraries</a></li>
+            </ul>
+            <button class="mobile-menu" id="mobileMenu">☰</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="content">
+                <h1>Supported Libraries</h1>
+                <p>NEONPAY works seamlessly with all major Telegram bot libraries through our adapter system.</p>
+
+                <div class="libraries-grid">
+                    <div class="library-card">
+                        <div class="library-header">
+                            <div class="library-name">Aiogram v3</div>
+                            <div class="library-description">Modern async Telegram Bot API framework</div>
+                        </div>
+                        <div class="library-content">
+                            <ul class="library-features">
+                                <li>Full async/await support</li>
+                                <li>Type hints and modern Python features</li>
+                                <li>Built-in middleware system</li>
+                                <li>Webhook and polling support</li>
+                            </ul>
+                            <div class="code-example">
+<span class="keyword">from</span> aiogram <span class="keyword">import</span> Bot
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+bot = Bot(<span class="string">"TOKEN"</span>)
+neonpay = NeonPay.create_for_aiogram(bot)
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium"</span>, price=100
+)
+
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_payment(result):
+    <span class="comment"># Handle successful payment</span>
+    <span class="keyword">pass</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="library-card">
+                        <div class="library-header">
+                            <div class="library-name">Pyrogram v2+</div>
+                            <div class="library-description">Elegant, modern Telegram MTProto API framework</div>
+                        </div>
+                        <div class="library-content">
+                            <ul class="library-features">
+                                <li>MTProto and Bot API support</li>
+                                <li>Clean and intuitive API</li>
+                                <li>Excellent documentation</li>
+                                <li>User and bot account support</li>
+                            </ul>
+                            <div class="code-example">
+<span class="keyword">from</span> pyrogram <span class="keyword">import</span> Client
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+app = Client(<span class="string">"bot"</span>, bot_token=<span class="string">"TOKEN"</span>)
+neonpay = NeonPay.create_for_pyrogram(app)
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium"</span>, price=100
+)
+
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_payment(result):
+    <span class="comment"># Handle successful payment</span>
+    <span class="keyword">pass</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="library-card">
+                        <div class="library-header">
+                            <div class="library-name">python-telegram-bot</div>
+                            <div class="library-description">Pure Python Telegram Bot API wrapper</div>
+                        </div>
+                        <div class="library-content">
+                            <ul class="library-features">
+                                <li>Comprehensive Bot API coverage</li>
+                                <li>Excellent error handling</li>
+                                <li>Rich ecosystem of extensions</li>
+                                <li>Well-established and stable</li>
+                            </ul>
+                            <div class="code-example">
+<span class="keyword">from</span> telegram.ext <span class="keyword">import</span> Application
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+app = Application.builder().token(<span class="string">"TOKEN"</span>).build()
+neonpay = NeonPay.create_for_ptb(app)
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium"</span>, price=100
+)
+
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_payment(result):
+    <span class="comment"># Handle successful payment</span>
+    <span class="keyword">pass</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="library-card">
+                        <div class="library-header">
+                            <div class="library-name">pyTelegramBotAPI</div>
+                            <div class="library-description">Simple and lightweight Telegram Bot API wrapper</div>
+                        </div>
+                        <div class="library-content">
+                            <ul class="library-features">
+                                <li>Simple and easy to use</li>
+                                <li>Sync and async support</li>
+                                <li>Minimal dependencies</li>
+                                <li>Great for beginners</li>
+                            </ul>
+                            <div class="code-example">
+<span class="keyword">import</span> telebot
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+bot = telebot.TeleBot(<span class="string">"TOKEN"</span>)
+neonpay = NeonPay.create_for_telebot(bot)
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium"</span>, price=100
+)
+
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_payment(result):
+    <span class="comment"># Handle successful payment</span>
+    <span class="keyword">pass</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="library-card">
+                        <div class="library-header">
+                            <div class="library-name">Raw Telegram Bot API</div>
+                            <div class="library-description">Direct HTTP requests to Telegram Bot API</div>
+                        </div>
+                        <div class="library-content">
+                            <ul class="library-features">
+                                <li>No external dependencies</li>
+                                <li>Full control over requests</li>
+                                <li>Webhook support included</li>
+                                <li>Perfect for microservices</li>
+                            </ul>
+                            <div class="code-example">
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+neonpay = NeonPay.create_for_raw_api(<span class="string">"TOKEN"</span>)
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium"</span>, price=100
+)
+
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_payment(result):
+    <span class="comment"># Handle successful payment</span>
+    <span class="keyword">pass</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="library-card">
+                        <div class="library-header">
+                            <div class="library-name">Auto-Detection</div>
+                            <div class="library-description">Automatic library detection and adapter creation</div>
+                        </div>
+                        <div class="library-content">
+                            <ul class="library-features">
+                                <li>Automatically detects your bot library</li>
+                                <li>No need to specify adapter type</li>
+                                <li>Works with any supported library</li>
+                                <li>Simplifies integration process</li>
+                            </ul>
+                            <div class="code-example">
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+<span class="comment"># Works with any bot instance</span>
+neonpay = NeonPay.create_auto(your_bot_instance)
+
+<span class="comment"># Or detect from context</span>
+neonpay = NeonPay.auto_detect()
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium"</span>, price=100
+)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="installation-section">
+        <div class="container">
+            <h2>Installation & Setup</h2>
+            <div class="installation-grid">
+                <div class="installation-card">
+                    <h3>Basic Installation</h3>
+                    <p>Install NEONPAY with basic functionality:</p>
+                    <div class="install-command">pip install neonpay</div>
+                </div>
+
+                <div class="installation-card">
+                    <h3>With Aiogram</h3>
+                    <p>Install with Aiogram support:</p>
+                    <div class="install-command">pip install neonpay[aiogram]</div>
+                </div>
+
+                <div class="installation-card">
+                    <h3>With Pyrogram</h3>
+                    <p>Install with Pyrogram support:</p>
+                    <div class="install-command">pip install neonpay[pyrogram]</div>
+                </div>
+
+                <div class="installation-card">
+                    <h3>With python-telegram-bot</h3>
+                    <p>Install with PTB support:</p>
+                    <div class="install-command">pip install neonpay[ptb]</div>
+                </div>
+
+                <div class="installation-card">
+                    <h3>With pyTelegramBotAPI</h3>
+                    <p>Install with telebot support:</p>
+                    <div class="install-command">pip install neonpay[telebot]</div>
+                </div>
+
+                <div class="installation-card">
+                    <h3>All Libraries</h3>
+                    <p>Install with support for all libraries:</p>
+                    <div class="install-command">pip install neonpay[all]</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        navLinks.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                navLinks.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

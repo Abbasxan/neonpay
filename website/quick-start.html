@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start - NEONPAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #1f2937;
+            --card: #f8fafc;
+            --card-foreground: #1f2937;
+            --primary: #6366f1;
+            --primary-foreground: #ffffff;
+            --secondary: #f8fafc;
+            --secondary-foreground: #1f2937;
+            --muted: #e5e7eb;
+            --muted-foreground: #6b7280;
+            --accent: #4ade80;
+            --accent-foreground: #1f2937;
+            --border: #d1d5db;
+            --radius: 0.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            color: var(--muted-foreground);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            color: var(--primary);
+        }
+
+        .content {
+            background: var(--background);
+        }
+
+        .content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .content h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: var(--foreground);
+        }
+
+        .content h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.5rem 0;
+            color: var(--foreground);
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+        }
+
+        .code-block .keyword {
+            color: #8b5cf6;
+        }
+
+        .code-block .string {
+            color: #10b981;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .step {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin: 1rem 0;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--background);
+                flex-direction: column;
+                padding: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .content h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="index.html" class="logo">
+                ⚡ NEONPAY
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="quick-start.html" class="active">Quick Start</a></li>
+                <li><a href="api-docs.html">API Docs</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="libraries.html">Libraries</a></li>
+            </ul>
+            <button class="mobile-menu" id="mobileMenu">☰</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <aside class="sidebar">
+                <h3>Quick Start</h3>
+                <ul>
+                    <li><a href="#installation" class="active">Installation</a></li>
+                    <li><a href="#basic-setup">Basic Setup</a></li>
+                    <li><a href="#first-payment">First Payment</a></li>
+                    <li><a href="#handling-payments">Handling Payments</a></li>
+                    <li><a href="#next-steps">Next Steps</a></li>
+                </ul>
+            </aside>
+
+            <main class="content">
+                <h1>Quick Start Guide</h1>
+                <p>Get NEONPAY up and running in your Telegram bot in just a few minutes.</p>
+
+                <section id="installation">
+                    <h2>Installation</h2>
+                    <p>Install NEONPAY using pip:</p>
+                    <div class="code-block">pip install neonpay</div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Python Version:</strong> NEONPAY supports Python 3.9 and above.
+                    </div>
+                </section>
+
+                <section id="basic-setup">
+                    <h2>Basic Setup</h2>
+                    <p>NEONPAY works with all major Telegram bot libraries. Here's how to set it up:</p>
+
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Import and Initialize</strong>
+                        <div class="code-block">
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+<span class="keyword">from</span> aiogram <span class="keyword">import</span> Bot
+
+bot = Bot(<span class="string">"YOUR_BOT_TOKEN"</span>)
+neonpay = NeonPay.create_for_aiogram(bot)
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Create Payment Stage</strong>
+                        <div class="code-block">
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium Access"</span>,
+    description=<span class="string">"Unlock all premium features"</span>,
+    price=100,  <span class="comment"># 100 Telegram Stars (XTR)</span>
+    logo_url=<span class="string">"https://example.com/logo.png"</span>
+)
+                        </div>
+                    </div>
+                </section>
+
+                <section id="first-payment">
+                    <h2>Your First Payment</h2>
+                    <p>Create a simple payment handler:</p>
+
+                    <div class="code-block">
+<span class="keyword">from</span> aiogram <span class="keyword">import</span> Router
+<span class="keyword">from</span> aiogram.types <span class="keyword">import</span> Message
+<span class="keyword">from</span> aiogram.filters <span class="keyword">import</span> Command
+
+router = Router()
+
+@router.message(Command(<span class="string">"buy"</span>))
+<span class="keyword">async def</span> buy_premium(message: Message):
+    <span class="comment"># Send payment invoice</span>
+    <span class="keyword">await</span> neonpay.send_payment(message.chat.id, stage)
+
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_premium_payment(payment_result):
+    <span class="comment"># User successfully paid - grant premium access</span>
+    user_id = payment_result.user_id
+    <span class="keyword">await</span> payment_result.message.answer(
+        <span class="string">"🎉 Welcome to Premium! You now have access to all features."</span>
+    )
+    
+    <span class="comment"># Your logic here: save to database, update user status, etc.</span>
+                    </div>
+                </section>
+
+                <section id="handling-payments">
+                    <h2>Handling Payments</h2>
+                    <p>NEONPAY provides several ways to handle payment results:</p>
+
+                    <h3>Using Decorators</h3>
+                    <div class="code-block">
+@neonpay.payment_handler(stage)
+<span class="keyword">async def</span> handle_payment(payment_result):
+    <span class="comment"># Automatic handling for specific stage</span>
+    <span class="keyword">print</span>(<span class="string">f"Payment received: {payment_result.amount} XTR"</span>)
+                    </div>
+
+                    <h3>Using Callbacks</h3>
+                    <div class="code-block">
+<span class="keyword">async def</span> payment_callback(payment_result):
+    <span class="comment"># Custom callback function</span>
+    <span class="keyword">await</span> send_premium_content(payment_result.user_id)
+
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium Content"</span>,
+    price=50,
+    callback=payment_callback
+)
+                    </div>
+
+                    <h3>Manual Handling</h3>
+                    <div class="code-block">
+<span class="comment"># Listen to all payments</span>
+@neonpay.on_payment
+<span class="keyword">async def</span> handle_any_payment(payment_result):
+    stage_title = payment_result.stage.title
+    <span class="keyword">if</span> stage_title == <span class="string">"Premium Access"</span>:
+        <span class="comment"># Handle premium access</span>
+        <span class="keyword">pass</span>
+    <span class="keyword">elif</span> stage_title == <span class="string">"Digital Product"</span>:
+        <span class="comment"># Handle digital product</span>
+        <span class="keyword">pass</span>
+                    </div>
+                </section>
+
+                <section id="next-steps">
+                    <h2>Next Steps</h2>
+                    <p>Now that you have basic payments working, explore more features:</p>
+
+                    <ul style="margin-left: 2rem; margin-bottom: 2rem;">
+                        <li><a href="api-docs.html">📚 Full API Documentation</a></li>
+                        <li><a href="examples.html">💡 More Examples</a></li>
+                        <li><a href="libraries.html">🔧 Other Library Integrations</a></li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Make sure to test your payments in a development environment before going live. Use Telegram's test environment for testing.
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Sidebar navigation
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        const sections = document.querySelectorAll('section');
+
+        // Update active link on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 150;
+                if (window.pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth scrolling for sidebar links
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - NEONPAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #1f2937;
+            --card: #f8fafc;
+            --card-foreground: #1f2937;
+            --primary: #6366f1;
+            --primary-foreground: #ffffff;
+            --secondary: #f8fafc;
+            --secondary-foreground: #1f2937;
+            --muted: #e5e7eb;
+            --muted-foreground: #6b7280;
+            --accent: #4ade80;
+            --accent-foreground: #1f2937;
+            --border: #d1d5db;
+            --radius: 0.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .sidebar {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            color: var(--muted-foreground);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            color: var(--primary);
+        }
+
+        .content {
+            background: var(--background);
+        }
+
+        .content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .content h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            color: var(--foreground);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .content h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.5rem 0;
+            color: var(--foreground);
+        }
+
+        .content h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem 0;
+            color: var(--primary);
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .method-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .method-signature {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+        }
+
+        .code-block .keyword {
+            color: #8b5cf6;
+        }
+
+        .code-block .string {
+            color: #10b981;
+        }
+
+        .parameters {
+            margin: 1rem 0;
+        }
+
+        .parameter {
+            background: var(--secondary);
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+        }
+
+        .parameter-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .parameter-type {
+            color: var(--muted-foreground);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .returns {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .returns h4 {
+            color: #15803d;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--background);
+                flex-direction: column;
+                padding: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .content h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="index.html" class="logo">
+                ⚡ NEONPAY
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="quick-start.html">Quick Start</a></li>
+                <li><a href="api-docs.html" class="active">API Docs</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="libraries.html">Libraries</a></li>
+            </ul>
+            <button class="mobile-menu" id="mobileMenu">☰</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <aside class="sidebar">
+                <h3>Core Classes</h3>
+                <ul>
+                    <li><a href="#neonpay-class">NeonPay</a></li>
+                    <li><a href="#payment-stage">PaymentStage</a></li>
+                    <li><a href="#payment-result">PaymentResult</a></li>
+                </ul>
+
+                <h3>Methods</h3>
+                <ul>
+                    <li><a href="#create-for-library">create_for_*</a></li>
+                    <li><a href="#create-stage">create_stage</a></li>
+                    <li><a href="#send-payment">send_payment</a></li>
+                    <li><a href="#payment-handler">payment_handler</a></li>
+                </ul>
+
+                <h3>Utilities</h3>
+                <ul>
+                    <li><a href="#validation">Validation</a></li>
+                    <li><a href="#logging">Logging</a></li>
+                    <li><a href="#middleware">Middleware</a></li>
+                </ul>
+            </aside>
+
+            <main class="content">
+                <h1>API Documentation</h1>
+                <p>Complete reference for all NEONPAY classes, methods, and utilities.</p>
+
+                <section id="neonpay-class">
+                    <h2>NeonPay Class</h2>
+                    <p>The main class for handling Telegram bot payments.</p>
+
+                    <div class="method-card">
+                        <h4>Factory Methods</h4>
+                        <div class="method-signature">
+@classmethod
+def create_for_aiogram(cls, bot: Bot) -> NeonPay
+@classmethod  
+def create_for_pyrogram(cls, client: Client) -> NeonPay
+@classmethod
+def create_for_ptb(cls, application: Application) -> NeonPay
+@classmethod
+def create_for_telebot(cls, bot: TeleBot) -> NeonPay
+@classmethod
+def create_for_raw_api(cls, bot_token: str) -> NeonPay
+                        </div>
+                        <p>Create a NeonPay instance for your specific bot library.</p>
+
+                        <div class="parameters">
+                            <div class="parameter">
+                                <span class="parameter-name">bot/client/application</span>
+                                <span class="parameter-type">Bot instance from your library</span>
+                                <p>Your bot instance from the respective library.</p>
+                            </div>
+                        </div>
+
+                        <div class="returns">
+                            <h4>Returns</h4>
+                            <p><strong>NeonPay:</strong> Configured NeonPay instance</p>
+                        </div>
+
+                        <div class="code-block">
+<span class="comment"># Aiogram example</span>
+<span class="keyword">from</span> aiogram <span class="keyword">import</span> Bot
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+bot = Bot(<span class="string">"YOUR_TOKEN"</span>)
+neonpay = NeonPay.create_for_aiogram(bot)
+                        </div>
+                    </div>
+                </section>
+
+                <section id="payment-stage">
+                    <h2>PaymentStage Class</h2>
+                    <p>Represents a payment stage with product information.</p>
+
+                    <div class="method-card">
+                        <h4>Constructor</h4>
+                        <div class="method-signature">
+PaymentStage(
+    title: str,
+    description: str,
+    price: int,
+    logo_url: Optional[str] = None,
+    callback: Optional[Callable] = None
+)
+                        </div>
+
+                        <div class="parameters">
+                            <div class="parameter">
+                                <span class="parameter-name">title</span>
+                                <span class="parameter-type">str</span>
+                                <p>Product or service title</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">description</span>
+                                <span class="parameter-type">str</span>
+                                <p>Detailed description of the product</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">price</span>
+                                <span class="parameter-type">int</span>
+                                <p>Price in Telegram Stars (XTR)</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">logo_url</span>
+                                <span class="parameter-type">Optional[str]</span>
+                                <p>URL to product logo/image</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">callback</span>
+                                <span class="parameter-type">Optional[Callable]</span>
+                                <p>Function to call when payment is successful</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="payment-result">
+                    <h2>PaymentResult Class</h2>
+                    <p>Contains information about a completed payment.</p>
+
+                    <div class="method-card">
+                        <h4>Properties</h4>
+                        <div class="parameters">
+                            <div class="parameter">
+                                <span class="parameter-name">user_id</span>
+                                <span class="parameter-type">int</span>
+                                <p>Telegram user ID who made the payment</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">amount</span>
+                                <span class="parameter-type">int</span>
+                                <p>Payment amount in Telegram Stars</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">stage</span>
+                                <span class="parameter-type">PaymentStage</span>
+                                <p>The payment stage that was purchased</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">message</span>
+                                <span class="parameter-type">Message</span>
+                                <p>Original message object from the bot library</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">payment_id</span>
+                                <span class="parameter-type">str</span>
+                                <p>Unique payment identifier</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="create-stage">
+                    <h2>create_stage Method</h2>
+                    <div class="method-card">
+                        <div class="method-signature">
+def create_stage(
+    self,
+    title: str,
+    description: str,
+    price: int,
+    logo_url: Optional[str] = None,
+    callback: Optional[Callable] = None
+) -> PaymentStage
+                        </div>
+                        <p>Create a new payment stage.</p>
+
+                        <div class="code-block">
+stage = neonpay.create_stage(
+    title=<span class="string">"Premium Subscription"</span>,
+    description=<span class="string">"Get access to premium features for 1 month"</span>,
+    price=500,  <span class="comment"># 500 XTR</span>
+    logo_url=<span class="string">"https://example.com/premium-logo.png"</span>
+)
+                        </div>
+                    </div>
+                </section>
+
+                <section id="send-payment">
+                    <h2>send_payment Method</h2>
+                    <div class="method-card">
+                        <div class="method-signature">
+async def send_payment(
+    self,
+    chat_id: int,
+    stage: PaymentStage
+) -> None
+                        </div>
+                        <p>Send a payment invoice to the user.</p>
+
+                        <div class="parameters">
+                            <div class="parameter">
+                                <span class="parameter-name">chat_id</span>
+                                <span class="parameter-type">int</span>
+                                <p>Telegram chat ID to send the invoice to</p>
+                            </div>
+                            <div class="parameter">
+                                <span class="parameter-name">stage</span>
+                                <span class="parameter-type">PaymentStage</span>
+                                <p>Payment stage to send</p>
+                            </div>
+                        </div>
+
+                        <div class="code-block">
+<span class="comment"># Send payment invoice</span>
+<span class="keyword">await</span> neonpay.send_payment(message.chat.id, stage)
+                        </div>
+                    </div>
+                </section>
+
+                <section id="payment-handler">
+                    <h2>payment_handler Decorator</h2>
+                    <div class="method-card">
+                        <div class="method-signature">
+def payment_handler(self, stage: PaymentStage)
+                        </div>
+                        <p>Decorator to handle payments for a specific stage.</p>
+
+                        <div class="code-block">
+@neonpay.payment_handler(premium_stage)
+<span class="keyword">async def</span> handle_premium_payment(payment_result: PaymentResult):
+    <span class="comment"># Grant premium access</span>
+    user_id = payment_result.user_id
+    <span class="keyword">await</span> grant_premium_access(user_id)
+    
+    <span class="keyword">await</span> payment_result.message.answer(
+        <span class="string">"🎉 Premium access activated!"</span>
+    )
+                        </div>
+                    </div>
+                </section>
+
+                <section id="validation">
+                    <h2>Validation Utilities</h2>
+                    <p>Built-in validation for payment data.</p>
+
+                    <div class="method-card">
+                        <h4>PaymentValidator</h4>
+                        <div class="code-block">
+<span class="keyword">from</span> neonpay.utils <span class="keyword">import</span> PaymentValidator
+
+<span class="comment"># Validate payment stage</span>
+validator = PaymentValidator()
+is_valid = validator.validate_stage(stage)
+
+<span class="comment"># Validate price</span>
+is_valid_price = validator.validate_price(100)  <span class="comment"># True for positive integers</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="logging">
+                    <h2>Logging</h2>
+                    <p>Built-in logging for payment operations.</p>
+
+                    <div class="method-card">
+                        <h4>NeonPayLogger</h4>
+                        <div class="code-block">
+<span class="keyword">from</span> neonpay.utils <span class="keyword">import</span> NeonPayLogger
+
+<span class="comment"># Enable logging</span>
+logger = NeonPayLogger()
+logger.log_payment_sent(stage, user_id)
+logger.log_payment_received(payment_result)
+                        </div>
+                    </div>
+                </section>
+
+                <section id="middleware">
+                    <h2>Middleware System</h2>
+                    <p>Extend NEONPAY functionality with middleware.</p>
+
+                    <div class="method-card">
+                        <h4>Creating Middleware</h4>
+                        <div class="code-block">
+<span class="keyword">from</span> neonpay.middleware <span class="keyword">import</span> PaymentMiddleware
+
+<span class="keyword">class</span> LoggingMiddleware(PaymentMiddleware):
+    <span class="keyword">async def</span> before_payment(self, stage, user_id):
+        <span class="keyword">print</span>(<span class="string">f"Payment starting for user {user_id}"</span>)
+    
+    <span class="keyword">async def</span> after_payment(self, payment_result):
+        <span class="keyword">print</span>(<span class="string">f"Payment completed: {payment_result.amount} XTR"</span>)
+
+<span class="comment"># Add middleware</span>
+neonpay.add_middleware(LoggingMiddleware())
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Sidebar navigation
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        const sections = document.querySelectorAll('section');
+
+        // Update active link on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 150;
+                if (window.pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth scrolling for sidebar links
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

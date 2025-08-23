@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - NEONPAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #1f2937;
+            --card: #f8fafc;
+            --card-foreground: #1f2937;
+            --primary: #6366f1;
+            --primary-foreground: #ffffff;
+            --secondary: #f8fafc;
+            --secondary-foreground: #1f2937;
+            --muted: #e5e7eb;
+            --muted-foreground: #6b7280;
+            --accent: #4ade80;
+            --accent-foreground: #1f2937;
+            --border: #d1d5db;
+            --radius: 0.5rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .content p {
+            text-align: center;
+            color: var(--muted-foreground);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .example-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .example-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .example-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .example-description {
+            color: var(--muted-foreground);
+            font-size: 0.9rem;
+        }
+
+        .example-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+        }
+
+        .code-block .keyword {
+            color: #8b5cf6;
+        }
+
+        .code-block .string {
+            color: #10b981;
+        }
+
+        .code-block .function {
+            color: #60a5fa;
+        }
+
+        .use-cases {
+            background: var(--secondary);
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .use-cases h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--foreground);
+        }
+
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .use-case {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .use-case h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .use-case p {
+            color: var(--muted-foreground);
+            font-size: 0.9rem;
+            text-align: left;
+            margin-bottom: 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--background);
+                flex-direction: column;
+                padding: 1rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .content h1 {
+                font-size: 2rem;
+            }
+
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .use-cases-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="index.html" class="logo">
+                ⚡ NEONPAY
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="quick-start.html">Quick Start</a></li>
+                <li><a href="api-docs.html">API Docs</a></li>
+                <li><a href="examples.html" class="active">Examples</a></li>
+                <li><a href="libraries.html">Libraries</a></li>
+            </ul>
+            <button class="mobile-menu" id="mobileMenu">☰</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="content">
+                <h1>Code Examples</h1>
+                <p>Real-world examples showing how to integrate NEONPAY into your Telegram bots.</p>
+
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <div class="example-header">
+                            <div class="example-title">Simple Premium Access</div>
+                            <div class="example-description">Basic premium subscription with Aiogram</div>
+                            <div class="example-tags">
+                                <span class="tag">Aiogram</span>
+                                <span class="tag">Premium</span>
+                            </div>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">from</span> aiogram <span class="keyword">import</span> Bot, Dispatcher, Router
+<span class="keyword">from</span> aiogram.types <span class="keyword">import</span> Message
+<span class="keyword">from</span> aiogram.filters <span class="keyword">import</span> Command
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+bot = Bot(<span class="string">"YOUR_BOT_TOKEN"</span>)
+dp = Dispatcher()
+router = Router()
+
+<span class="comment"># Initialize NEONPAY</span>
+neonpay = NeonPay.create_for_aiogram(bot)
+
+<span class="comment"># Create premium stage</span>
+premium_stage = neonpay.create_stage(
+    title=<span class="string">"Premium Access"</span>,
+    description=<span class="string">"Unlock all premium features"</span>,
+    price=100,  <span class="comment"># 100 XTR</span>
+    logo_url=<span class="string">"https://example.com/premium.png"</span>
+)
+
+@router.message(Command(<span class="string">"premium"</span>))
+<span class="keyword">async def</span> <span class="function">buy_premium</span>(message: Message):
+    <span class="keyword">await</span> neonpay.send_payment(message.chat.id, premium_stage)
+
+@neonpay.payment_handler(premium_stage)
+<span class="keyword">async def</span> <span class="function">handle_premium</span>(payment_result):
+    user_id = payment_result.user_id
+    <span class="comment"># Grant premium access logic here</span>
+    <span class="keyword">await</span> payment_result.message.answer(
+        <span class="string">"🎉 Premium activated! Welcome to Premium!"</span>
+    )
+
+dp.include_router(router)
+                        </div>
+                    </div>
+
+                    <div class="example-card">
+                        <div class="example-header">
+                            <div class="example-title">Digital Store</div>
+                            <div class="example-description">Multiple products with Pyrogram</div>
+                            <div class="example-tags">
+                                <span class="tag">Pyrogram</span>
+                                <span class="tag">Store</span>
+                            </div>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">from</span> pyrogram <span class="keyword">import</span> Client, filters
+<span class="keyword">from</span> pyrogram.types <span class="keyword">import</span> Message, InlineKeyboardMarkup, InlineKeyboardButton
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+app = Client(<span class="string">"my_bot"</span>, bot_token=<span class="string">"YOUR_TOKEN"</span>)
+neonpay = NeonPay.create_for_pyrogram(app)
+
+<span class="comment"># Create product stages</span>
+products = {
+    <span class="string">"ebook"</span>: neonpay.create_stage(
+        title=<span class="string">"Python E-Book"</span>,
+        description=<span class="string">"Complete Python programming guide"</span>,
+        price=50
+    ),
+    <span class="string">"course"</span>: neonpay.create_stage(
+        title=<span class="string">"Video Course"</span>,
+        description=<span class="string">"10-hour Python video course"</span>,
+        price=200
+    ),
+    <span class="string">"template"</span>: neonpay.create_stage(
+        title=<span class="string">"Bot Template"</span>,
+        description=<span class="string">"Ready-to-use Telegram bot template"</span>,
+        price=75
+    )
+}
+
+@app.on_message(filters.command(<span class="string">"store"</span>))
+<span class="keyword">async def</span> <span class="function">show_store</span>(client, message: Message):
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(<span class="string">"📚 E-Book (50 XTR)"</span>, callback_data=<span class="string">"buy_ebook"</span>)],
+        [InlineKeyboardButton(<span class="string">"🎥 Course (200 XTR)"</span>, callback_data=<span class="string">"buy_course"</span>)],
+        [InlineKeyboardButton(<span class="string">"🤖 Template (75 XTR)"</span>, callback_data=<span class="string">"buy_template"</span>)]
+    ])
+    <span class="keyword">await</span> message.reply(<span class="string">"🛍️ Welcome to our store!"</span>, reply_markup=keyboard)
+
+@app.on_callback_query(filters.regex(<span class="string">r"buy_(\w+)"</span>))
+<span class="keyword">async def</span> <span class="function">handle_purchase</span>(client, callback_query):
+    product_key = callback_query.data.split(<span class="string">"_"</span>)[1]
+    stage = products[product_key]
+    <span class="keyword">await</span> neonpay.send_payment(callback_query.message.chat.id, stage)
+
+@neonpay.payment_handler(products[<span class="string">"ebook"</span>])
+<span class="keyword">async def</span> <span class="function">deliver_ebook</span>(payment_result):
+    <span class="keyword">await</span> payment_result.message.answer_document(
+        document=<span class="string">"ebook.pdf"</span>,
+        caption=<span class="string">"📚 Here's your Python E-Book! Enjoy learning!"</span>
+    )
+                        </div>
+                    </div>
+
+                    <div class="example-card">
+                        <div class="example-header">
+                            <div class="example-title">Subscription System</div>
+                            <div class="example-description">Monthly subscriptions with python-telegram-bot</div>
+                            <div class="example-tags">
+                                <span class="tag">PTB</span>
+                                <span class="tag">Subscription</span>
+                            </div>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">from</span> telegram.ext <span class="keyword">import</span> Application, CommandHandler, CallbackQueryHandler
+<span class="keyword">from</span> telegram <span class="keyword">import</span> Update, InlineKeyboardMarkup, InlineKeyboardButton
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+<span class="keyword">import</span> datetime
+
+application = Application.builder().token(<span class="string">"YOUR_TOKEN"</span>).build()
+neonpay = NeonPay.create_for_ptb(application)
+
+<span class="comment"># Subscription plans</span>
+plans = {
+    <span class="string">"monthly"</span>: neonpay.create_stage(
+        title=<span class="string">"Monthly Premium"</span>,
+        description=<span class="string">"Premium access for 1 month"</span>,
+        price=300
+    ),
+    <span class="string">"yearly"</span>: neonpay.create_stage(
+        title=<span class="string">"Yearly Premium"</span>,
+        description=<span class="string">"Premium access for 1 year (2 months free!)"</span>,
+        price=3000
+    )
+}
+
+<span class="keyword">async def</span> <span class="function">subscribe_command</span>(update: Update, context):
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(<span class="string">"📅 Monthly (300 XTR)"</span>, callback_data=<span class="string">"sub_monthly"</span>)],
+        [InlineKeyboardButton(<span class="string">"📆 Yearly (3000 XTR)"</span>, callback_data=<span class="string">"sub_yearly"</span>)]
+    ])
+    <span class="keyword">await</span> update.message.reply_text(
+        <span class="string">"Choose your subscription plan:"</span>,
+        reply_markup=keyboard
+    )
+
+<span class="keyword">async def</span> <span class="function">handle_subscription</span>(update: Update, context):
+    query = update.callback_query
+    plan_type = query.data.split(<span class="string">"_"</span>)[1]
+    stage = plans[plan_type]
+    <span class="keyword">await</span> neonpay.send_payment(query.message.chat_id, stage)
+
+@neonpay.payment_handler(plans[<span class="string">"monthly"</span>])
+<span class="keyword">async def</span> <span class="function">activate_monthly</span>(payment_result):
+    user_id = payment_result.user_id
+    expiry = datetime.datetime.now() + datetime.timedelta(days=30)
+    <span class="comment"># Save subscription to database</span>
+    <span class="keyword">await</span> save_subscription(user_id, <span class="string">"monthly"</span>, expiry)
+    <span class="keyword">await</span> payment_result.message.reply_text(
+        <span class="string">"✅ Monthly subscription activated until "</span> + expiry.strftime(<span class="string">"%Y-%m-%d"</span>)
+    )
+
+application.add_handler(CommandHandler(<span class="string">"subscribe"</span>, subscribe_command))
+application.add_handler(CallbackQueryHandler(handle_subscription, pattern=<span class="string">r"sub_\w+"</span>))
+                        </div>
+                    </div>
+
+                    <div class="example-card">
+                        <div class="example-header">
+                            <div class="example-title">Donation Bot</div>
+                            <div class="example-description">Flexible donations with pyTelegramBotAPI</div>
+                            <div class="example-tags">
+                                <span class="tag">telebot</span>
+                                <span class="tag">Donations</span>
+                            </div>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">import</span> telebot
+<span class="keyword">from</span> telebot.types <span class="keyword">import</span> InlineKeyboardMarkup, InlineKeyboardButton
+<span class="keyword">from</span> neonpay <span class="keyword">import</span> NeonPay
+
+bot = telebot.TeleBot(<span class="string">"YOUR_TOKEN"</span>)
+neonpay = NeonPay.create_for_telebot(bot)
+
+<span class="comment"># Donation amounts</span>
+donations = {
+    <span class="string">"small"</span>: neonpay.create_stage(
+        title=<span class="string">"Small Donation"</span>,
+        description=<span class="string">"Support our project with a small donation"</span>,
+        price=25
+    ),
+    <span class="string">"medium"</span>: neonpay.create_stage(
+        title=<span class="string">"Medium Donation"</span>,
+        description=<span class="string">"Help us grow with a medium donation"</span>,
+        price=100
+    ),
+    <span class="string">"large"</span>: neonpay.create_stage(
+        title=<span class="string">"Large Donation"</span>,
+        description=<span class="string">"Make a big impact with a large donation"</span>,
+        price=500
+    )
+}
+
+@bot.message_handler(commands=[<span class="string">'donate'</span>])
+<span class="keyword">def</span> <span class="function">donate_command</span>(message):
+    keyboard = InlineKeyboardMarkup()
+    keyboard.row(
+        InlineKeyboardButton(<span class="string">"☕ Small (25 XTR)"</span>, callback_data=<span class="string">"donate_small"</span>),
+        InlineKeyboardButton(<span class="string">"🍕 Medium (100 XTR)"</span>, callback_data=<span class="string">"donate_medium"</span>)
+    )
+    keyboard.row(
+        InlineKeyboardButton(<span class="string">"🎁 Large (500 XTR)"</span>, callback_data=<span class="string">"donate_large"</span>)
+    )
+    bot.reply_to(message, <span class="string">"💝 Thank you for considering a donation!"</span>, reply_markup=keyboard)
+
+@bot.callback_query_handler(<span class="keyword">func</span>=<span class="keyword">lambda</span> call: call.data.startswith(<span class="string">'donate_'</span>))
+<span class="keyword">def</span> <span class="function">handle_donation</span>(call):
+    amount_type = call.data.split(<span class="string">'_'</span>)[1]
+    stage = donations[amount_type]
+    neonpay.send_payment_sync(call.message.chat.id, stage)
+
+@neonpay.payment_handler(donations[<span class="string">"small"</span>])
+<span class="keyword">async def</span> <span class="function">thank_small_donor</span>(payment_result):
+    <span class="keyword">await</span> payment_result.message.reply_text(
+        <span class="string">"☕ Thank you for your small donation! Every bit helps!"</span>
+    )
+
+@neonpay.on_payment
+<span class="keyword">async def</span> <span class="function">log_all_donations</span>(payment_result):
+    <span class="comment"># Log all donations to database/file</span>
+    <span class="keyword">print</span>(<span class="string">f"Donation received: {payment_result.amount} XTR from user {payment_result.user_id}"</span>)
+
+bot.infinity_polling()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="use-cases">
+        <div class="container">
+            <h2>Common Use Cases</h2>
+            <div class="use-cases-grid">
+                <div class="use-case">
+                    <h3>🎯 Premium Features</h3>
+                    <p>Unlock advanced bot features, remove rate limits, or provide exclusive content to paying users.</p>
+                </div>
+                <div class="use-case">
+                    <h3>📚 Digital Products</h3>
+                    <p>Sell e-books, courses, templates, or any digital content directly through your bot.</p>
+                </div>
+                <div class="use-case">
+                    <h3>💝 Donations</h3>
+                    <p>Accept donations to support your project, with flexible amounts and thank-you messages.</p>
+                </div>
+                <div class="use-case">
+                    <h3>📅 Subscriptions</h3>
+                    <p>Implement monthly or yearly subscriptions with automatic access management.</p>
+                </div>
+                <div class="use-case">
+                    <h3>🎮 Game Items</h3>
+                    <p>Sell in-game items, power-ups, or virtual currency for Telegram-based games.</p>
+                </div>
+                <div class="use-case">
+                    <h3>🔧 Services</h3>
+                    <p>Charge for bot services like file conversion, API access, or custom processing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        navLinks.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                navLinks.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
