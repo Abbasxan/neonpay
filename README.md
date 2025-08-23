@@ -34,11 +34,11 @@ pip install neonpay
 
 ```python
 from pyrogram import Client, filters
-from neon_stars_payments import send_invoice
+from neonpay import send_invoice
 
 app = Client("stars_bot", api_id=12345, api_hash="your_api_hash", bot_token="YOUR_BOT_TOKEN")
 
-@app.on_message(filters.command("donate") & filters.private)
+@app.on_message(filters.command("donate"))
 async def donate_handler(client, message):
     await send_invoice(
         client=client,
