@@ -21,13 +21,13 @@
 
 ### Installation
 
-\`\`\`bash
+```bash
 pip install neonpay
-\`\`\`
+```
 
 ### Basic Usage
 
-\`\`\`python
+```python
 from neonpay import create_neonpay, PaymentStage
 
 # Works with any bot library - automatic detection!
@@ -51,62 +51,67 @@ await neonpay.send_payment(user_id=12345, stage_id="premium")
 @neonpay.on_payment
 async def handle_payment(result):
     print(f"Payment received: {result.amount} stars from user {result.user_id}")
-\`\`\`
+```
 
 ## 📚 Library Support
 
 NEONPAY automatically detects your bot library and creates the appropriate adapter:
 
 ### Pyrogram
-\`\`\`python
+
+```python
 from pyrogram import Client
 from neonpay import create_neonpay
 
 app = Client("my_bot", bot_token="YOUR_TOKEN")
 neonpay = create_neonpay(app)
-\`\`\`
+```
 
 ### Aiogram
-\`\`\`python
+
+```python
 from aiogram import Bot, Dispatcher
 from neonpay import create_neonpay
 
 bot = Bot(token="YOUR_TOKEN")
 dp = Dispatcher()
 neonpay = create_neonpay(bot, dp)  # Pass dispatcher for aiogram
-\`\`\`
+```
 
 ### python-telegram-bot
-\`\`\`python
+
+```python
 from telegram.ext import Application
 from neonpay import create_neonpay
 
 application = Application.builder().token("YOUR_TOKEN").build()
 neonpay = create_neonpay(application)
-\`\`\`
+```
 
 ### pyTelegramBotAPI
-\`\`\`python
+
+```python
 import telebot
 from neonpay import create_neonpay
 
 bot = telebot.TeleBot("YOUR_TOKEN")
 neonpay = create_neonpay(bot)
-\`\`\`
+```
 
 ### Raw Bot API
-\`\`\`python
+
+```python
 from neonpay import RawAPIAdapter, NeonPayCore
 
 adapter = RawAPIAdapter("YOUR_TOKEN", webhook_url="https://yoursite.com/webhook")
 neonpay = NeonPayCore(adapter)
-\`\`\`
+```
 
 ## 🎯 Advanced Usage
 
 ### Custom Payment Stages
 
-\`\`\`python
+```python
 from neonpay import PaymentStage
 
 # Create detailed payment stage
@@ -120,11 +125,11 @@ premium_stage = PaymentStage(
 )
 
 neonpay.create_payment_stage("premium_monthly", premium_stage)
-\`\`\`
+```
 
 ### Payment Callbacks
 
-\`\`\`python
+```python
 from neonpay import PaymentResult, PaymentStatus
 
 @neonpay.on_payment
@@ -140,11 +145,11 @@ async def handle_payment(result: PaymentResult):
         
         # Your business logic here
         await grant_premium_access(user_id, metadata.get('plan'))
-\`\`\`
+```
 
 ### Multiple Payment Stages
 
-\`\`\`python
+```python
 # Create multiple payment options
 stages = {
     "basic": PaymentStage("Basic Plan", "Essential features", 100),
@@ -157,13 +162,13 @@ for stage_id, stage in stages.items():
 
 # Send different payments based on user choice
 await neonpay.send_payment(user_id, "premium")
-\`\`\`
+```
 
 ## 🔧 Configuration
 
 ### Error Handling
 
-\`\`\`python
+```python
 from neonpay import NeonPayError, PaymentError
 
 try:
@@ -172,16 +177,16 @@ except PaymentError as e:
     print(f"Payment error: {e}")
 except NeonPayError as e:
     print(f"NEONPAY error: {e}")
-\`\`\`
+```
 
 ### Logging
 
-\`\`\`python
+```python
 import logging
 
 # Enable NEONPAY logging
 logging.getLogger("neonpay").setLevel(logging.INFO)
-\`\`\`
+```
 
 ## 📖 Documentation
 
