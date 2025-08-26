@@ -10,17 +10,20 @@ NEONPAY Telegram Stars vasitəsilə ödənişləri botlarınıza inteqrasiya etm
 
 Ödənişləri idarə etmək üçün əsas sinif.
 
-\`\`\`python
-from neonpay import NeonPayCore
 
+python
+```
+from neonpay import NeonPayCore
+```
 # İnisializasiya
+```
 neonpay = NeonPayCore(bot_instance)
-\`\`\`
+```
 
 #### Metodlar
-
-##### `create_payment_stage(name, price, description=None, logo_url=None)`
-
+```
+create_payment_stage(name, price, description=None, logo_url=None)
+```
 Göstərilən parametrlərlə ödəniş mərhələsi yaradır.
 
 **Parametrlər:**
@@ -32,16 +35,20 @@ Göstərilən parametrlərlə ödəniş mərhələsi yaradır.
 **Qaytarır:** `PaymentStage`
 
 **Nümunə:**
-\`\`\`python
+python
+```
 stage = neonpay.create_payment_stage(
     name="Premium abunəlik",
     price=100,
     description="Bir ay premium funksiyalara giriş",
     logo_url="https://example.com/logo.png"
 )
-\`\`\`
+```
 
-##### `send_invoice(chat_id, payment_stage)`
+##### 
+```
+send_invoice(chat_id, payment_stage)
+```
 
 İstifadəçiyə faktura göndərir.
 
@@ -52,13 +59,17 @@ stage = neonpay.create_payment_stage(
 **Qaytarır:** `PaymentResult`
 
 **Nümunə:**
-\`\`\`python
+python
+```
 result = await neonpay.send_invoice(user_id, stage)
 if result.success:
     print("Faktura uğurla göndərildi")
-\`\`\`
+```
 
-##### `handle_successful_payment(payment_data)`
+#####
+```
+handle_successful_payment(payment_data)
+```
 
 Uğurlu ödənişi işləyir.
 
@@ -104,12 +115,13 @@ Uğurlu ödənişi işləyir.
 
 Botunuz üçün uyğun adapteri avtomatik yaradır.
 
-\`\`\`python
+python
+```
 from neonpay import AdapterFactory
 
 # Bot tipinin avtomatik təyini
 neonpay = AdapterFactory.create_neonpay(bot_instance)
-\`\`\`
+```
 
 #### Dəstəklənən Kitabxanalar
 
@@ -123,7 +135,8 @@ neonpay = AdapterFactory.create_neonpay(bot_instance)
 
 ### İstisnalar
 
-\`\`\`python
+python
+```
 from neonpay.errors import (
     NeonPayError,
     PaymentError,
@@ -137,7 +150,7 @@ except PaymentError as e:
     print(f"Ödəniş xətası: {e}")
 except NeonPayError as e:
     print(f"Ümumi NEONPAY xətası: {e}")
-\`\`\`
+```
 
 ## Yardımçı Vasitələr
 
@@ -145,7 +158,8 @@ except NeonPayError as e:
 
 Ödəniş məlumatlarının yoxlanması.
 
-\`\`\`python
+python
+```
 from neonpay.utils import PaymentValidator
 
 # Qiymətin yoxlanması
@@ -155,25 +169,27 @@ if PaymentValidator.validate_price(100):
 # Ödəniş mərhələsinin yoxlanması
 if PaymentValidator.validate_payment_stage(stage):
     print("Ödəniş mərhələsi düzgündür")
-\`\`\`
+```
 
 ### NeonPayLogger
 
 Loqlama sistemi.
 
-\`\`\`python
+python
+```
 from neonpay.utils import NeonPayLogger
 
 logger = NeonPayLogger("MyBot")
 logger.log_payment_attempt(user_id, stage.name, stage.price)
 logger.log_payment_success(payment_id, user_id)
-\`\`\`
+```
 
 ### PaymentHelper
 
 Yardımçı funksiyalar.
 
-\`\`\`python
+python
+```
 from neonpay.utils import PaymentHelper
 
 # Qiymətin formatlanması
@@ -185,7 +201,7 @@ payment_id = PaymentHelper.generate_payment_id()
 # URL yoxlanması
 if PaymentHelper.is_valid_url("https://example.com/logo.png"):
     print("URL düzgündür")
-\`\`\`
+```
 
 ## Middleware Sistemi
 
@@ -193,7 +209,8 @@ if PaymentHelper.is_valid_url("https://example.com/logo.png"):
 
 Middleware üçün əsas sinif.
 
-\`\`\`python
+python
+```
 from neonpay.middleware import PaymentMiddleware
 
 class LoggingMiddleware(PaymentMiddleware):
@@ -206,12 +223,14 @@ class LoggingMiddleware(PaymentMiddleware):
         return result
 
 # İstifadə
+
 neonpay.add_middleware(LoggingMiddleware())
-\`\`\`
+```
 
 ### Daxili Middleware
 
-\`\`\`python
+python
+```
 from neonpay.middleware import (
     LoggingMiddleware,
     ValidationMiddleware,
@@ -222,7 +241,7 @@ from neonpay.middleware import (
 neonpay.add_middleware(LoggingMiddleware())
 neonpay.add_middleware(ValidationMiddleware())
 neonpay.add_middleware(WebhookMiddleware("https://mysite.com/webhook"))
-\`\`\`
+```
 
 ## Webhook İnteqrasiyası
 
@@ -230,7 +249,8 @@ neonpay.add_middleware(WebhookMiddleware("https://mysite.com/webhook"))
 
 Webhook bildirişlərinin işlənməsi.
 
-\`\`\`python
+python
+```
 from neonpay.webhooks import WebhookHandler
 
 handler = WebhookHandler(secret_key="your_secret_key")
@@ -244,13 +264,14 @@ async def handle_webhook(request):
             # Uğurlu ödənişin işlənməsi
             print(f"Ödəniş {event.payment_id} uğurludur")
     return {"status": "ok"}
-\`\`\`
+```
 
 ## İstifadə Nümunələri
 
 ### Aiogram ilə Sadə Nümunə
 
-\`\`\`python
+python
+```
 from aiogram import Bot, Dispatcher, types
 from neonpay import AdapterFactory
 
@@ -278,11 +299,11 @@ async def pre_checkout_handler(query: types.PreCheckoutQuery):
 async def successful_payment_handler(message: types.Message):
     result = await neonpay.handle_successful_payment(message.successful_payment)
     await message.answer("Alış üçün təşəkkürlər! 🎉")
-\`\`\`
+```
 
 ### Pyrogram ilə Nümunə
-
-\`\`\`python
+python
+```
 from pyrogram import Client, filters
 from neonpay import AdapterFactory
 
@@ -305,7 +326,7 @@ async def buy_handler(client, message):
 async def payment_handler(client, message):
     result = await neonpay.handle_successful_payment(message.successful_payment)
     await message.reply("Ödəniş alındı! ✅")
-\`\`\`
+```
 
 ## Ən Yaxşı Təcrübələr
 
