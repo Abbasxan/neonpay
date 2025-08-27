@@ -12,6 +12,7 @@ from enum import Enum
 import logging
 
 from .localization import LocalizationManager, Language, _, get_localization_manager
+from ._version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +109,14 @@ class NeonPayCore:
     ):
         self.adapter = adapter
         self.localization = LocalizationManager(language)
-        self.thank_you_message = thank_you_message or self.localization.get("messages.thank_you")
+
+        if thank_you_message:
+            self.thank_you_message = thank_you_message
+            self._custom_thank_you = True
+        else:
+            self.thank_you_message = self.localization.get("messages.thank_you")
+            self._custom_thank_you = False
+
         self._payment_stages: Dict[str, PaymentStage] = {}
         self._payment_callbacks: List[Callable[[PaymentResult], None]] = []
         self._setup_complete = False
@@ -116,27 +124,14 @@ class NeonPayCore:
     def set_language(self, language: Union[Language, str]) -> None:
         """
         Change the language for all payment messages
-        
-        Args:
-            language: Language code or Language enum
         """
         self.localization.set_language(language)
-        # Update thank you message if it was using default
-        if not hasattr(self, '_custom_thank_you'):
+        if not self._custom_thank_you:
             self.thank_you_message = self.localization.get("messages.thank_you")
         logger.info(f"Language changed to: {self.localization.language.value}")
     
     def get_text(self, key: str, **kwargs) -> str:
-        """
-        Get localized text by key
-        
-        Args:
-            key: Translation key
-            **kwargs: Format arguments
-            
-        Returns:
-            Localized text
-        """
+        """Get localized text by key"""
         return self.localization.get(key, **kwargs)
 
     async def setup(self) -> None:
@@ -149,15 +144,20 @@ class NeonPayCore:
         logger.info(self.get_text("notifications.payment_started", amount="system"))
     
     def create_payment_stage(self, stage_id: str, stage: PaymentStage) -> None:
-        """
-        Create a new payment stage
-        
-        Args:
-            stage_id: Unique identifier for the payment stage
-            stage: PaymentStage configuration
-        """
+        """Create a new payment stage"""
         self._payment_stages[stage_id] = stage
         logger.info(f"Created payment stage: {stage_id}")
+    
+    def update_payment_stage(self, stage_id: str, **kwargs) -> bool:
+        """Update payment stage parameters"""
+        stage = self._payment_stages.get(stage_id)
+        if not stage:
+            return False
+        for key, value in kwargs.items():
+            if hasattr(stage, key):
+                setattr(stage, key, value)
+        logger.info(f"Updated payment stage: {stage_id}")
+        return True
     
     def get_payment_stage(self, stage_id: str) -> Optional[PaymentStage]:
         """Get payment stage by ID"""
@@ -176,16 +176,7 @@ class NeonPayCore:
         return False
     
     async def send_payment(self, user_id: int, stage_id: str) -> bool:
-        """
-        Send payment invoice to user
-        
-        Args:
-            user_id: Telegram user ID
-            stage_id: Payment stage identifier
-            
-        Returns:
-            True if invoice was sent successfully
-        """
+        """Send payment invoice to user"""
         if not self._setup_complete:
             await self.setup()
             
@@ -204,19 +195,13 @@ class NeonPayCore:
             return False
     
     def on_payment(self, callback: Callable[[PaymentResult], None]) -> None:
-        """
-        Register payment completion callback
-        
-        Args:
-            callback: Function to call when payment is completed
-        """
+        """Register payment completion callback"""
         self._payment_callbacks.append(callback)
     
     async def _handle_payment(self, result: PaymentResult) -> None:
         """Internal payment handler"""
         logger.info(self.get_text("notifications.payment_completed", amount=result.amount))
         
-        # Call all registered callbacks
         for callback in self._payment_callbacks:
             try:
                 if asyncio.iscoroutinefunction(callback):
@@ -224,11 +209,12 @@ class NeonPayCore:
                 else:
                     callback(result)
             except Exception as e:
-                logger.error(self.get_text("errors.unknown_error"))
+                logger.exception(self.get_text("errors.unknown_error") + f": {e}")
     
     def get_stats(self) -> Dict[str, Any]:
         """Get payment system statistics"""
         return {
+            "version": __version__,
             "total_stages": len(self._payment_stages),
             "registered_callbacks": len(self._payment_callbacks),
             "setup_complete": self._setup_complete,
