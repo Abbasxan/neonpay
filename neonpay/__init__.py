@@ -9,7 +9,7 @@ from .core import (
     PaymentStage,
     PaymentResult,
     PaymentStatus,
-    BotLibrary
+    BotLibrary,
 )
 
 # Adapters
@@ -18,7 +18,7 @@ from .adapters import (
     AiogramAdapter,
     PythonTelegramBotAdapter,
     TelebotAdapter,
-    RawAPIAdapter
+    RawAPIAdapter,
 )
 
 # Factory
@@ -31,43 +31,50 @@ from .errors import (
     ConfigurationError,
     AdapterError,
     ValidationError,
-    StarsPaymentError  # Legacy compatibility
+    StarsPaymentError,
 )
 
 # Legacy compatibility
 from .payments import NeonStars
 
-__version__ = "0.0.1"
+# Version & metadata
+from ._version import __version__, __version_info__, VERSION_HISTORY
+
 __author__ = "Abbas Sultanov"
 __email__ = "sultanov.abas@outlook.com"
 
 __all__ = [
     # Core
     "NeonPayCore",
-    "PaymentStage", 
+    "PaymentStage",
     "PaymentResult",
     "PaymentStatus",
     "BotLibrary",
-    
+
     # Adapters
     "PyrogramAdapter",
     "AiogramAdapter",
     "PythonTelegramBotAdapter",
     "TelebotAdapter",
     "RawAPIAdapter",
-    
+
     # Factory
     "AdapterFactory",
     "create_neonpay",
-    
+
     # Errors
     "NeonPayError",
     "PaymentError",
-    "ConfigurationError", 
+    "ConfigurationError",
     "AdapterError",
     "ValidationError",
     "StarsPaymentError",
-    
+
     # Legacy
-    "NeonStars"
+    "NeonStars",
+
+    # Version
+    "__version__",
+    "__version_info__",
+    "VERSION_HISTORY",
 ]
