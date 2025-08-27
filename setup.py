@@ -20,7 +20,7 @@ if version_file.exists():
         exec(f.read(), version_dict)
     version = version_dict.get("__version__", "1.0.0")
 else:
-    version = "1.0.0"
+    version = "0.0.1"
 
 # Read README for long description
 readme_file = Path(__file__).parent / "README.md"
