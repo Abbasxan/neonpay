@@ -37,7 +37,7 @@ from .errors import (
 # Legacy compatibility
 from .payments import NeonStars
 
-__version__ = "1.0.0"
+__version__ = "0.0.1"
 __author__ = "Abbas Sultanov"
 __email__ = "sultanov.abas@outlook.com"
 
