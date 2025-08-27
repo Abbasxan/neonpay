@@ -16,7 +16,7 @@ version_dict = {}
 if version_file.exists():
     with open(version_file, "r", encoding="utf-8") as f:
         exec(f.read(), version_dict)
-    version = version_dict.get("__version__", "1.0.1")  # 🔥 обновил дефолт
+    version = version_dict.get("__version__", "1.0.1")
 else:
     version = "1.0.1"
 
