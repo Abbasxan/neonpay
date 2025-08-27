@@ -1,11 +1,18 @@
 include README.md
 include LICENSE
 include pyproject.toml
+
 recursive-include neonpay *.py
 recursive-include neonpay *.pyi
+include neonpay/py.typed
+
 recursive-include docs *.md
 recursive-include docs *.rst
 recursive-include examples *.py
-recursive-exclude * __pycache__
+
+# Исключения
+recursive-exclude * __pycache__ 
 recursive-exclude * *.py[co]
 recursive-exclude * .DS_Store
+recursive-exclude * *.log
+recursive-exclude * *.tmp
