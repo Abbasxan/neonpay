@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neonpay"
-version = "1.0.0"
+version = "0.0.1"
 description = "Modern Python library for Telegram Stars (XTR) payments integration with support for Aiogram, Pyrogram, python-telegram-bot and more"
 readme = "README.md"
 license = { file = "LICENSE" }
