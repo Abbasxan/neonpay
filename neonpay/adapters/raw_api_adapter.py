@@ -1,12 +1,13 @@
 """
 Raw Telegram Bot API adapter for NEONPAY
-Direct integration with Telegram Bot API using HTTP requests
+Direct API integration without external bot libraries
 """
 
+import asyncio
 import json
-import aiohttp
-from typing import Dict, Any, Callable, Optional
 import logging
+from typing import Dict, Any, Optional
+import aiohttp
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -15,157 +16,123 @@ logger = logging.getLogger(__name__)
 
 
 class RawAPIAdapter(PaymentAdapter):
-    """Raw Telegram Bot API adapter for NEONPAY"""
+    """Raw Telegram Bot API adapter with enhanced error handling"""
     
-    def __init__(self, bot_token: str, webhook_url: Optional[str] = None):
+    def __init__(self, bot_token: str, webhook_url: Optional[str] = None, timeout: int = 30):
         """
         Initialize Raw API adapter
         
         Args:
             bot_token: Telegram bot token
-            webhook_url: Optional webhook URL for receiving updates
+            webhook_url: Optional webhook URL for payment notifications
+            timeout: HTTP request timeout in seconds
         """
         self.bot_token = bot_token
         self.webhook_url = webhook_url
+        self.timeout = timeout
         self.api_url = f"https://api.telegram.org/bot{bot_token}"
-        self._payment_callback: Optional[Callable[[PaymentResult], None]] = None
         self._session: Optional[aiohttp.ClientSession] = None
+        self._payment_callback: Optional[callable] = None
+        
+        # Configure timeout
+        self._timeout = aiohttp.ClientTimeout(total=timeout)
     
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session"""
-        if not self._session or self._session.closed:
-            self._session = aiohttp.ClientSession()
+        if self._session is None or self._session.closed:
+            self._session = aiohttp.ClientSession(timeout=self._timeout)
         return self._session
     
+    async def _make_api_request(self, method: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Make API request with enhanced error handling"""
+        session = await self._get_session()
+        
+        try:
+            async with session.post(f"{self.api_url}/{method}", data=data) as response:
+                if response.status != 200:
+                    raise NeonPayError(f"HTTP {response.status}: {response.reason}")
+                
+                result = await response.json()
+                
+                if not result.get("ok"):
+                    error_msg = result.get("description", "Unknown API error")
+                    raise NeonPayError(f"Telegram API error: {error_msg}")
+                
+                return result.get("result", {})
+                
+        except asyncio.TimeoutError:
+            raise NeonPayError("Request timeout. Please try again.")
+        except aiohttp.ClientError as e:
+            raise NeonPayError(f"Network error. Please check your connection: {e}")
+        except Exception as e:
+            raise NeonPayError(f"API error: {e}")
+    
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
-        """Send payment invoice using raw API"""
-        session = await self._get_session()
-        
-        # Prepare invoice data
-        data = {
-            "chat_id": user_id,
-            "title": stage.title,
-            "description": stage.description,
-            "payload": json.dumps({
-                "user_id": user_id,
-                "amount": stage.price,
-                **stage.payload
-            }),
-            "provider_token": "",  # Empty for Telegram Stars
-            "currency": "XTR",
-            "prices": json.dumps([{
-                "label": stage.label,
-                "amount": stage.price
-            }]),
-            "start_parameter": stage.start_parameter
-        }
-        
-        if stage.photo_url:
-            data["photo_url"] = stage.photo_url
-        
-        try:
-            async with session.post(f"{self.api_url}/sendInvoice", data=data) as response:
-                result = await response.json()
-                if result.get("ok"):
-                    return True
-                else:
-                    raise NeonPayError(f"API Error: {result.get('description', 'Unknown error')}")
-        except Exception as e:
-            raise NeonPayError(f"Failed to send invoice: {e}")
-    
-    async def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]) -> None:
-        """Setup webhook for payment handling"""
-        self._payment_callback = payment_callback
-        
-        if self.webhook_url:
-            await self._set_webhook()
-    
-    async def _set_webhook(self):
-        """Set webhook URL"""
-        session = await self._get_session()
-        
-        data = {"url": self.webhook_url}
-        
-        try:
-            async with session.post(f"{self.api_url}/setWebhook", data=data) as response:
-                result = await response.json()
-                if not result.get("ok"):
-                    logger.error(f"Failed to set webhook: {result.get('description')}")
-        except Exception as e:
-            logger.error(f"Error setting webhook: {e}")
-    
-    async def handle_webhook_update(self, update_data: Dict[str, Any]):
         """
-        Handle webhook update from Telegram
+        Send payment invoice using Telegram Bot API
         
-        This method should be called from your webhook handler
-        """
-        # Handle pre-checkout query
-        if "pre_checkout_query" in update_data:
-            await self._handle_pre_checkout_query(update_data["pre_checkout_query"])
-        
-        # Handle successful payment
-        if "message" in update_data and "successful_payment" in update_data["message"]:
-            await self._handle_successful_payment(update_data["message"])
-    
-    async def _handle_pre_checkout_query(self, pre_checkout_query: Dict[str, Any]):
-        """Handle pre-checkout query"""
-        session = await self._get_session()
-        
-        data = {
-            "pre_checkout_query_id": pre_checkout_query["id"],
-            "ok": True
-        }
-        
-        try:
-            async with session.post(f"{self.api_url}/answerPreCheckoutQuery", data=data) as response:
-                result = await response.json()
-                if not result.get("ok"):
-                    logger.error(f"Failed to answer pre-checkout query: {result.get('description')}")
-        except Exception as e:
-            logger.error(f"Error answering pre-checkout query: {e}")
-    
-    async def _handle_successful_payment(self, message: Dict[str, Any]):
-        """Handle successful payment"""
-        if not self._payment_callback:
-            return
+        Args:
+            user_id: Telegram user ID
+            stage: Payment stage configuration
             
-        payment = message.get("successful_payment")
-        if not payment:
-            return
-        
-        user_id = message["from"]["id"]
-        
-        # Parse payload
-        payload_data = {}
+        Returns:
+            True if invoice was sent successfully
+        """
         try:
-            if payment.get("invoice_payload"):
-                payload_data = json.loads(payment["invoice_payload"])
-        except:
-            pass
-        
-        # Create payment result
-        result = PaymentResult(
-            user_id=user_id,
-            amount=payment["total_amount"],
-            currency=payment["currency"],
-            status=PaymentStatus.COMPLETED,
-            transaction_id=payment.get("telegram_payment_charge_id"),
-            metadata=payload_data
-        )
-        
-        # Call payment callback
-        await self._payment_callback(result)
+            # Prepare invoice data
+            invoice_data = {
+                "chat_id": user_id,
+                "title": stage.title,
+                "description": stage.description,
+                "payload": json.dumps(stage.payload),
+                "provider_token": stage.provider_token,
+                "currency": "XTR",
+                "prices": json.dumps([{"label": stage.label, "amount": stage.price * 100}]),
+                "start_parameter": stage.start_parameter
+            }
+            
+            # Add photo if provided
+            if stage.photo_url:
+                invoice_data["photo_url"] = stage.photo_url
+            
+            # Send invoice
+            result = await self._make_api_request("sendInvoice", invoice_data)
+            
+            if result:
+                logger.info(f"Invoice sent to user {user_id}: {stage.price} Stars")
+                return True
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"Failed to send invoice: {e}")
+            return False
     
-    async def close(self):
-        """Close HTTP session"""
-        if self._session and not self._session.closed:
-            await self._session.close()
+    async def setup_handlers(self, payment_callback: callable) -> None:
+        """
+        Setup payment event handlers
+        
+        Args:
+            payment_callback: Function to call when payment is completed
+        """
+        self._payment_callback = payment_callback
+        logger.info("Raw API adapter handlers configured")
     
     def get_library_info(self) -> Dict[str, str]:
-        """Get Raw API adapter information"""
+        """Get information about the bot library"""
         return {
-            "library": "raw-telegram-api",
-            "version": "1.0",
-            "adapter": "RawAPIAdapter"
+            "library": "Raw Telegram Bot API",
+            "version": "2.0.0",
+            "features": ["Direct API integration", "Webhook support", "Enhanced error handling"]
         }
+    
+    async def close(self):
+        """Close aiohttp session"""
+        if self._session and not self._session.closed:
+            await self._session.close()
+            logger.info("Raw API adapter session closed")
+    
+    def __del__(self):
+        """Cleanup on deletion"""
+        if hasattr(self, '_session') and self._session and not self._session.closed:
+            asyncio.create_task(self.close())

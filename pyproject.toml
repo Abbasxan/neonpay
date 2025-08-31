@@ -4,75 +4,86 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neonpay"
-version = "1.0.1"
-description = "Modern Python library for Telegram Stars (XTR) payments integration with support for Aiogram, Pyrogram, python-telegram-bot and more"
+dynamic = ["version"]
+description = "Modern Telegram Stars payment library with multi-bot support and enhanced security"
 readme = "README.md"
-license = { text = "MIT" } 
+license = {text = "MIT"}
 authors = [
-    { name = "Abbas Sultanov", email = "sultanov.abas@outlook.com" }
+    {name = "Abbas Sultanov", email = "sultanov.abas@outlook.com"}
+]
+maintainers = [
+    {name = "Abbas Sultanov", email = "sultanov.abas@outlook.com"}
 ]
 keywords = [
-    "telegram", "bot", "payments", "stars", "xtr", "donations", 
-    "aiogram", "pyrogram", "python-telegram-bot", "telebot",
-    "telegram-payments", "cryptocurrency", "micropayments"
+    "telegram", "telegram-bot", "payment", "stars", "xtr", "crypto", 
+    "pyrogram", "aiogram", "python-telegram-bot", "telebot", "webhook",
+    "security", "validation", "async", "payment-processing"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Communications :: Chat",
-    "Topic :: Office/Business :: Financial :: Point-Of-Sale",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Communications :: Chat",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Security",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Framework :: AsyncIO",
+    "Typing :: Typed"
 ]
-
 requires-python = ">=3.9"
-
 dependencies = [
     "aiohttp>=3.8.0",
-    "typing-extensions>=4.0.0; python_version<'3.10'",
+    "typing-extensions>=4.0.0"
 ]
 
 [project.optional-dependencies]
+pyrogram = ["pyrogram>=2.0.0"]
 aiogram = ["aiogram>=3.0.0"]
-pyrogram = ["pyrogram>=2.0.106", "tgcrypto>=1.2.0"]
 ptb = ["python-telegram-bot>=20.0"]
 telebot = ["pyTelegramBotAPI>=4.0.0"]
+raw = ["aiohttp>=3.8.0"]
 all = [
-    "aiogram>=3.0.0",
-    "pyrogram>=2.0.106", 
-    "tgcrypto>=1.2.0",
+    "pyrogram>=2.0.0",
+    "aiogram>=3.0.0", 
     "python-telegram-bot>=20.0",
-    "pyTelegramBotAPI>=4.0.0"
+    "pyTelegramBotAPI>=4.0.0",
+    "aiohttp>=3.8.0"
 ]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
-    "black>=22.0.0",
-    "isort>=5.10.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
     "mypy>=1.0.0",
-    "pre-commit>=2.20.0",
-    "sphinx>=5.0.0",
-    "sphinx-rtd-theme>=1.0.0"
+    "flake8>=6.0.0"
 ]
 
 [project.urls]
 Homepage = "https://github.com/Abbasxan/neonpay"
+Documentation = "https://github.com/Abbasxan/neonpay#readme"
 Repository = "https://github.com/Abbasxan/neonpay"
-Issues = "https://github.com/Abbasxan/neonpay/issues"
-Documentation = "https://github.com/Abbasxan/neonpay/tree/main/docs"
-Changelog = "https://github.com/Abbasxan/neonpay/releases"
-Telegram = "https://t.me/neonsahib"
+"Bug Tracker" = "https://github.com/Abbasxan/neonpay/issues"
+"Security Policy" = "https://github.com/Abbasxan/neonpay/security/policy"
+"Changelog" = "https://github.com/Abbasxan/neonpay/blob/main/CHANGELOG.md"
+"Migration Guide" = "https://github.com/Abbasxan/neonpay/blob/main/docs/en/MIGRATION.md"
+
+[project.scripts]
+neonpay = "neonpay.cli:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "neonpay._version.__version__"}
 
 [tool.setuptools.packages.find]
-where = ["."]
 include = ["neonpay*"]
 exclude = ["tests*", "examples*", "docs*"]
 
@@ -119,9 +130,27 @@ warn_unreachable = true
 strict_equality = true
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
+minversion = "7.0"
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=neonpay",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--asyncio-mode=auto"
+]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "security: marks tests as security tests",
+    "validation: marks tests as validation tests",
+    "webhook: marks tests as webhook tests",
+    "adapter: marks tests as adapter tests"
+]
+asyncio_mode = "auto"

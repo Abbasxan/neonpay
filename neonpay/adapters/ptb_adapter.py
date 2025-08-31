@@ -1,15 +1,16 @@
 """
-python-telegram-bot adapter for NEONPAY
+Python Telegram Bot adapter for NEONPAY
 Supports python-telegram-bot v20.0+ with Telegram Stars payments
 """
 
-from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
 import json
 import logging
+from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from telegram import Bot, Update
-    from telegram.ext import Application, ContextTypes
+    from telegram import Bot
+    from telegram.ext import Application
+    from telegram import LabeledPrice, PreCheckoutQuery, Message
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -18,24 +19,25 @@ logger = logging.getLogger(__name__)
 
 
 class PythonTelegramBotAdapter(PaymentAdapter):
-    """python-telegram-bot library adapter for NEONPAY"""
+    """Python Telegram Bot library adapter for NEONPAY"""
     
-    def __init__(self, application: "Application"):
+    def __init__(self, bot: "Bot", application: "Application"):
         """
-        Initialize python-telegram-bot adapter
+        Initialize Python Telegram Bot adapter
         
         Args:
-            application: python-telegram-bot Application instance
+            bot: PTB Bot instance
+            application: PTB Application instance
         """
+        self.bot = bot
         self.application = application
-        self.bot = application.bot
         self._handlers_setup = False
         self._payment_callback: Optional[Callable[[PaymentResult], None]] = None
     
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
-        """Send payment invoice using python-telegram-bot"""
+        """Send payment invoice using Python Telegram Bot"""
         try:
-            # Import telegram types
+            # Import PTB types
             from telegram import LabeledPrice
             
             # Create price list
@@ -63,43 +65,44 @@ class PythonTelegramBotAdapter(PaymentAdapter):
             return True
             
         except Exception as e:
-            raise NeonPayError(f"Failed to send invoice: {e}")
+            raise NeonPayError(f"Telegram API error: {e}")
     
     async def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]) -> None:
-        """Setup python-telegram-bot payment handlers"""
+        """Setup Python Telegram Bot payment handlers"""
         if self._handlers_setup:
             return
             
         self._payment_callback = payment_callback
         
-        # Import handler types
-        from telegram.ext import PreCheckoutQueryHandler, MessageHandler, filters
-        
-        # Add handlers
+        # Register handlers
         self.application.add_handler(
-            PreCheckoutQueryHandler(self._handle_pre_checkout_query)
+            self.application.pre_checkout_query_handler(self._handle_pre_checkout_query)
         )
         self.application.add_handler(
-            MessageHandler(
-                filters.SUCCESSFUL_PAYMENT,
+            self.application.message_handler(
+                lambda message: message.successful_payment is not None,
                 self._handle_successful_payment
             )
         )
         
         self._handlers_setup = True
     
-    async def _handle_pre_checkout_query(self, update: "Update", context: "ContextTypes.DEFAULT_TYPE"):
+    async def _handle_pre_checkout_query(self, pre_checkout_query: "PreCheckoutQuery"):
         """Handle pre-checkout query"""
-        query = update.pre_checkout_query
-        await query.answer(ok=True)
+        try:
+            await pre_checkout_query.answer(ok=True)
+        except Exception as e:
+            logger.error(f"Error handling pre-checkout query: {e}")
     
-    async def _handle_successful_payment(self, update: "Update", context: "ContextTypes.DEFAULT_TYPE"):
+    async def _handle_successful_payment(self, message: "Message"):
         """Handle successful payment"""
-        message = update.message
-        if not message or not message.successful_payment:
+        if not self._payment_callback:
             return
             
         payment = message.successful_payment
+        if not payment:
+            return
+        
         user_id = message.from_user.id
         
         # Parse payload
@@ -121,19 +124,12 @@ class PythonTelegramBotAdapter(PaymentAdapter):
         )
         
         # Call payment callback
-        if self._payment_callback:
-            await self._payment_callback(result)
+        await self._payment_callback(result)
     
     def get_library_info(self) -> Dict[str, str]:
-        """Get python-telegram-bot library information"""
-        try:
-            import telegram
-            version = telegram.__version__
-        except:
-            version = "unknown"
-            
+        """Get Python Telegram Bot adapter information"""
         return {
             "library": "python-telegram-bot",
-            "version": version,
-            "adapter": "PythonTelegramBotAdapter"
+            "version": "20.0+",
+            "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
         }

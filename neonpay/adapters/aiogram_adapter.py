@@ -3,7 +3,7 @@ Aiogram adapter for NEONPAY
 Supports Aiogram v3.0+ with Telegram Stars payments
 """
 
-from typing import Dict, Any, Callable, Optional, TYPE_CHECKING, Union
+from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
 import json
 import logging
 
@@ -11,10 +11,8 @@ if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
     from aiogram.types import LabeledPrice, InputFile, PreCheckoutQuery, Message
 
-from .base import PaymentAdapter
-from ..core import PaymentStage, PaymentResult, PaymentStatus
+from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
-from ..localization import Language
 
 logger = logging.getLogger(__name__)
 
@@ -22,21 +20,14 @@ logger = logging.getLogger(__name__)
 class AiogramAdapter(PaymentAdapter):
     """Aiogram library adapter for NEONPAY"""
     
-    def __init__(
-        self, 
-        bot: "Bot", 
-        dispatcher: Optional["Dispatcher"] = None,
-        language: Union[Language, str] = Language.EN
-    ):
+    def __init__(self, bot: "Bot", dispatcher: "Dispatcher"):
         """
         Initialize Aiogram adapter
         
         Args:
             bot: Aiogram Bot instance
-            dispatcher: Aiogram Dispatcher instance (optional)
-            language: Language for payment messages
+            dispatcher: Aiogram Dispatcher instance (required)
         """
-        super().__init__(language)
         self.bot = bot
         self.dispatcher = dispatcher
         self._handlers_setup = False
@@ -78,11 +69,11 @@ class AiogramAdapter(PaymentAdapter):
             return True
             
         except Exception as e:
-            raise NeonPayError(self.get_text("errors.api_error", error=str(e)))
+            raise NeonPayError(f"Telegram API error: {e}")
     
     async def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]) -> None:
         """Setup Aiogram payment handlers"""
-        if self._handlers_setup or not self.dispatcher:
+        if self._handlers_setup:
             return
             
         self._payment_callback = payment_callback
@@ -98,17 +89,23 @@ class AiogramAdapter(PaymentAdapter):
     
     async def _handle_pre_checkout_query(self, pre_checkout_query: "PreCheckoutQuery"):
         """Handle pre-checkout query"""
-        await self.bot.answer_pre_checkout_query(
-            pre_checkout_query.id,
-            ok=True
-        )
+        try:
+            await self.bot.answer_pre_checkout_query(
+                pre_checkout_query_id=pre_checkout_query.id,
+                ok=True
+            )
+        except Exception as e:
+            logger.error(f"Error handling pre-checkout query: {e}")
     
     async def _handle_successful_payment(self, message: "Message"):
         """Handle successful payment"""
-        if not message.successful_payment:
+        if not self._payment_callback:
             return
             
         payment = message.successful_payment
+        if not payment:
+            return
+        
         user_id = message.from_user.id
         
         # Parse payload
@@ -130,20 +127,12 @@ class AiogramAdapter(PaymentAdapter):
         )
         
         # Call payment callback
-        if self._payment_callback:
-            await self._payment_callback(result)
+        await self._payment_callback(result)
     
     def get_library_info(self) -> Dict[str, str]:
-        """Get Aiogram library information"""
-        try:
-            import aiogram
-            version = aiogram.__version__
-        except:
-            version = "unknown"
-            
+        """Get Aiogram adapter information"""
         return {
             "library": "aiogram",
-            "version": version,
-            "adapter": "AiogramAdapter",
-            "language": self.localization.language.value
+            "version": "3.0+",
+            "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
         }

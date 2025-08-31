@@ -1,37 +1,48 @@
+#!/usr/bin/env python3
 """
 Setup script for NEONPAY - Modern Python library for Telegram Stars payments integration.
 """
 
+import os
 import sys
 from pathlib import Path
 from setuptools import setup, find_packages
 
-
+# Minimum Python version check
 if sys.version_info < (3, 9):
     raise RuntimeError("NEONPAY requires Python 3.9 or higher")
 
-
+# Read version from _version.py
 version_file = Path(__file__).parent / "neonpay" / "_version.py"
 version_dict = {}
 if version_file.exists():
     with open(version_file, "r", encoding="utf-8") as f:
         exec(f.read(), version_dict)
-    version = version_dict.get("__version__", "1.0.1")
+    version = version_dict.get("__version__", "1.0.0")
 else:
-    version = "1.0.1"
+    version = "1.0.0"
 
-
+# Read README for long description
 readme_file = Path(__file__).parent / "README.md"
 long_description = ""
 if readme_file.exists():
     with open(readme_file, "r", encoding="utf-8") as f:
         long_description = f.read()
 
+# Read LICENSE
+license_file = Path(__file__).parent / "LICENSE"
+license_text = ""
+if license_file.exists():
+    with open(license_file, "r", encoding="utf-8") as f:
+        license_text = f.read()
+
+# Core dependencies
 install_requires = [
     "aiohttp>=3.8.0",
     "typing-extensions>=4.0.0; python_version<'3.10'",
 ]
 
+# Optional dependencies
 extras_require = {
     "aiogram": ["aiogram>=3.0.0"],
     "pyrogram": ["pyrogram>=2.0.106", "tgcrypto>=1.2.0"],
@@ -74,7 +85,9 @@ setup(
         "Telegram": "https://t.me/neonsahib",
     },
     packages=find_packages(exclude=["tests*", "examples*", "docs*", "website*"]),
-    package_data={"neonpay": ["py.typed"]},
+    package_data={
+        "neonpay": ["py.typed"],
+    },
     include_package_data=True,
     python_requires=">=3.9",
     install_requires=install_requires,

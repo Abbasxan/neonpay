@@ -1,22 +1,34 @@
 import json
 import random
 from typing import Callable, Optional
-from pyrogram import Client
-from pyrogram.raw.types import (
-    LabeledPrice, Invoice, InputWebDocument,
-    InputMediaInvoice, DataJSON,
-    UpdateBotPrecheckoutQuery, MessageActionPaymentSentMe
-)
-from pyrogram.raw.functions.messages import SendMedia, SetBotPrecheckoutResults
+
+# Legacy compatibility - only import if pyrogram is available
+try:
+    from pyrogram import Client
+    from pyrogram.raw.types import (
+        LabeledPrice, Invoice, InputWebDocument,
+        InputMediaInvoice, DataJSON,
+        UpdateBotPrecheckoutQuery, MessageActionPaymentSentMe
+    )
+    from pyrogram.raw.functions.messages import SendMedia, SetBotPrecheckoutResults
+    PYROGRAM_AVAILABLE = True
+except ImportError:
+    PYROGRAM_AVAILABLE = False
+
 from .errors import StarsPaymentError
 
 
 class NeonStars:
-    def __init__(self, app: Client, thank_you: str = "Спасибо за поддержку!"):
+    def __init__(self, app, thank_you: str = "Спасибо за поддержку!"):
         """
         :param app: pyrogram.Client
         :param thank_you: сообщение благодарности пользователю
         """
+        if not PYROGRAM_AVAILABLE:
+            raise ImportError(
+                "Pyrogram is not installed. Install with: pip install pyrogram"
+            )
+        
         self.app = app
         self.thank_you = thank_you
         self._payment_callback: Optional[Callable[[int, int], None]] = None
