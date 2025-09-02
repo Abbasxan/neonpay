@@ -16,7 +16,6 @@
 from aiogram import Router, types
 from aiogram.filters import Command
 from neonpay import NeonPay
-from language import get_translated_message, get_user_language  # ваша локализация
 from config import bot, update_user_balance, update_user_verification_status, LOG_ID
 
 # Инициализация NEONPAY (1 строка!)
@@ -28,12 +27,11 @@ router = Router()
 @router.message(Command("verify"))
 async def verify_handler(message: types.Message):
     user_id = message.from_user.id
-    lang_code = await get_user_language(user_id)
     
     # Создаем этап оплаты для верификации
     verification_stage = neonpay.create_payment_stage(
-        title=get_translated_message(lang_code, "verification_title"),
-        description=get_translated_message(lang_code, "verification_description"),
+        title="Account Verification",
+        description="Verify your account to access premium features",
         price=50,  # 50 XTR
         payload={"type": "verification", "user_id": user_id}
     )
@@ -50,12 +48,11 @@ async def topup_handler(message: types.Message):
     
     amount = int(args[1])
     user_id = message.from_user.id
-    lang_code = await get_user_language(user_id)
     
     # Создаем этап оплаты для пополнения
     topup_stage = neonpay.create_payment_stage(
-        title=get_translated_message(lang_code, "topup_title"),
-        description=get_translated_message(lang_code, "topup_description").format(amount=amount),
+        title="Balance Top-up",
+        description=f"Add {amount} Stars to your balance",
         price=amount,
         payload={"type": "topup", "user_id": user_id, "amount": amount}
     )
@@ -70,14 +67,13 @@ async def handle_payment(payment_result):
     user_id = payment_result.user_id
     payload = payment_result.payload
     amount = payment_result.amount
-    lang_code = await get_user_language(user_id)
     
     if payload["type"] == "verification":
         # Активируем верификацию
         await update_user_verification_status(user_id, verified=True, purchase_flag=True)
         
         # Отправляем уведомление пользователю
-        await bot.send_message(user_id, get_translated_message(lang_code, "profile_verified"))
+        await bot.send_message(user_id, "✅ Your account has been verified!")
         
         # Логирование (ваша система)
         log_text = f"✅ Верификация: {user_id}, сумма: {amount} XTR"
@@ -88,8 +84,7 @@ async def handle_payment(payment_result):
         await update_user_balance(user_id, amount, "XTR")
         
         # Отправляем уведомление пользователю
-        await bot.send_message(user_id, 
-            get_translated_message(lang_code, "balance_thanks").format(amount=amount))
+        await bot.send_message(user_id, f"💰 Balance topped up with {amount} Stars!")
         
         # Логирование (ваша система)
         log_text = f"💰 Пополнение: {user_id}, сумма: {amount} XTR"
@@ -122,5 +117,4 @@ async def payment_validator(payment_result, next_handler):
 # ✅ Автоматическая обработка pre_checkout и successful_payment
 # ✅ Встроенная система middleware
 # ✅ Простая валидация и обработка ошибок
-# ✅ Ваша локализация работает как раньше
 # ✅ Легко добавлять новые типы платежей
