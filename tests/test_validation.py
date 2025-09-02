@@ -14,7 +14,6 @@ from neonpay.core import (
 )
 from neonpay.errors import NeonPayError
 from neonpay.webhooks import WebhookVerifier, WebhookHandler
-from neonpay.localization import Language
 
 
 class TestValidation:
@@ -405,3 +404,4 @@ class TestWebhookHandler:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+        
