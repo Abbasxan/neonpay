@@ -311,6 +311,21 @@ class NeonPayCore:
         
         if self._enable_logging:
             logger.info("Payment system initialized")
+
+    def on_payment(self, callback: Callable[[PaymentResult], None]) -> None:
+        """
+        Register payment completion callback
+        
+        Args:
+            callback: Function to call when payment is completed
+        """
+        if not callable(callback):
+            raise ValueError("Callback must be callable")
+        
+        self._payment_callbacks.append(callback)
+        
+        if self._enable_logging:
+            logger.info(f"Payment callback registered: {callback.__name__}")
     
     async def send_payment(self, user_id: int, stage_id: str, promo_code: Optional[str] = None) -> bool:
         """
@@ -544,4 +559,5 @@ class NeonPayCore:
         """Access to security system"""
         return self._security_manager
             
+
 
