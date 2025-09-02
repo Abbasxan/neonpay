@@ -1,41 +1,16 @@
-"""Base adapter with localization support."""
+"""Base adapter for bot library integration."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Callable, Union
+from typing import Dict, Any, Callable
 from ..core import PaymentStage, PaymentResult
-from ..localization import LocalizationManager, Language
 
 
 class PaymentAdapter(ABC):
-    """Abstract base class for bot library adapters with localization support"""
+    """Abstract base class for bot library adapters"""
     
-    def __init__(self, language: Union[Language, str] = Language.EN):
-        """Initialize adapter with localization support.
-        
-        Args:
-            language: Language for payment messages
-        """
-        self.localization = LocalizationManager(language)
-    
-    def set_language(self, language: Union[Language, str]) -> None:
-        """Change adapter language.
-        
-        Args:
-            language: New language code or Language enum
-        """
-        self.localization.set_language(language)
-    
-    def get_text(self, key: str, **kwargs) -> str:
-        """Get localized text.
-        
-        Args:
-            key: Translation key
-            **kwargs: Format arguments
-            
-        Returns:
-            Localized text
-        """
-        return self.localization.get(key, **kwargs)
+    def __init__(self):
+        """Initialize adapter."""
+        pass
     
     @abstractmethod
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
@@ -51,3 +26,4 @@ class PaymentAdapter(ABC):
     def get_library_info(self) -> Dict[str, str]:
         """Get information about the bot library"""
         pass
+        
