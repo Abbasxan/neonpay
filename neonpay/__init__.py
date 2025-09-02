@@ -12,6 +12,32 @@ from .core import (
     BotLibrary
 )
 
+# Promotions system
+from .promotions import (
+    PromoSystem,
+    PromoCode,
+    DiscountType
+)
+
+# Subscriptions system
+from .subscriptions import (
+    SubscriptionManager,
+    SubscriptionPlan,
+    Subscription,
+    SubscriptionStatus,
+    SubscriptionPeriod
+)
+
+# Security system
+from .security import (
+    SecurityManager,
+    RateLimiter,
+    SecurityEvent,
+    UserSecurityProfile,
+    ThreatLevel,
+    ActionType
+)
+
 # Factory
 from .factory import create_neonpay
 
@@ -91,6 +117,26 @@ __all__ = [
     "PaymentResult",
     "PaymentStatus",
     "BotLibrary",
+    
+    # Promotions
+    "PromoSystem",
+    "PromoCode", 
+    "DiscountType",
+    
+    # Subscriptions
+    "SubscriptionManager",
+    "SubscriptionPlan",
+    "Subscription",
+    "SubscriptionStatus",
+    "SubscriptionPeriod",
+    
+    # Security
+    "SecurityManager",
+    "RateLimiter",
+    "SecurityEvent",
+    "UserSecurityProfile",
+    "ThreatLevel",
+    "ActionType",
     
     # Adapters (lazy loaded)
     "PyrogramAdapter",
