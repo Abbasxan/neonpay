@@ -13,7 +13,6 @@
 - 🎨 **Custom Payment Stages** - Create branded payment experiences with custom logos and descriptions
 - 🔧 **Simple Setup** - Get started with just 2-3 lines of code
 - 📱 **Modern Architecture** - Built with async/await and type hints
-- 🌍 **Multi-language** - Documentation in English, Russian, and Azerbaijani
 - 🛡️ **Error Handling** - Comprehensive error handling and validation
 - 📦 **Zero Dependencies** - Only requires your chosen bot library
 
