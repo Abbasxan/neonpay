@@ -26,7 +26,7 @@ class PaymentStatus(Enum):
     COMPLETED = "completed"
     CANCELLED = "cancelled"
     FAILED = "failed"
-    REFUNDED
+    REFUNDED = "refunded"
 
 
 class BotLibrary(Enum):
@@ -544,3 +544,4 @@ class NeonPayCore:
         """Access to security system"""
         return self._security_manager
             
+
