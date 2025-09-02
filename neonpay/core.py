@@ -13,6 +13,10 @@ from enum import Enum
 import logging
 from urllib.parse import urlparse
 
+from .promotions import PromoSystem, DiscountType
+from .subscriptions import SubscriptionManager, SubscriptionPeriod
+from .security import SecurityManager, ActionType, ThreatLevel
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +26,7 @@ class PaymentStatus(Enum):
     COMPLETED = "completed"
     CANCELLED = "cancelled"
     FAILED = "failed"
-    REFUNDED = "refunded"
+    REFUNDED
 
 
 class BotLibrary(Enum):
@@ -210,7 +214,7 @@ class NeonPayCore:
     Core NEONPAY payment processor
     
     Universal payment system that works with multiple Telegram bot libraries
-    through adapter pattern.
+    through adapter pattern with enhanced features.
     """
     
     def __init__(
@@ -218,7 +222,11 @@ class NeonPayCore:
         adapter: PaymentAdapter, 
         thank_you_message: Optional[str] = None,
         enable_logging: bool = True,
-        max_stages: int = 100
+        max_stages: int = 100,
+        enable_promotions: bool = True,
+        enable_subscriptions: bool = True,
+        enable_security: bool = True,
+        webhook_secret: Optional[str] = None
     ):
         self.adapter = adapter
         self.thank_you_message = thank_you_message or "Thank you for your payment!"
@@ -228,8 +236,18 @@ class NeonPayCore:
         self._enable_logging = enable_logging
         self._max_stages = max_stages
         
+        self._promo_system = PromoSystem() if enable_promotions else None
+        self._subscription_manager = SubscriptionManager() if enable_subscriptions else None
+        self._security_manager = SecurityManager(webhook_secret=webhook_secret) if enable_security else None
+        
         if self._enable_logging:
             logger.info(f"NeonPayCore initialized with {adapter.__class__.__name__}")
+            if enable_promotions:
+                logger.info("Promotions system enabled")
+            if enable_subscriptions:
+                logger.info("Subscriptions system enabled")
+            if enable_security:
+                logger.info("Security system enabled")
     
     def create_payment_stage(self, stage_id: str, stage: PaymentStage) -> None:
         """
@@ -294,13 +312,14 @@ class NeonPayCore:
         if self._enable_logging:
             logger.info("Payment system initialized")
     
-    async def send_payment(self, user_id: int, stage_id: str) -> bool:
+    async def send_payment(self, user_id: int, stage_id: str, promo_code: Optional[str] = None) -> bool:
         """
-        Send payment invoice to user with validation
+        Send payment invoice to user with validation and promo code support
         
         Args:
             user_id: Telegram user ID
             stage_id: Payment stage identifier
+            promo_code: Optional promo code for discount
             
         Returns:
             True if invoice was sent successfully
@@ -313,6 +332,14 @@ class NeonPayCore:
         if not isinstance(stage_id, str) or not stage_id.strip():
             raise ValueError("Stage ID is required")
         
+        if self._security_manager:
+            is_allowed, retry_after = self._security_manager.check_rate_limit(
+                user_id, ActionType.PAYMENT_REQUEST
+            )
+            if not is_allowed:
+                logger.warning(f"Rate limit exceeded for user {user_id}")
+                return False
+        
         if not self._setup_complete:
             await self.setup()
             
@@ -320,6 +347,26 @@ class NeonPayCore:
         if not stage:
             logger.error("Payment stage not found")
             return False
+        
+        final_price = stage.price
+        applied_promo = None
+        
+        if promo_code and self._promo_system:
+            try:
+                final_price, applied_promo = self._promo_system.apply_promo_code(
+                    promo_code, user_id, stage.price
+                )
+                logger.info(f"Promo code applied: {stage.price} -> {final_price} Stars")
+            except ValueError as e:
+                logger.warning(f"Promo code validation failed: {e}")
+                return False
+        
+        if final_price != stage.price:
+            from copy import deepcopy
+            stage = deepcopy(stage)
+            stage.price = final_price
+            if applied_promo:
+                stage.description += f" (Discount applied: {applied_promo.code})"
             
         try:
             result = await self.adapter.send_invoice(user_id, stage)
@@ -330,24 +377,104 @@ class NeonPayCore:
         except Exception as e:
             logger.error(f"Failed to send payment invoice: {e}")
             return False
+
+    def create_promo_code(
+        self,
+        code: str,
+        discount_type: DiscountType,
+        discount_value: Union[int, float],
+        **kwargs
+    ):
+        """Create a new promo code"""
+        if not self._promo_system:
+            raise RuntimeError("Promotions system is not enabled")
+        
+        return self._promo_system.create_promo_code(code, discount_type, discount_value, **kwargs)
     
-    def on_payment(self, callback: Callable[[PaymentResult], None]) -> None:
-        """
-        Register payment completion callback
+    def validate_promo_code(self, code: str, user_id: int, amount: int):
+        """Validate promo code for user and amount"""
+        if not self._promo_system:
+            return False, "Promotions system is not enabled", None
         
-        Args:
-            callback: Function to call when payment is completed
-        """
-        if not callable(callback):
-            raise ValueError("Callback must be callable")
-        
-        self._payment_callbacks.append(callback)
-        
-        if self._enable_logging:
-            logger.info(f"Payment callback registered: {callback.__name__}")
+        return self._promo_system.validate_promo_code(code, user_id, amount)
     
+    def create_subscription_plan(
+        self,
+        plan_id: str,
+        name: str,
+        description: str,
+        price: int,
+        period: SubscriptionPeriod,
+        **kwargs
+    ):
+        """Create a new subscription plan"""
+        if not self._subscription_manager:
+            raise RuntimeError("Subscriptions system is not enabled")
+        
+        return self._subscription_manager.create_plan(
+            plan_id, name, description, price, period, **kwargs
+        )
+    
+    def subscribe_user(self, user_id: int, plan_id: str):
+        """Subscribe user to a plan"""
+        if not self._subscription_manager:
+            raise RuntimeError("Subscriptions system is not enabled")
+        
+        return self._subscription_manager.subscribe_user(user_id, plan_id)
+    
+    def get_user_subscriptions(self, user_id: int, active_only: bool = True):
+        """Get user subscriptions"""
+        if not self._subscription_manager:
+            return []
+        
+        return self._subscription_manager.get_user_subscriptions(user_id, active_only)
+    
+    def block_user(self, user_id: int, duration: Optional[int] = None):
+        """Block user for specified duration"""
+        if not self._security_manager:
+            raise RuntimeError("Security system is not enabled")
+        
+        self._security_manager.block_user(user_id, duration)
+    
+    def trust_user(self, user_id: int):
+        """Mark user as trusted"""
+        if not self._security_manager:
+            raise RuntimeError("Security system is not enabled")
+        
+        self._security_manager.trust_user(user_id)
+    
+    def get_user_risk_assessment(self, user_id: int):
+        """Get user risk assessment"""
+        if not self._security_manager:
+            return {"error": "Security system is not enabled"}
+        
+        return self._security_manager.get_user_risk_assessment(user_id)
+
     async def _handle_payment(self, result: PaymentResult) -> None:
-        """Internal payment handler with error handling"""
+        """Internal payment handler with error handling and enhanced features"""
+        if self._security_manager:
+            is_allowed, _ = self._security_manager.check_rate_limit(
+                result.user_id, ActionType.PAYMENT_COMPLETION
+            )
+            if not is_allowed:
+                logger.warning(f"Payment completion rate limit exceeded for user {result.user_id}")
+                return
+            
+            # Check for fraud
+            is_fraudulent, reason = self._security_manager.detect_payment_fraud(
+                result.user_id, result.amount
+            )
+            if is_fraudulent:
+                logger.warning(f"Fraudulent payment detected: {reason}")
+                self._security_manager.report_suspicious_activity(
+                    result.user_id,
+                    "fraudulent_payment",
+                    ThreatLevel.HIGH,
+                    f"Fraudulent payment detected: {reason}",
+                    amount=result.amount
+                )
+                return
+        
         if self._enable_logging:
             logger.info(f"Payment completed: {result.amount} Stars")
         
@@ -360,10 +487,10 @@ class NeonPayCore:
                     callback(result)
             except Exception as e:
                 logger.error(f"Error in payment callback {callback.__name__}: {e}")
-    
+
     def get_stats(self) -> Dict[str, Any]:
-        """Get payment system statistics"""
-        return {
+        """Get payment system statistics with enhanced modules"""
+        stats = {
             "total_stages": len(self._payment_stages),
             "registered_callbacks": len(self._payment_callbacks),
             "setup_complete": self._setup_complete,
@@ -371,3 +498,49 @@ class NeonPayCore:
             "max_stages": self._max_stages,
             "logging_enabled": self._enable_logging
         }
+        
+        if self._promo_system:
+            stats["promotions"] = self._promo_system.get_stats()
+        
+        if self._subscription_manager:
+            stats["subscriptions"] = self._subscription_manager.get_stats()
+        
+        if self._security_manager:
+            stats["security"] = self._security_manager.get_security_stats()
+        
+        return stats
+    
+    async def cleanup_old_data(self, max_age_days: int = 30) -> Dict[str, int]:
+        """Clean up old data from all modules"""
+        cleanup_results = {}
+        
+        if self._security_manager:
+            cleanup_results["security_records"] = self._security_manager.cleanup_old_data(max_age_days)
+        
+        if self._promo_system:
+            cleanup_results["expired_promos"] = self._promo_system.cleanup_expired()
+        
+        # Check subscription renewals and expirations
+        if self._subscription_manager:
+            renewals = await self._subscription_manager.check_renewals()
+            expirations = await self._subscription_manager.check_expirations()
+            cleanup_results["subscription_renewals"] = len(renewals)
+            cleanup_results["subscription_expirations"] = len(expirations)
+        
+        return cleanup_results
+    
+    @property
+    def promotions(self):
+        """Access to promotions system"""
+        return self._promo_system
+    
+    @property
+    def subscriptions(self):
+        """Access to subscriptions system"""
+        return self._subscription_manager
+    
+    @property
+    def security(self):
+        """Access to security system"""
+        return self._security_manager
+            
