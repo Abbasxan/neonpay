@@ -1,20 +1,24 @@
 """
-NEONPAY Aiogram Example
-Complete example showing how to use NEONPAY with Aiogram v3.0+
+NEONPAY Aiogram Example - Real-world Bot Implementation
+Complete ready-to-use bot with donation system and digital store
+Based on real production usage patterns
 """
 
 import asyncio
 import logging
+from datetime import datetime
 from aiogram import Bot, Dispatcher, Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
 
-from neonpay import create_neonpay, PaymentStage, PaymentResult, PaymentStatus
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Bot configuration
@@ -25,288 +29,204 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-# Initialize NEONPAY
-neonpay = create_neonpay(bot, "Thank you for your purchase! 🎉")
+neonpay = None
 
-# FSM States for order flow
-class OrderStates(StatesGroup):
-    selecting_product = State()
-    confirming_order = State()
+DONATE_OPTIONS = [
+    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
+    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
+    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+]
 
-# Product catalog
-PRODUCTS = {
-    "ebook": {
-        "name": "📚 Programming eBook",
-        "description": "Complete guide to modern programming",
-        "price": 100,
-        "emoji": "📚"
-    },
-    "course": {
-        "name": "🎓 Online Course",
-        "description": "Full-stack development course",
-        "price": 300,
-        "emoji": "🎓"
-    },
-    "consultation": {
-        "name": "💼 1-on-1 Consultation",
-        "description": "Personal mentoring session",
-        "price": 500,
-        "emoji": "💼"
-    },
-    "premium": {
-        "name": "⭐ Premium Membership",
-        "description": "Access to all premium content",
-        "price": 200,
-        "emoji": "⭐"
-    }
-}
-
-async def setup_payment_stages():
-    """Initialize payment stages for all products"""
-    for product_id, product in PRODUCTS.items():
-        stage = PaymentStage(
-            title=product["name"],
-            description=product["description"],
-            price=product["price"],
-            label=f"Buy for {product['price']} ⭐",
-            photo_url=f"https://via.placeholder.com/400x300/2196F3/white?text={product['emoji']}",
-            payload={
-                "product_id": product_id,
-                "product_name": product["name"],
-                "category": "digital_product"
-            }
+async def setup_neonpay():
+    """Initialize NEONPAY with real-world configuration"""
+    global neonpay
+    if neonpay:
+        return neonpay
+    
+    neonpay = create_neonpay(bot_instance=bot, dispatcher=dp)
+    
+    for option in DONATE_OPTIONS:
+        neonpay.create_payment_stage(
+            f"donate_{option['amount']}",
+            PaymentStage(
+                title=f"Support {option['amount']}{option['symbol']}",
+                description=option["desc"],
+                price=option["amount"],
+            )
         )
-        neonpay.create_payment_stage(product_id, stage)
     
-    logger.info("✅ Payment stages initialized")
+    @neonpay.on_payment
+    async def handle_payment(result):
+        if result.status == PaymentStatus.COMPLETED:
+            try:
+                await bot.send_message(
+                    result.user_id,
+                    f"Thank you! Your support: {result.amount}⭐ ❤️"
+                )
+                chat_id = getattr(result, "_neonpay_chat_id", None)
+                message_id = getattr(result, "_neonpay_message_id", None)
+                if chat_id and message_id:
+                    await bot.edit_message_reply_markup(
+                        chat_id=chat_id,
+                        message_id=message_id,
+                        reply_markup=None,
+                    )
+                logger.info(f"Support completed: user={result.user_id}, amount={result.amount}")
+            except Exception as e:
+                logger.exception(f"Failed to send post-payment message: {e}")
+    
+    logger.info("✅ NEONPAY donation system initialized")
+    return neonpay
 
-# Payment completion handler
-@neonpay.on_payment
-async def handle_payment(result: PaymentResult):
-    """Process successful payments"""
-    user_id = result.user_id
-    amount = result.amount
-    product_id = result.metadata.get("product_id")
-    product_name = result.metadata.get("product_name", "Unknown Product")
-    
-    logger.info(f"💰 Payment received: {amount} ⭐ from user {user_id} for {product_name}")
-    
-    # Send confirmation message
-    confirmation_text = (
-        f"✅ Payment Successful!\n\n"
-        f"Product: {product_name}\n"
-        f"Amount: {amount} ⭐\n"
-        f"Transaction ID: {result.transaction_id or 'N/A'}\n\n"
-        f"🎉 Thank you for your purchase!"
-    )
-    
-    # Create delivery keyboard
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📥 Download", callback_data=f"download_{product_id}")],
-        [InlineKeyboardButton(text="📞 Support", callback_data="contact_support")]
-    ])
-    
-    try:
-        await bot.send_message(user_id, confirmation_text, reply_markup=keyboard)
-        
-        # Deliver the product (implement your logic)
-        await deliver_product(user_id, product_id)
-        
-    except Exception as e:
-        logger.error(f"Failed to send confirmation to user {user_id}: {e}")
-
-async def deliver_product(user_id: int, product_id: str):
-    """Deliver digital product to user"""
-    # Implement your product delivery logic here
-    # This could involve:
-    # - Adding user to database
-    # - Sending download links
-    # - Granting access to premium features
-    # - etc.
-    
-    logger.info(f"📦 Delivered product {product_id} to user {user_id}")
-
-# Command handlers
 @router.message(Command("start"))
 async def start_command(message: Message):
-    """Welcome message"""
+    """Welcome new users"""
+    user_name = message.from_user.first_name or "Friend"
+    
     welcome_text = (
-        "🛍️ Welcome to NEONPAY Store!\n\n"
-        "We sell digital products using Telegram Stars.\n\n"
-        "Available commands:\n"
-        "• /shop - Browse products\n"
-        "• /cart - View your cart\n"
-        "• /orders - Order history\n"
-        "• /support - Get help\n\n"
-        "💫 All payments are processed securely with Telegram Stars!"
+        f"👋 Hello {user_name}!\n\n"
+        f"🤖 I'm a free bot created with love by an independent developer.\n\n"
+        f"📱 **Available Commands:**\n"
+        f"• /help - Show all commands\n"
+        f"• /donate - Support the developer\n"
+        f"• /status - Bot statistics\n\n"
+        f"💡 This bot is completely free to use!\n"
+        f"If you find it helpful, consider supporting development."
     )
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🛍️ Start Shopping", callback_data="show_shop")]
+        [InlineKeyboardButton(text="❤️ Support Developer", callback_data="show_donate")],
+        [InlineKeyboardButton(text="📋 Help", callback_data="show_help")]
     ])
     
     await message.answer(welcome_text, reply_markup=keyboard)
 
-@router.message(Command("shop"))
-async def shop_command(message: Message):
-    """Show product catalog"""
-    await show_product_catalog(message.from_user.id)
-
-@router.message(Command("orders"))
-async def orders_command(message: Message):
-    """Show order history (mock implementation)"""
-    # In a real app, you'd fetch from database
-    orders_text = (
-        "📋 Your Order History:\n\n"
-        "No orders found.\n\n"
-        "Start shopping with /shop to see your orders here!"
+@router.message(Command("help"))
+async def help_command(message: Message):
+    """Show help information"""
+    help_text = (
+        "📋 **Bot Help**\n\n"
+        "🆓 **This bot is completely free!**\n\n"
+        "**Commands:**\n"
+        "• /start - Welcome message\n"
+        "• /donate - Support development\n"
+        "• /status - Bot statistics\n"
+        "• /help - This help message\n\n"
+        "**About:**\n"
+        "This bot was created by an independent developer.\n"
+        "All features are free, donations help keep it running!\n\n"
+        "🐛 Found a bug? Contact @your_username"
     )
-    await message.answer(orders_text)
+    
+    await message.answer(help_text, parse_mode="Markdown")
 
-@router.message(Command("support"))
-async def support_command(message: Message):
-    """Show support information"""
-    support_text = (
-        "🆘 Need Help?\n\n"
-        "• For technical issues: @support\n"
-        "• For refunds: @billing\n"
-        "• General questions: @help\n\n"
-        "📧 Email: support@example.com\n"
-        "⏰ Response time: 24 hours"
+@router.message(Command("donate"))
+async def donate_command(message: Message):
+    """Show donation options"""
+    logging.info(f"/donate command received: user={message.from_user.id}")
+    
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"{opt['symbol']} {opt['amount']}",
+                    callback_data=f"donate:{opt['amount']}"
+                )
+            ]
+            for opt in DONATE_OPTIONS
+        ]
     )
-    await message.answer(support_text)
+    
+    await message.answer(
+        "Please choose an amount to support the developer:",
+        reply_markup=kb
+    )
 
-async def show_product_catalog(user_id: int):
-    """Display product catalog with inline buttons"""
-    catalog_text = "🛍️ **Product Catalog**\n\nChoose a product to purchase:"
+@router.message(Command("status"))
+async def status_command(message: Message):
+    """Show bot status and statistics"""
+    uptime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Create product buttons
-    keyboard_buttons = []
-    for product_id, product in PRODUCTS.items():
-        button_text = f"{product['emoji']} {product['name']} - {product['price']} ⭐"
-        keyboard_buttons.append([
-            InlineKeyboardButton(
-                text=button_text,
-                callback_data=f"product_{product_id}"
-            )
-        ])
+    status_text = (
+        "📊 **Bot Status**\n\n"
+        f"✅ Status: Online\n"
+        f"⏰ Last restart: {uptime}\n"
+        f"💫 Payment system: Active\n"
+        f"🔧 Version: 2.0\n\n"
+        f"Thank you for using this free bot!"
+    )
     
-    keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard_buttons)
-    
-    try:
-        await bot.send_message(user_id, catalog_text, reply_markup=keyboard, parse_mode="Markdown")
-    except Exception as e:
-        logger.error(f"Failed to send catalog to user {user_id}: {e}")
+    await message.answer(status_text, parse_mode="Markdown")
 
-# Callback query handlers
-@router.callback_query(F.data == "show_shop")
-async def show_shop_callback(callback: CallbackQuery):
-    """Handle shop button press"""
+@router.callback_query(F.data == "show_donate")
+async def show_donate_callback(callback: CallbackQuery):
+    """Handle donate button press"""
     await callback.answer()
-    await show_product_catalog(callback.from_user.id)
+    await donate_command(callback.message)
 
-@router.callback_query(F.data.startswith("product_"))
-async def product_callback(callback: CallbackQuery):
-    """Handle product selection"""
-    product_id = callback.data.split("_")[1]
-    product = PRODUCTS.get(product_id)
+@router.callback_query(F.data == "show_help")
+async def show_help_callback(callback: CallbackQuery):
+    """Handle help button press"""
+    await callback.answer()
+    await help_command(callback.message)
+
+@router.callback_query(F.data.startswith("donate:"))
+async def donate_choose(callback: CallbackQuery):
+    """Handle donation amount selection"""
+    amount = int(callback.data.split(":")[1])
+    option = next((o for o in DONATE_OPTIONS if o["amount"] == amount), None)
     
-    if not product:
-        await callback.answer("❌ Product not found", show_alert=True)
+    if not option:
+        await callback.answer("Error: Selected amount not found", show_alert=True)
         return
     
-    # Show product details
-    product_text = (
-        f"{product['emoji']} **{product['name']}**\n\n"
-        f"📝 {product['description']}\n\n"
-        f"💰 Price: {product['price']} ⭐\n\n"
-        f"Ready to purchase?"
-    )
-    
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=f"💳 Buy Now ({product['price']} ⭐)", callback_data=f"buy_{product_id}")],
-        [InlineKeyboardButton(text="🔙 Back to Shop", callback_data="show_shop")]
-    ])
-    
-    await callback.message.edit_text(product_text, reply_markup=keyboard, parse_mode="Markdown")
-    await callback.answer()
-
-@router.callback_query(F.data.startswith("buy_"))
-async def buy_callback(callback: CallbackQuery):
-    """Handle purchase button press"""
-    product_id = callback.data.split("_")[1]
-    user_id = callback.from_user.id
-    
     try:
-        success = await neonpay.send_payment(user_id, product_id)
-        if success:
-            await callback.answer("💫 Payment invoice sent! Check your messages.")
-        else:
-            await callback.answer("❌ Failed to create payment. Please try again.", show_alert=True)
+        await neonpay.send_payment(
+            user_id=callback.from_user.id,
+            stage_id=f"donate_{amount}"
+        )
+        
+        callback.message._neonpay_chat_id = callback.message.chat.id
+        callback.message._neonpay_message_id = callback.message.message_id
+        
+        logger.info(f"Support started: user={callback.from_user.id}, amount={amount}")
+        await callback.answer("✅ Payment message sent")
+        
     except Exception as e:
-        logger.error(f"Payment error for user {user_id}: {e}")
-        await callback.answer(f"❌ Error: {e}", show_alert=True)
+        logger.exception(f"Failed to create support: {e}")
+        await callback.answer("💥 Error occurred during payment", show_alert=True)
 
-@router.callback_query(F.data.startswith("download_"))
-async def download_callback(callback: CallbackQuery):
-    """Handle download button press"""
-    product_id = callback.data.split("_")[1]
-    product = PRODUCTS.get(product_id)
-    
-    if not product:
-        await callback.answer("❌ Product not found", show_alert=True)
-        return
-    
-    # Mock download link
-    download_text = (
-        f"📥 **Download {product['name']}**\n\n"
-        f"🔗 Download Link: `https://example.com/download/{product_id}`\n"
-        f"🔑 Access Code: `NEONPAY2024`\n\n"
-        f"⚠️ This link expires in 24 hours.\n"
-        f"💾 Save your files immediately!"
-    )
-    
-    await callback.message.answer(download_text, parse_mode="Markdown")
-    await callback.answer("📥 Download information sent!")
-
-@router.callback_query(F.data == "contact_support")
-async def support_callback(callback: CallbackQuery):
-    """Handle support contact"""
-    support_text = (
-        "📞 **Contact Support**\n\n"
-        "Our support team is here to help!\n\n"
-        "📧 Email: support@example.com\n"
-        "💬 Telegram: @support_bot\n"
-        "⏰ Hours: 9 AM - 6 PM UTC\n\n"
-        "Please include your transaction ID when contacting support."
-    )
-    
-    await callback.message.answer(support_text, parse_mode="Markdown")
-    await callback.answer()
-
-# Error handler
 @router.error()
 async def error_handler(event, exception):
-    """Handle errors"""
-    logger.error(f"Error occurred: {exception}")
+    """Handle all bot errors"""
+    logger.error(f"Bot error: {exception}", exc_info=True)
     return True
 
-# Main function
 async def main():
     """Initialize and run the bot"""
-    logger.info("🚀 Starting NEONPAY Aiogram Demo Bot...")
+    logger.info("🚀 Starting NEONPAY Donation Bot...")
     
-    # Setup payment stages
-    await setup_payment_stages()
-    
-    # Include router
-    dp.include_router(router)
-    
-    # Start polling
-    logger.info("✅ Bot started successfully!")
-    logger.info("💫 NEONPAY is ready to process payments!")
-    
-    await dp.start_polling(bot)
+    try:
+        await setup_neonpay()
+        
+        # Include router
+        dp.include_router(router)
+        
+        logger.info("✅ Bot initialized successfully!")
+        logger.info("💰 Donation system ready!")
+        logger.info("🔄 Starting polling...")
+        
+        # Start polling
+        await dp.start_polling(bot)
+        
+    except Exception as e:
+        logger.error(f"Failed to start bot: {e}")
+        raise
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("👋 Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Critical error: {e}")
