@@ -5,7 +5,7 @@ Complete example showing how to use NEONPAY with Pyrogram v2.0+
 
 import asyncio
 from pyrogram import Client, filters
-from neonpay import create_neonpay, PaymentStage, PaymentResult, PaymentStatus
+from neonpay import create_neonpay, PaymentStage, PaymentResult
 
 # Initialize Pyrogram client
 app = Client(
@@ -228,3 +228,4 @@ async def main():
 if __name__ == "__main__":
     # Run the bot
     app.run(main())
+
