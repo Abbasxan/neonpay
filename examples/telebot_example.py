@@ -8,7 +8,7 @@ import time
 from telebot import TeleBot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from neonpay import create_neonpay, PaymentStage, PaymentResult, PaymentStatus
+from neonpay import create_neonpay, PaymentStage, PaymentResult
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -529,3 +529,5 @@ if __name__ == '__main__':
     # Start polling
     bot.infinity_polling()
 
+
+                
