@@ -23,12 +23,14 @@ neonpay/_version.py
 neonpay/core.py
 neonpay/errors.py
 neonpay/factory.py
-neonpay/localization.py
 neonpay/middleware.py
 neonpay/payments.py
 neonpay/py.typed
 neonpay/utils.py
 neonpay/webhooks.py
+neonpay/promotions.py
+neonpay/security.py
+neonpay/subscriptions.py
 neonpay.egg-info/PKG-INFO
 neonpay.egg-info/SOURCES.txt
 neonpay.egg-info/dependency_links.txt
