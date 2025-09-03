@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from aiohttp import web, ClientSession
-from neonpay import RawAPIAdapter, NeonPayCore, PaymentStage, PaymentResult, PaymentStatus
+from neonpay import RawAPIAdapter, NeonPayCore, PaymentStage, PaymentResult
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -454,3 +454,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
