@@ -20,7 +20,7 @@ LATEST_VERSION = {
     "major": 2,
     "minor": 3,
     "patch": 0,
-    "release_date": "2024-12-19",
+    "release_date": "2025-09-01",
     "highlights": [
         "🔒 Enhanced security with comprehensive input validation",
         "🛡️ Webhook signature verification and timestamp validation", 
@@ -52,3 +52,4 @@ LATEST_VERSION = {
     ],
     "migration_guide": "See CHANGELOG.md for upgrade instructions from v2.2.0 to v2.3.0"
 }
+
