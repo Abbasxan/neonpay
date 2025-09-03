@@ -5,7 +5,7 @@ Complete example showing how to use NEONPAY with pyTelegramBotAPI v4.0+
 
 import logging
 import time
-from telebot import TeleBot, types
+from telebot import TeleBot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from neonpay import create_neonpay, PaymentStage, PaymentResult, PaymentStatus
@@ -528,3 +528,4 @@ if __name__ == '__main__':
     
     # Start polling
     bot.infinity_polling()
+
