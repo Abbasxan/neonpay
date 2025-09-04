@@ -6,7 +6,6 @@ Supports Pyrogram v2.0+ with Telegram Stars payments
 
 import json
 import logging
-import mimetypes
 from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 import asyncio
 import threading
@@ -142,3 +141,4 @@ class PyrogramAdapter(PaymentAdapter):
                 "Payment callbacks",
             ],
         }
+
