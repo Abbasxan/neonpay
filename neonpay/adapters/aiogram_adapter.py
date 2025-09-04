@@ -31,7 +31,9 @@ class AiogramAdapter(PaymentAdapter):
         self.dispatcher = dispatcher
         self._handlers_setup = False
         # callback теперь async
-        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = None
+        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = (
+            None
+        )
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Aiogram"""
@@ -127,4 +129,4 @@ class AiogramAdapter(PaymentAdapter):
             "library": "aiogram",
             "version": "3.0+",
             "features": "Telegram Stars, Pre-checkout handling, Payment callbacks",
-                }
+        }
