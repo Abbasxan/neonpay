@@ -1,4 +1,4 @@
-""" 
+"""
 NEONPAY - Modern Telegram Stars Payment Library
 
 Simple and powerful payment processing for Telegram bots
@@ -68,21 +68,27 @@ class _LazyAdapter:
             try:
                 if self.adapter_name == "PyrogramAdapter":
                     from .adapters.pyrogram_adapter import PyrogramAdapter
+
                     self._adapter_class = PyrogramAdapter
                 elif self.adapter_name == "AiogramAdapter":
                     from .adapters.aiogram_adapter import AiogramAdapter
+
                     self._adapter_class = AiogramAdapter
                 elif self.adapter_name == "PythonTelegramBotAdapter":
                     from .adapters.ptb_adapter import PythonTelegramBotAdapter
+
                     self._adapter_class = PythonTelegramBotAdapter
                 elif self.adapter_name == "TelebotAdapter":
                     from .adapters.telebot_adapter import TelebotAdapter
+
                     self._adapter_class = TelebotAdapter
                 elif self.adapter_name == "RawAPIAdapter":
                     from .adapters.raw_api_adapter import RawAPIAdapter
+
                     self._adapter_class = RawAPIAdapter
                 elif self.adapter_name == "BotAPIAdapter":
                     from .adapters.botapi_adapter import BotAPIAdapter
+
                     self._adapter_class = BotAPIAdapter
                 else:
                     raise ImportError(f"Unknown adapter: {self.adapter_name}")
