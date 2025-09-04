@@ -10,7 +10,6 @@ from typing import Dict, Callable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pyrogram import Client
-    from pyrogram.types import InputWebDocument
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -87,3 +86,4 @@ class PyrogramAdapter(PaymentAdapter):
             "version": "2.0+",
             "features": ["Telegram Stars payments", "Photo support", "Payment callbacks"]
         }
+
