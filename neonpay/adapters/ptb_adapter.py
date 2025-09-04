@@ -31,9 +31,7 @@ class PythonTelegramBotAdapter(PaymentAdapter):
         self.application = application
         self._handlers_setup = False
         # callback теперь async
-        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = (
-            None
-        )
+        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = None
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Python Telegram Bot"""
@@ -61,14 +59,21 @@ class PythonTelegramBotAdapter(PaymentAdapter):
         except Exception as e:
             raise NeonPayError(f"Telegram API error: {e}")
 
-    async def setup_handlers(
-        self, payment_callback: Callable[[PaymentResult], Awaitable[None]]
-    ) -> None:
+    def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]) -> None:
         """Setup Python Telegram Bot payment handlers"""
         if self._handlers_setup:
             return
 
-        self._payment_callback = payment_callback
+        # Обновляем callback
+        # Оборачиваем sync callback в async, чтобы можно было await внутри хэндлеров
+        original_cb = payment_callback
+
+        async def async_cb(result: PaymentResult) -> None:
+            maybe_awaitable = original_cb(result)
+            if hasattr(maybe_awaitable, "__await__"):  # если callback async
+                await maybe_awaitable
+
+        self._payment_callback = async_cb
 
         from telegram.ext import PreCheckoutQueryHandler, MessageHandler, filters
 
@@ -131,4 +136,4 @@ class PythonTelegramBotAdapter(PaymentAdapter):
             "library": "python-telegram-bot",
             "version": "20.0+",
             "features": "Telegram Stars, Pre-checkout handling, Payment callbacks",
-        }
+    }
