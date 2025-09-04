@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import Mock
 from neonpay.core import NeonPayCore, PaymentStage, PaymentResult
 from neonpay.errors import PaymentValidationError
 from neonpay.adapters.base import PaymentAdapter
