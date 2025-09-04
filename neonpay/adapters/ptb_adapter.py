@@ -10,7 +10,7 @@ from typing import Dict, Callable, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from telegram import Bot
     from telegram.ext import Application
-    from telegram import LabeledPrice, PreCheckoutQuery, Message
+    from telegram import PreCheckoutQuery, Message
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -133,3 +133,4 @@ class PythonTelegramBotAdapter(PaymentAdapter):
             "version": "20.0+",
             "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
         }
+
