@@ -1,4 +1,4 @@
-""" 
+"""
 Pyrogram adapter for NEONPAY
 
 Supports Pyrogram v2.0+ with Telegram Stars payments
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class PyrogramAdapter(PaymentAdapter):
     """Pyrogram library adapter for NEONPAY"""
-    
+
     def __init__(self, client: "Client"):
         """
         Initialize Pyrogram adapter
@@ -31,30 +31,26 @@ class PyrogramAdapter(PaymentAdapter):
         """
         self.client = client
         self._payment_callback: Optional[Callable[[PaymentResult], None]] = None
-    
+
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Pyrogram"""
         try:
             from pyrogram.types import InputWebDocument
-            
+
             photo = None
             if stage.photo_url:
                 mime_type, _ = mimetypes.guess_type(stage.photo_url)
                 if not mime_type:
                     mime_type = "image/jpeg"
-                
+
                 photo = InputWebDocument(
-                    url=stage.photo_url,
-                    mime_type=mime_type,
-                    estimated_size=1024
+                    url=stage.photo_url, mime_type=mime_type, estimated_size=1024
                 )
-            
-            payload = json.dumps({
-                "user_id": user_id,
-                "amount": stage.price,
-                **stage.payload
-            })
-            
+
+            payload = json.dumps(
+                {"user_id": user_id, "amount": stage.price, **stage.payload}
+            )
+
             await self.client.send_invoice(
                 chat_id=user_id,
                 title=stage.title,
@@ -64,13 +60,15 @@ class PyrogramAdapter(PaymentAdapter):
                 currency="XTR",
                 prices=[{"label": stage.label, "amount": stage.price}],
                 photo=photo,
-                start_parameter=stage.start_parameter
+                start_parameter=stage.start_parameter,
             )
             return True
         except Exception as e:
             raise NeonPayError(f"Telegram API error: {e}")
-    
-    async def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]) -> None:
+
+    async def setup_handlers(
+        self, payment_callback: Callable[[PaymentResult], None]
+    ) -> None:
         """Setup Pyrogram payment handlers"""
         self._payment_callback = payment_callback
         logger.info("Pyrogram payment handlers configured")
@@ -98,7 +96,7 @@ class PyrogramAdapter(PaymentAdapter):
             currency=payment.currency,
             status="COMPLETED",  # Можно использовать Enum, если он нужен
             transaction_id=payment.telegram_payment_charge_id,
-            metadata=payload_data
+            metadata=payload_data,
         )
 
         await self._call_async_callback(result)
@@ -113,6 +111,7 @@ class PyrogramAdapter(PaymentAdapter):
                 asyncio.get_running_loop()
                 asyncio.create_task(self._payment_callback(result))
             except RuntimeError:
+
                 def run():
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
@@ -125,12 +124,15 @@ class PyrogramAdapter(PaymentAdapter):
                 thread.start()
         except Exception as e:
             logger.error(f"Error calling payment callback: {e}")
-    
+
     def get_library_info(self) -> Dict[str, str]:
         """Get Pyrogram adapter information"""
         return {
             "library": "pyrogram",
             "version": "2.0+",
-            "features": ["Telegram Stars payments", "Photo support", "Payment callbacks"] 
+            "features": [
+                "Telegram Stars payments",
+                "Photo support",
+                "Payment callbacks",
+            ],
         }
-        

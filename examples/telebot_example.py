@@ -30,26 +30,38 @@ PLANS = {
         "description": "Essential features for personal use",
         "price": 99,
         "features": ["5 Projects", "Basic Support", "1GB Storage"],
-        "duration": 30
+        "duration": 30,
     },
     "pro": {
         "name": "💼 Pro Plan",
         "description": "Advanced features for professionals",
         "price": 299,
-        "features": ["Unlimited Projects", "Priority Support", "10GB Storage", "Advanced Analytics"],
-        "duration": 30
+        "features": [
+            "Unlimited Projects",
+            "Priority Support",
+            "10GB Storage",
+            "Advanced Analytics",
+        ],
+        "duration": 30,
     },
     "enterprise": {
         "name": "🏢 Enterprise Plan",
         "description": "Full-featured plan for teams",
         "price": 599,
-        "features": ["Everything in Pro", "Team Collaboration", "100GB Storage", "Custom Integrations", "Dedicated Manager"],
-        "duration": 30
-    }
+        "features": [
+            "Everything in Pro",
+            "Team Collaboration",
+            "100GB Storage",
+            "Custom Integrations",
+            "Dedicated Manager",
+        ],
+        "duration": 30,
+    },
 }
 
 # User database (in production, use a real database)
 user_subscriptions = {}
+
 
 def setup_payment_stages():
     """Initialize subscription payment stages"""
@@ -64,12 +76,13 @@ def setup_payment_stages():
                 "plan_id": plan_id,
                 "plan_name": plan["name"],
                 "duration": plan["duration"],
-                "features": plan["features"]
-            }
+                "features": plan["features"],
+            },
         )
         neonpay.create_payment_stage(plan_id, stage)
-    
+
     logger.info("✅ Subscription plans initialized")
+
 
 # Payment completion handler
 @neonpay.on_payment
@@ -91,7 +104,7 @@ async def handle_subscription_payment(result: PaymentResult):
         "plan_name": plan_name,
         "features": features,
         "expiry_date": expiry_date,
-        "active": True
+        "active": True,
     }
 
     # Send confirmation
@@ -111,17 +124,18 @@ async def handle_subscription_payment(result: PaymentResult):
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
         InlineKeyboardButton("📊 Dashboard", callback_data="dashboard"),
-        InlineKeyboardButton("⚙️ Settings", callback_data="settings")
+        InlineKeyboardButton("⚙️ Settings", callback_data="settings"),
     )
-    keyboard.row(
-        InlineKeyboardButton("📞 Support", callback_data="support")
-    )
+    keyboard.row(InlineKeyboardButton("📞 Support", callback_data="support"))
 
     try:
-        bot.send_message(user_id, confirmation_text, reply_markup=keyboard, parse_mode='Markdown')
+        bot.send_message(
+            user_id, confirmation_text, reply_markup=keyboard, parse_mode="Markdown"
+        )
         send_welcome_guide(user_id, plan_id)
     except Exception as e:
         logger.error(f"Failed to send confirmation to user {user_id}: {e}")
+
 
 def send_welcome_guide(user_id: int, plan_id: str):
     """Send welcome guide for new subscribers"""
@@ -140,28 +154,31 @@ def send_welcome_guide(user_id: int, plan_id: str):
     )
 
     try:
-        bot.send_message(user_id, guide_text, parse_mode='Markdown')
+        bot.send_message(user_id, guide_text, parse_mode="Markdown")
     except Exception as e:
         logger.error(f"Failed to send welcome guide to user {user_id}: {e}")
+
 
 def is_subscribed(user_id: int) -> bool:
     """Check if user has active subscription"""
     subscription = user_subscriptions.get(user_id)
     if not subscription:
         return False
-    
+
     if subscription["expiry_date"] < time.time():
         subscription["active"] = False
         return False
-    
+
     return subscription["active"]
+
 
 def get_user_plan(user_id: int) -> dict:
     """Get user's current subscription plan"""
     return user_subscriptions.get(user_id, {})
 
+
 # Command handlers
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=["start"])
 def start_command(message):
     """Welcome message"""
     welcome_text = (
@@ -179,21 +196,22 @@ def start_command(message):
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
         InlineKeyboardButton("🛍️ View Plans", callback_data="show_plans"),
-        InlineKeyboardButton("ℹ️ Learn More", callback_data="learn_more")
+        InlineKeyboardButton("ℹ️ Learn More", callback_data="learn_more"),
     )
 
     if is_subscribed(message.from_user.id):
         keyboard.row(InlineKeyboardButton("📊 My Dashboard", callback_data="dashboard"))
 
-    bot.reply_to(message, welcome_text, reply_markup=keyboard, parse_mode='Markdown')
+    bot.reply_to(message, welcome_text, reply_markup=keyboard, parse_mode="Markdown")
 
-@bot.message_handler(commands=['plans'])
+
+@bot.message_handler(commands=["plans"])
 def plans_command(message):
     """Show subscription plans"""
     show_subscription_plans(message.from_user.id)
 
 
-@bot.message_handler(commands=['status'])
+@bot.message_handler(commands=["status"])
 def status_command(message):
     """Show subscription status"""
     user_id = message.from_user.id
@@ -206,7 +224,9 @@ def status_command(message):
         )
     else:
         plan = get_user_plan(user_id)
-        expiry_date = time.strftime('%Y-%m-%d %H:%M', time.localtime(plan["expiry_date"]))
+        expiry_date = time.strftime(
+            "%Y-%m-%d %H:%M", time.localtime(plan["expiry_date"])
+        )
         days_left = int((plan["expiry_date"] - time.time()) / (24 * 60 * 60))
         status_text = (
             f"✅ **Active Subscription**\n\n"
@@ -222,14 +242,17 @@ def status_command(message):
     if is_subscribed(user_id):
         keyboard.row(
             InlineKeyboardButton("📊 Dashboard", callback_data="dashboard"),
-            InlineKeyboardButton("🔄 Renew", callback_data="show_plans")
+            InlineKeyboardButton("🔄 Renew", callback_data="show_plans"),
         )
     else:
-        keyboard.row(InlineKeyboardButton("🛍️ Subscribe Now", callback_data="show_plans"))
+        keyboard.row(
+            InlineKeyboardButton("🛍️ Subscribe Now", callback_data="show_plans")
+        )
 
-    bot.reply_to(message, status_text, reply_markup=keyboard, parse_mode='Markdown')
+    bot.reply_to(message, status_text, reply_markup=keyboard, parse_mode="Markdown")
 
-@bot.message_handler(commands=['dashboard'])
+
+@bot.message_handler(commands=["dashboard"])
 def dashboard_command(message):
     """Show user dashboard"""
     user_id = message.from_user.id
@@ -237,7 +260,7 @@ def dashboard_command(message):
     if not is_subscribed(user_id):
         bot.reply_to(
             message,
-            "❌ You need an active subscription to access the dashboard. Use /plans to subscribe!"
+            "❌ You need an active subscription to access the dashboard. Use /plans to subscribe!",
         )
         return
 
@@ -258,16 +281,17 @@ def dashboard_command(message):
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
         InlineKeyboardButton("📁 Projects", callback_data="projects"),
-        InlineKeyboardButton("📊 Analytics", callback_data="analytics")
+        InlineKeyboardButton("📊 Analytics", callback_data="analytics"),
     )
     keyboard.row(
         InlineKeyboardButton("⚙️ Settings", callback_data="settings"),
-        InlineKeyboardButton("📞 Support", callback_data="support")
+        InlineKeyboardButton("📞 Support", callback_data="support"),
     )
 
-    bot.reply_to(message, dashboard_text, reply_markup=keyboard, parse_mode='Markdown')
+    bot.reply_to(message, dashboard_text, reply_markup=keyboard, parse_mode="Markdown")
 
-@bot.message_handler(commands=['help'])
+
+@bot.message_handler(commands=["help"])
 def help_command(message):
     """Show help information"""
     help_text = (
@@ -291,8 +315,9 @@ def help_command(message):
         "• Auto-renewal available\n\n"
         "Need help? Contact @support"
     )
-    
-    bot.reply_to(message, help_text, parse_mode='Markdown')
+
+    bot.reply_to(message, help_text, parse_mode="Markdown")
+
 
 def show_subscription_plans(user_id: int):
     """Display subscription plans"""
@@ -301,15 +326,20 @@ def show_subscription_plans(user_id: int):
     keyboard = InlineKeyboardMarkup()
 
     for plan_id, plan in PLANS.items():
-        button_text = "{} - {} ⭐".format(plan['name'], plan['price'])
+        button_text = "{} - {} ⭐".format(plan["name"], plan["price"])
         keyboard.row(InlineKeyboardButton(button_text, callback_data="plan_" + plan_id))
 
-    keyboard.row(InlineKeyboardButton("❓ Compare Plans", callback_data="compare_plans"))
+    keyboard.row(
+        InlineKeyboardButton("❓ Compare Plans", callback_data="compare_plans")
+    )
 
     try:
-        bot.send_message(user_id, plans_text, reply_markup=keyboard, parse_mode='Markdown')
+        bot.send_message(
+            user_id, plans_text, reply_markup=keyboard, parse_mode="Markdown"
+        )
     except Exception as e:
         logger.error("Failed to send plans to user {}: {}".format(user_id, e))
+
 
 # Callback query handlers
 @bot.callback_query_handler(func=lambda call: True)
@@ -342,11 +372,14 @@ def callback_handler(call):
         logger.error(f"Callback error: {e}")
         bot.answer_callback_query(call.id, "❌ An error occurred", show_alert=True)
 
+
 def show_plan_details(call, plan_id: str):
     """Show detailed plan information"""
     plan = PLANS.get(plan_id)
     if not plan:
-        bot.edit_message_text("❌ Plan not found", call.from_user.id, call.message.message_id)
+        bot.edit_message_text(
+            "❌ Plan not found", call.from_user.id, call.message.message_id
+        )
         return
 
     details_text = (
@@ -361,10 +394,21 @@ def show_plan_details(call, plan_id: str):
     details_text += "\n🎯 Perfect for your needs!"
 
     keyboard = InlineKeyboardMarkup()
-    keyboard.row(InlineKeyboardButton(f"💳 Subscribe ({plan['price']} ⭐)", callback_data=f"subscribe_{plan_id}"))
+    keyboard.row(
+        InlineKeyboardButton(
+            f"💳 Subscribe ({plan['price']} ⭐)", callback_data=f"subscribe_{plan_id}"
+        )
+    )
     keyboard.row(InlineKeyboardButton("🔙 Back to Plans", callback_data="show_plans"))
 
-    bot.edit_message_text(details_text, call.from_user.id, call.message.message_id, reply_markup=keyboard, parse_mode='Markdown')
+    bot.edit_message_text(
+        details_text,
+        call.from_user.id,
+        call.message.message_id,
+        reply_markup=keyboard,
+        parse_mode="Markdown",
+    )
+
 
 def process_subscription(call, plan_id: str):
     """Process subscription purchase"""
@@ -372,6 +416,7 @@ def process_subscription(call, plan_id: str):
 
     try:
         import asyncio
+
         success = asyncio.run(neonpay.send_payment(user_id, plan_id))
 
         if success:
@@ -382,18 +427,21 @@ def process_subscription(call, plan_id: str):
                 "🎉 Welcome to the premium experience!",
                 call.from_user.id,
                 call.message.message_id,
-                parse_mode='Markdown'
+                parse_mode="Markdown",
             )
         else:
             bot.edit_message_text(
                 "❌ Failed to create payment. Please try again.",
                 call.from_user.id,
-                call.message.message_id
+                call.message.message_id,
             )
 
     except Exception as e:
         logger.error(f"Subscription error for user {user_id}: {e}")
-        bot.edit_message_text(f"❌ Error: {e}", call.from_user.id, call.message.message_id)
+        bot.edit_message_text(
+            f"❌ Error: {e}", call.from_user.id, call.message.message_id
+        )
+
 
 def show_plan_comparison(call):
     """Show plan comparison table"""
@@ -420,7 +468,14 @@ def show_plan_comparison(call):
     keyboard = InlineKeyboardMarkup()
     keyboard.row(InlineKeyboardButton("🛍️ Choose Plan", callback_data="show_plans"))
 
-    bot.edit_message_text(comparison_text, call.from_user.id, call.message.message_id, reply_markup=keyboard, parse_mode='Markdown')
+    bot.edit_message_text(
+        comparison_text,
+        call.from_user.id,
+        call.message.message_id,
+        reply_markup=keyboard,
+        parse_mode="Markdown",
+    )
+
 
 def show_learn_more(call):
     """Show detailed information about the service"""
@@ -448,7 +503,14 @@ def show_learn_more(call):
     keyboard = InlineKeyboardMarkup()
     keyboard.row(InlineKeyboardButton("🛍️ View Plans", callback_data="show_plans"))
 
-    bot.edit_message_text(info_text, call.from_user.id, call.message.message_id, reply_markup=keyboard, parse_mode='Markdown')
+    bot.edit_message_text(
+        info_text,
+        call.from_user.id,
+        call.message.message_id,
+        reply_markup=keyboard,
+        parse_mode="Markdown",
+    )
+
 
 def show_support_info(call):
     """Show support contact information"""
@@ -472,7 +534,10 @@ def show_support_info(call):
         "💬 Community: t.me/neonpay_community"
     )
 
-    bot.edit_message_text(support_text, call.from_user.id, call.message.message_id, parse_mode='Markdown')
+    bot.edit_message_text(
+        support_text, call.from_user.id, call.message.message_id, parse_mode="Markdown"
+    )
+
 
 def show_dashboard_callback(call):
     """Show dashboard via callback"""
@@ -482,7 +547,7 @@ def show_dashboard_callback(call):
         bot.edit_message_text(
             "❌ You need an active subscription to access the dashboard. Use /plans to subscribe!",
             call.from_user.id,
-            call.message.message_id
+            call.message.message_id,
         )
         return
 
@@ -503,30 +568,31 @@ def show_dashboard_callback(call):
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
         InlineKeyboardButton("📁 Projects", callback_data="projects"),
-        InlineKeyboardButton("📊 Analytics", callback_data="analytics")
+        InlineKeyboardButton("📊 Analytics", callback_data="analytics"),
     )
     keyboard.row(
         InlineKeyboardButton("⚙️ Settings", callback_data="settings"),
-        InlineKeyboardButton("🔄 Renew", callback_data="show_plans")
+        InlineKeyboardButton("🔄 Renew", callback_data="show_plans"),
     )
 
-    bot.edit_message_text(dashboard_text, call.from_user.id, call.message.message_id, reply_markup=keyboard, parse_mode='Markdown')
-    
+    bot.edit_message_text(
+        dashboard_text,
+        call.from_user.id,
+        call.message.message_id,
+        reply_markup=keyboard,
+        parse_mode="Markdown",
+    )
+
 
 # Initialize and run
-if __name__ == '__main__':
+if __name__ == "__main__":
     logger.info("🚀 Starting NEONPAY pyTelegramBotAPI Demo...")
-    
+
     # Setup payment stages
     setup_payment_stages()
-    
+
     logger.info("✅ Bot started successfully!")
     logger.info("💫 NEONPAY is ready to process payments!")
-    
+
     # Start polling
     bot.infinity_polling()
-
-
-                
-
-

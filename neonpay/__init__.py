@@ -4,20 +4,10 @@ Simple and powerful payment processing for Telegram bots
 """
 
 # Core classes
-from .core import (
-    NeonPayCore,
-    PaymentStage,
-    PaymentResult,
-    PaymentStatus,
-    BotLibrary
-)
+from .core import NeonPayCore, PaymentStage, PaymentResult, PaymentStatus, BotLibrary
 
 # Promotions system
-from .promotions import (
-    PromoSystem,
-    PromoCode,
-    DiscountType
-)
+from .promotions import PromoSystem, PromoCode, DiscountType
 
 # Subscriptions system
 from .subscriptions import (
@@ -25,7 +15,7 @@ from .subscriptions import (
     SubscriptionPlan,
     Subscription,
     SubscriptionStatus,
-    SubscriptionPeriod
+    SubscriptionPeriod,
 )
 
 # Security system
@@ -35,7 +25,7 @@ from .security import (
     SecurityEvent,
     UserSecurityProfile,
     ThreatLevel,
-    ActionType
+    ActionType,
 )
 
 # Factory
@@ -48,7 +38,7 @@ from .errors import (
     ConfigurationError,
     AdapterError,
     ValidationError,
-    StarsPaymentError  # Legacy compatibility
+    StarsPaymentError,  # Legacy compatibility
 )
 
 # Legacy compatibility
@@ -58,34 +48,42 @@ __version__ = "2.2.0"
 __author__ = "Abbas Sultanov"
 __email__ = "sultanov.abas@outlook.com"
 
+
 # Lazy loading for adapters to avoid import errors
 class _LazyAdapter:
     """Lazy loading adapter class"""
+
     def __init__(self, adapter_name: str):
         self.adapter_name = adapter_name
         self._adapter_class = None
-    
+
     def _load_adapter(self):
         """Load the actual adapter class"""
         if self._adapter_class is None:
             try:
                 if self.adapter_name == "PyrogramAdapter":
                     from .adapters.pyrogram_adapter import PyrogramAdapter
+
                     self._adapter_class = PyrogramAdapter
                 elif self.adapter_name == "AiogramAdapter":
                     from .adapters.aiogram_adapter import AiogramAdapter
+
                     self._adapter_class = AiogramAdapter
                 elif self.adapter_name == "PythonTelegramBotAdapter":
                     from .adapters.ptb_adapter import PythonTelegramBotAdapter
+
                     self._adapter_class = PythonTelegramBotAdapter
                 elif self.adapter_name == "TelebotAdapter":
                     from .adapters.telebot_adapter import TelebotAdapter
+
                     self._adapter_class = TelebotAdapter
                 elif self.adapter_name == "RawAPIAdapter":
                     from .adapters.raw_api_adapter import RawAPIAdapter
+
                     self._adapter_class = RawAPIAdapter
                 elif self.adapter_name == "BotAPIAdapter":
                     from .adapters.botapi_adapter import BotAPIAdapter
+
                     self._adapter_class = BotAPIAdapter
                 else:
                     raise ImportError(f"Unknown adapter: {self.adapter_name}")
@@ -95,16 +93,17 @@ class _LazyAdapter:
                     f"Install required dependencies: pip install neonpay[{self.adapter_name.lower().replace('adapter', '')}]"
                 )
         return self._adapter_class
-    
+
     def __call__(self, *args, **kwargs):
         """Create adapter instance when called"""
         adapter_class = self._load_adapter()
         return adapter_class(*args, **kwargs)
-    
+
     def __getattr__(self, name):
         """Delegate attribute access to the actual adapter class"""
         adapter_class = self._load_adapter()
         return getattr(adapter_class, name)
+
 
 # Create lazy adapter instances
 PyrogramAdapter = _LazyAdapter("PyrogramAdapter")
@@ -117,23 +116,20 @@ BotAPIAdapter = _LazyAdapter("BotAPIAdapter")
 __all__ = [
     # Core
     "NeonPayCore",
-    "PaymentStage", 
+    "PaymentStage",
     "PaymentResult",
     "PaymentStatus",
     "BotLibrary",
-    
     # Promotions
     "PromoSystem",
-    "PromoCode", 
+    "PromoCode",
     "DiscountType",
-    
     # Subscriptions
     "SubscriptionManager",
     "SubscriptionPlan",
     "Subscription",
     "SubscriptionStatus",
     "SubscriptionPeriod",
-    
     # Security
     "SecurityManager",
     "RateLimiter",
@@ -141,7 +137,6 @@ __all__ = [
     "UserSecurityProfile",
     "ThreatLevel",
     "ActionType",
-    
     # Adapters (lazy loaded)
     "PyrogramAdapter",
     "AiogramAdapter",
@@ -149,18 +144,15 @@ __all__ = [
     "TelebotAdapter",
     "RawAPIAdapter",
     "BotAPIAdapter",
-    
     # Factory
     "create_neonpay",
-    
     # Errors
     "NeonPayError",
     "PaymentError",
-    "ConfigurationError", 
+    "ConfigurationError",
     "AdapterError",
     "ValidationError",
     "StarsPaymentError",
-    
     # Legacy
-    "NeonStars"
-    ]
+    "NeonStars",
+]

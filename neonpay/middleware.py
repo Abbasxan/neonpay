@@ -15,12 +15,16 @@ class PaymentMiddleware(ABC):
     """Base class for payment middleware."""
 
     @abstractmethod
-    async def before_payment(self, stage: PaymentStage, context: Dict[str, Any]) -> Optional[PaymentStage]:
+    async def before_payment(
+        self, stage: PaymentStage, context: Dict[str, Any]
+    ) -> Optional[PaymentStage]:
         """Called before payment processing. Return None to stop processing."""
         pass
 
     @abstractmethod
-    async def after_payment(self, result: PaymentResult, context: Dict[str, Any]) -> Optional[PaymentResult]:
+    async def after_payment(
+        self, result: PaymentResult, context: Dict[str, Any]
+    ) -> Optional[PaymentResult]:
         """Called after payment processing. Return None to stop processing."""
         pass
 
@@ -36,14 +40,20 @@ class LoggingMiddleware(PaymentMiddleware):
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger("neonpay.payments")
 
-    async def before_payment(self, stage: PaymentStage, context: Dict[str, Any]) -> Optional[PaymentStage]:
+    async def before_payment(
+        self, stage: PaymentStage, context: Dict[str, Any]
+    ) -> Optional[PaymentStage]:
         self.logger.info(f"Processing payment: {stage.title} - {stage.price} XTR")
         context["start_time"] = datetime.now()
         return stage
 
-    async def after_payment(self, result: PaymentResult, context: Dict[str, Any]) -> Optional[PaymentResult]:
+    async def after_payment(
+        self, result: PaymentResult, context: Dict[str, Any]
+    ) -> Optional[PaymentResult]:
         duration = datetime.now() - context.get("start_time", datetime.now())
-        self.logger.info(f"Payment completed: {result.success} in {duration.total_seconds():.2f}s")
+        self.logger.info(
+            f"Payment completed: {result.success} in {duration.total_seconds():.2f}s"
+        )
         return result
 
     async def on_error(self, error: Exception, context: Dict[str, Any]) -> bool:
@@ -58,16 +68,22 @@ class ValidationMiddleware(PaymentMiddleware):
         self.min_price = min_price
         self.max_price = max_price
 
-    async def before_payment(self, stage: PaymentStage, context: Dict[str, Any]) -> Optional[PaymentStage]:
+    async def before_payment(
+        self, stage: PaymentStage, context: Dict[str, Any]
+    ) -> Optional[PaymentStage]:
         if not (self.min_price <= stage.price <= self.max_price):
-            raise ValueError(f"Price must be between {self.min_price} and {self.max_price} XTR")
+            raise ValueError(
+                f"Price must be between {self.min_price} and {self.max_price} XTR"
+            )
 
         if not stage.title.strip():
             raise ValueError("Payment title cannot be empty")
 
         return stage
 
-    async def after_payment(self, result: PaymentResult, context: Dict[str, Any]) -> Optional[PaymentResult]:
+    async def after_payment(
+        self, result: PaymentResult, context: Dict[str, Any]
+    ) -> Optional[PaymentResult]:
         return result
 
     async def on_error(self, error: Exception, context: Dict[str, Any]) -> bool:
@@ -81,25 +97,35 @@ class WebhookMiddleware(PaymentMiddleware):
         self.webhook_url = webhook_url
         self.secret_key = secret_key
 
-    async def before_payment(self, stage: PaymentStage, context: Dict[str, Any]) -> Optional[PaymentStage]:
+    async def before_payment(
+        self, stage: PaymentStage, context: Dict[str, Any]
+    ) -> Optional[PaymentStage]:
         return stage
 
-    async def after_payment(self, result: PaymentResult, context: Dict[str, Any]) -> Optional[PaymentResult]:
+    async def after_payment(
+        self, result: PaymentResult, context: Dict[str, Any]
+    ) -> Optional[PaymentResult]:
         if result.success:
-            await self._send_webhook("payment_success", {
-                "payment_id": result.payment_charge_id,
-                "user_id": context.get("user_id"),
-                "amount": context.get("amount"),
-                "timestamp": datetime.now().isoformat()
-            })
+            await self._send_webhook(
+                "payment_success",
+                {
+                    "payment_id": result.payment_charge_id,
+                    "user_id": context.get("user_id"),
+                    "amount": context.get("amount"),
+                    "timestamp": datetime.now().isoformat(),
+                },
+            )
         return result
 
     async def on_error(self, error: Exception, context: Dict[str, Any]) -> bool:
-        await self._send_webhook("payment_error", {
-            "error": str(error),
-            "user_id": context.get("user_id"),
-            "timestamp": datetime.now().isoformat()
-        })
+        await self._send_webhook(
+            "payment_error",
+            {
+                "error": str(error),
+                "user_id": context.get("user_id"),
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
         return True
 
     async def _send_webhook(self, event_type: str, data: Dict[str, Any]):
@@ -108,24 +134,21 @@ class WebhookMiddleware(PaymentMiddleware):
         import hashlib
         import hmac
 
-        payload = {
-            "event": event_type,
-            "data": data
-        }
+        payload = {"event": event_type, "data": data}
 
         headers = {"Content-Type": "application/json"}
 
         if self.secret_key:
             signature = hmac.new(
-                self.secret_key.encode(),
-                str(payload).encode(),
-                hashlib.sha256
+                self.secret_key.encode(), str(payload).encode(), hashlib.sha256
             ).hexdigest()
             headers["X-NeonPay-Signature"] = f"sha256={signature}"
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.post(self.webhook_url, json=payload, headers=headers) as response:
+                async with session.post(
+                    self.webhook_url, json=payload, headers=headers
+                ) as response:
                     if response.status != 200:
                         logging.warning(f"Webhook failed: {response.status}")
         except Exception as e:
@@ -144,9 +167,13 @@ class MiddlewareManager:
 
     def remove_middleware(self, middleware_class: type):
         """Remove middleware by class type."""
-        self.middlewares = [m for m in self.middlewares if not isinstance(m, middleware_class)]
+        self.middlewares = [
+            m for m in self.middlewares if not isinstance(m, middleware_class)
+        ]
 
-    async def process_before_payment(self, stage: PaymentStage, context: Dict[str, Any]) -> Optional[PaymentStage]:
+    async def process_before_payment(
+        self, stage: PaymentStage, context: Dict[str, Any]
+    ) -> Optional[PaymentStage]:
         """Process all before_payment middleware."""
         current_stage = stage
 
@@ -163,13 +190,17 @@ class MiddlewareManager:
 
         return current_stage
 
-    async def process_after_payment(self, result: PaymentResult, context: Dict[str, Any]) -> Optional[PaymentResult]:
+    async def process_after_payment(
+        self, result: PaymentResult, context: Dict[str, Any]
+    ) -> Optional[PaymentResult]:
         """Process all after_payment middleware."""
         current_result = result
 
         for middleware in self.middlewares:
             try:
-                processed_result = await middleware.after_payment(current_result, context)
+                processed_result = await middleware.after_payment(
+                    current_result, context
+                )
                 if processed_result is None:
                     return None
                 current_result = processed_result

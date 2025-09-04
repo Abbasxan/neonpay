@@ -17,11 +17,16 @@ from typing import Callable, Optional
 # Legacy compatibility - only import if pyrogram is available
 try:
     from pyrogram.raw.types import (
-        LabeledPrice, Invoice, InputWebDocument,
-        InputMediaInvoice, DataJSON,
-        UpdateBotPrecheckoutQuery, MessageActionPaymentSentMe
+        LabeledPrice,
+        Invoice,
+        InputWebDocument,
+        InputMediaInvoice,
+        DataJSON,
+        UpdateBotPrecheckoutQuery,
+        MessageActionPaymentSentMe,
     )
     from pyrogram.raw.functions.messages import SendMedia, SetBotPrecheckoutResults
+
     PYROGRAM_AVAILABLE = True
 except ImportError:
     PYROGRAM_AVAILABLE = False
@@ -39,7 +44,7 @@ class NeonStars:
             raise ImportError(
                 "Pyrogram is not installed. Install with: pip install pyrogram"
             )
-        
+
         self.app = app
         self.thank_you = thank_you
         self._payment_callback: Optional[Callable[[int, int], None]] = None
@@ -54,9 +59,15 @@ class NeonStars:
         """
         self._payment_callback = callback
 
-    async def send_donate(self, user_id: int, amount: int, label: str,
-                          title: str, description: str,
-                          photo_url: str = "https://telegram.org/img/t_logo.png"):
+    async def send_donate(
+        self,
+        user_id: int,
+        amount: int,
+        label: str,
+        title: str,
+        description: str,
+        photo_url: str = "https://telegram.org/img/t_logo.png",
+    ):
         """Отправить пользователю инвойс"""
         try:
             peer = await self.app.resolve_peer(user_id)
@@ -75,30 +86,38 @@ class NeonStars:
             payload=json.dumps({"user_id": user_id, "amount": amount}).encode(),
             provider="",
             provider_data=DataJSON(data="{}"),
-            photo=InputWebDocument(url=photo_url, size=0, mime_type="image/png", attributes=[]),
+            photo=InputWebDocument(
+                url=photo_url, size=0, mime_type="image/png", attributes=[]
+            ),
             start_param="stars_donate",
         )
 
         try:
-            await self.app.invoke(SendMedia(
-                peer=peer,
-                media=media,
-                message=f"{label}\n\n{description}\n\n{self.thank_you}",
-                random_id=random.getrandbits(64),
-            ))
+            await self.app.invoke(
+                SendMedia(
+                    peer=peer,
+                    media=media,
+                    message=f"{label}\n\n{description}\n\n{self.thank_you}",
+                    random_id=random.getrandbits(64),
+                )
+            )
         except Exception as e:
             raise StarsPaymentError(f"Ошибка отправки счета: {e}")
 
     async def _on_raw_update(self, client, update, users, chats):
         """Автоматическая обработка pre_checkout и успешной оплаты"""
         if isinstance(update, UpdateBotPrecheckoutQuery):
-            await client.invoke(SetBotPrecheckoutResults(query_id=update.query_id, success=True))
+            await client.invoke(
+                SetBotPrecheckoutResults(query_id=update.query_id, success=True)
+            )
 
         if hasattr(update, "message") and hasattr(update.message, "action"):
             action = update.message.action
-            if isinstance(action, MessageActionPaymentSentMe) and action.currency == "XTR":
+            if (
+                isinstance(action, MessageActionPaymentSentMe)
+                and action.currency == "XTR"
+            ):
                 user_id = update.message.from_id.user_id
                 amount = action.total_amount
                 if self._payment_callback:
                     await self._payment_callback(user_id, amount)
-                    

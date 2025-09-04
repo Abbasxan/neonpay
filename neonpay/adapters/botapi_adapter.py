@@ -31,11 +31,9 @@ class BotAPIAdapter(PaymentAdapter):
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using official Bot API"""
-        payload = json.dumps({
-            "user_id": user_id,
-            "amount": stage.price,
-            **stage.payload
-        })
+        payload = json.dumps(
+            {"user_id": user_id, "amount": stage.price, **stage.payload}
+        )
 
         try:
             await self._call_async(
@@ -48,7 +46,7 @@ class BotAPIAdapter(PaymentAdapter):
                 currency="XTR",
                 prices=[{"label": stage.label, "amount": stage.price}],
                 photo_url=stage.photo_url,
-                start_parameter=stage.start_parameter
+                start_parameter=stage.start_parameter,
             )
             return True
         except Exception as e:
@@ -67,8 +65,11 @@ class BotAPIAdapter(PaymentAdapter):
     async def handle_pre_checkout_query(self, query):
         """Handle pre-checkout query"""
         try:
-            await self._call_async(self.bot.answer_pre_checkout_query,
-                                   pre_checkout_query_id=query.id, ok=True)
+            await self._call_async(
+                self.bot.answer_pre_checkout_query,
+                pre_checkout_query_id=query.id,
+                ok=True,
+            )
         except Exception as e:
             logger.error(f"Error handling pre-checkout query: {e}")
 
@@ -95,7 +96,7 @@ class BotAPIAdapter(PaymentAdapter):
             currency=payment.currency,
             status=PaymentStatus.COMPLETED,
             transaction_id=payment.telegram_payment_charge_id,
-            metadata=payload_data
+            metadata=payload_data,
         )
 
         # Call callback safely (supports async)
@@ -136,6 +137,9 @@ class BotAPIAdapter(PaymentAdapter):
         return {
             "library": "python-telegram-bot",
             "version": "20+",
-            "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
-            }
-        
+            "features": [
+                "Telegram Stars payments",
+                "Pre-checkout handling",
+                "Payment callbacks",
+            ],
+        }

@@ -22,7 +22,7 @@ class MockAdapter(PaymentAdapter):
             amount=payment_data.get("amount", 100),
             currency="XTR",
             user_id=payment_data.get("user_id", 12345),
-            stage_id=payment_data.get("stage_id", "test_stage")
+            stage_id=payment_data.get("stage_id", "test_stage"),
         )
 
 
@@ -43,7 +43,7 @@ class TestPaymentStage:
             title="Test Product",
             description="Test Description",
             amount=100,
-            currency="XTR"
+            currency="XTR",
         )
         assert stage.stage_id == "test_stage"
         assert stage.title == "Test Product"
@@ -57,7 +57,7 @@ class TestPaymentStage:
             description="Test Description",
             amount=100,
             currency="XTR",
-            logo_url="https://example.com/logo.png"
+            logo_url="https://example.com/logo.png",
         )
         assert stage.logo_url == "https://example.com/logo.png"
 
@@ -70,7 +70,7 @@ class TestPaymentResult:
             amount=100,
             currency="XTR",
             user_id=12345,
-            stage_id="test_stage"
+            stage_id="test_stage",
         )
         assert result.success is True
         assert result.payment_id == "pay_123"
@@ -81,7 +81,7 @@ class TestPaymentResult:
             success=False,
             error_message="Payment failed",
             user_id=12345,
-            stage_id="test_stage"
+            stage_id="test_stage",
         )
         assert result.success is False
         assert result.error_message == "Payment failed"
@@ -98,7 +98,7 @@ class TestNeonPayCore:
             stage_id="test_stage",
             title="Test Product",
             description="Test Description",
-            amount=100
+            amount=100,
         )
         assert stage.stage_id == "test_stage"
         assert "test_stage" in neon_pay.stages

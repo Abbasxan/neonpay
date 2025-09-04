@@ -36,11 +36,9 @@ class TelebotAdapter(PaymentAdapter):
         """Send payment invoice using pyTelegramBotAPI"""
         try:
             # Create payload
-            payload = json.dumps({
-                "user_id": user_id,
-                "amount": stage.price,
-                **stage.payload
-            })
+            payload = json.dumps(
+                {"user_id": user_id, "amount": stage.price, **stage.payload}
+            )
 
             # Send invoice
             self.bot.send_invoice(
@@ -52,14 +50,16 @@ class TelebotAdapter(PaymentAdapter):
                 currency="XTR",
                 prices=[{"label": stage.label, "amount": stage.price}],
                 photo_url=stage.photo_url,
-                start_parameter=stage.start_parameter
+                start_parameter=stage.start_parameter,
             )
             return True
 
         except Exception as e:
             raise NeonPayError(f"Telegram API error: {e}")
 
-    async def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]) -> None:
+    async def setup_handlers(
+        self, payment_callback: Callable[[PaymentResult], None]
+    ) -> None:
         """Setup pyTelegramBotAPI payment handlers"""
         if self._handlers_setup:
             return
@@ -70,9 +70,9 @@ class TelebotAdapter(PaymentAdapter):
         self.bot.pre_checkout_query_handler(func=lambda query: True)(
             self._handle_pre_checkout_query
         )
-        self.bot.message_handler(func=lambda message: message.successful_payment is not None)(
-            self._handle_successful_payment
-        )
+        self.bot.message_handler(
+            func=lambda message: message.successful_payment is not None
+        )(self._handle_successful_payment)
 
         self._handlers_setup = True
 
@@ -109,7 +109,7 @@ class TelebotAdapter(PaymentAdapter):
             currency=payment.currency,
             status=PaymentStatus.COMPLETED,
             transaction_id=payment.telegram_payment_charge_id,
-            metadata=payload_data
+            metadata=payload_data,
         )
 
         # Call payment callback safely (telebot is sync, callback might be async)
@@ -145,5 +145,9 @@ class TelebotAdapter(PaymentAdapter):
         return {
             "library": "pyTelegramBotAPI",
             "version": "4.0+",
-            "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
+            "features": [
+                "Telegram Stars payments",
+                "Pre-checkout handling",
+                "Payment callbacks",
+            ],
         }

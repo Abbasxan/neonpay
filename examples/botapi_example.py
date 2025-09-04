@@ -21,12 +21,17 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
-from neonpay import NeonPayCore, PaymentStage, PaymentStatus, BotAPIAdapter, PaymentResult
+from neonpay import (
+    NeonPayCore,
+    PaymentStage,
+    PaymentStatus,
+    BotAPIAdapter,
+    PaymentResult,
+)
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -55,7 +60,7 @@ async def setup_neonpay():
                 title=f"Support {option['amount']}{option['symbol']}",
                 description=option["desc"],
                 price=option["amount"],
-            )
+            ),
         )
 
     @neonpay.on_payment
@@ -64,10 +69,11 @@ async def setup_neonpay():
         if result.status == PaymentStatus.COMPLETED:
             try:
                 await bot.send_message(
-                    result.user_id,
-                    f"🎉 Thank you! Your support: {result.amount}⭐ ❤️"
+                    result.user_id, f"🎉 Thank you! Your support: {result.amount}⭐ ❤️"
                 )
-                logger.info(f"✅ Donation completed: user={result.user_id}, amount={result.amount}")
+                logger.info(
+                    f"✅ Donation completed: user={result.user_id}, amount={result.amount}"
+                )
             except Exception as e:
                 logger.exception(f"Failed to send thank-you message: {e}")
 
@@ -86,10 +92,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"💡 This bot is completely free! Consider supporting if you like it."
     )
 
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton(text="❤️ Support Developer", callback_data="show_donate")],
-        [InlineKeyboardButton(text="📋 Help", callback_data="show_help")]
-    ])
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    text="❤️ Support Developer", callback_data="show_donate"
+                )
+            ],
+            [InlineKeyboardButton(text="📋 Help", callback_data="show_help")],
+        ]
+    )
 
     await update.message.reply_text(welcome_text, reply_markup=keyboard)
 
@@ -111,15 +123,17 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def donate_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Donation options"""
-    kb = InlineKeyboardMarkup([
+    kb = InlineKeyboardMarkup(
         [
-            InlineKeyboardButton(
-                text=f"{opt['symbol']} {opt['amount']}",
-                callback_data=f"donate:{opt['amount']}"
-            )
+            [
+                InlineKeyboardButton(
+                    text=f"{opt['symbol']} {opt['amount']}",
+                    callback_data=f"donate:{opt['amount']}",
+                )
+            ]
+            for opt in DONATE_OPTIONS
         ]
-        for opt in DONATE_OPTIONS
-    ])
+    )
     await update.message.reply_text("Please choose an amount:", reply_markup=kb)
 
 

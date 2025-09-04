@@ -3,10 +3,12 @@ from neonpay.errors import StarsPaymentError
 from neonpay.payments import NeonStars
 from unittest.mock import AsyncMock
 
+
 # Тестируем класс ошибки
 def test_error_class():
     with pytest.raises(StarsPaymentError):
         raise StarsPaymentError("Тестовая ошибка")
+
 
 # Тестируем NeonStars.send_donate без подключения к Telegram
 @pytest.mark.asyncio
@@ -25,7 +27,7 @@ async def test_send_donate_mock():
             amount=1,
             label="☕ 1 ⭐",
             title="Тест",
-            description="Тестовая оплата"
+            description="Тестовая оплата",
         )
     except StarsPaymentError:
         pytest.fail("send_donate вызвал StarsPaymentError при мок-тесте")
