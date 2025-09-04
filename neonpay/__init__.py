@@ -84,6 +84,9 @@ class _LazyAdapter:
                 elif self.adapter_name == "RawAPIAdapter":
                     from .adapters.raw_api_adapter import RawAPIAdapter
                     self._adapter_class = RawAPIAdapter
+                elif self.adapter_name == "BotAPIAdapter":
+                    from .adapters.botapi_adapter import BotAPIAdapter
+                    self._adapter_class = BotAPIAdapter
                 else:
                     raise ImportError(f"Unknown adapter: {self.adapter_name}")
             except ImportError as e:
@@ -109,6 +112,7 @@ AiogramAdapter = _LazyAdapter("AiogramAdapter")
 PythonTelegramBotAdapter = _LazyAdapter("PythonTelegramBotAdapter")
 TelebotAdapter = _LazyAdapter("TelebotAdapter")
 RawAPIAdapter = _LazyAdapter("RawAPIAdapter")
+BotAPIAdapter = _LazyAdapter("BotAPIAdapter")
 
 __all__ = [
     # Core
@@ -144,6 +148,7 @@ __all__ = [
     "PythonTelegramBotAdapter",
     "TelebotAdapter",
     "RawAPIAdapter",
+    "BotAPIAdapter",
     
     # Factory
     "create_neonpay",
@@ -158,4 +163,4 @@ __all__ = [
     
     # Legacy
     "NeonStars"
-]
+    ]
