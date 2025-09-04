@@ -43,7 +43,7 @@ class RateLimit:
     action_type: ActionType
     enabled: bool = True
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate rate limit configuration"""
         if not isinstance(self.max_requests, int) or self.max_requests <= 0:
             raise ValueError("Max requests must be a positive integer")
