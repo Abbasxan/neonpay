@@ -5,7 +5,7 @@ Supports python-telegram-bot v20.0+ with Telegram Stars payments
 
 import json
 import logging
-from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from telegram import Bot
@@ -110,7 +110,7 @@ class PythonTelegramBotAdapter(PaymentAdapter):
         try:
             if payment.invoice_payload:
                 payload_data = json.loads(payment.invoice_payload)
-        except:
+        except json.JSONDecodeError:
             pass
         
         # Create payment result
