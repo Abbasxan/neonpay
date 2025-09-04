@@ -9,7 +9,7 @@ import logging
 
 if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
-    from aiogram.types import LabeledPrice, PreCheckoutQuery, Message
+    from aiogram.types import PreCheckoutQuery, Message
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -43,9 +43,7 @@ class AiogramAdapter(PaymentAdapter):
             prices = [LabeledPrice(label=stage.label, amount=stage.price)]
             
             # Prepare photo
-            photo = None
-            if stage.photo_url:
-                photo = stage.photo_url
+            photo = stage.photo_url if stage.photo_url else None
             
             # Create payload
             payload = json.dumps({
