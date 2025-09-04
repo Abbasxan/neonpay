@@ -71,7 +71,7 @@ class SecurityEvent:
 
 @dataclass
 class UserSecurityProfile:
-    """User security profile with risk assessment"""
+    """User  security profile with risk assessment"""
 
     user_id: int
     risk_score: float = 0.0
@@ -105,7 +105,7 @@ class UserSecurityProfile:
             self.suspicious_activities = self.suspicious_activities[-100:]
 
         # Update risk score based on threat level
-        threat_scores = {
+        threat_scores: Dict[ThreatLevel, int] = {
             ThreatLevel.LOW: 1,
             ThreatLevel.MEDIUM: 5,
             ThreatLevel.HIGH: 15,
@@ -121,8 +121,8 @@ class UserSecurityProfile:
 class RateLimiter:
     """Rate limiting implementation using sliding window"""
 
-    def __init__(self):
-        self._requests: Dict[str, deque] = defaultdict(deque)
+    def __init__(self) -> None:
+        self._requests: Dict[str, deque[float]] = defaultdict(deque)
         self._limits: Dict[ActionType, RateLimit] = {}
 
     def set_limit(
@@ -216,7 +216,7 @@ class SecurityManager:
         webhook_secret: Optional[str] = None,
         max_risk_score: float = 80.0,
         auto_block_enabled: bool = True,
-    ):
+    ) -> None:
         self._rate_limiter = RateLimiter()
         self._user_profiles: Dict[int, UserSecurityProfile] = {}
         self._blocked_ips: Set[str] = set()
@@ -276,7 +276,7 @@ class SecurityManager:
         event_type: str,
         threat_level: ThreatLevel,
         description: str,
-        **metadata,
+        **metadata: Any,
     ) -> None:
         """Report suspicious activity"""
         event = SecurityEvent(
@@ -318,7 +318,7 @@ class SecurityManager:
         self._rate_limiter.reset_user_limits(user_id)
 
         logger.warning(
-            f"User {user_id} blocked"
+            f"User  {user_id} blocked"
             + (f" for {duration}s" if duration else " permanently")
         )
 
@@ -329,7 +329,7 @@ class SecurityManager:
         profile.blocked_until = None
         profile.risk_score = max(0, profile.risk_score - 20)  # Reduce risk score
 
-        logger.info(f"User {user_id} unblocked")
+        logger.info(f"User  {user_id} unblocked")
 
     def trust_user(self, user_id: int) -> None:
         """Mark user as trusted (immune to auto-blocking)"""
@@ -340,7 +340,7 @@ class SecurityManager:
         if profile.is_blocked:
             self.unblock_user(user_id)
 
-        logger.info(f"User {user_id} marked as trusted")
+        logger.info(f"User  {user_id} marked as trusted")
 
     def block_ip(self, ip_address: str) -> None:
         """Block IP address"""
@@ -385,7 +385,7 @@ class SecurityManager:
 
         # Check if user is blocked
         if profile.is_currently_blocked():
-            return True, "User is blocked"
+            return True, "User  is blocked"
 
         # Check high risk score
         if profile.risk_score > self._max_risk_score:
@@ -487,4 +487,5 @@ class SecurityManager:
             "security_events": len(self._security_events),
             "auto_block_enabled": self._auto_block_enabled,
             "max_risk_score": self._max_risk_score,
-        }
+    }
+            
