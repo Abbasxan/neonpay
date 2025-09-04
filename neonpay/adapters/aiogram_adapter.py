@@ -3,7 +3,7 @@ Aiogram adapter for NEONPAY
 Supports Aiogram v3.0+ with Telegram Stars payments
 """
 
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, Awaitable
 import json
 import logging
 
@@ -30,7 +30,8 @@ class AiogramAdapter(PaymentAdapter):
         self.bot = bot
         self.dispatcher = dispatcher
         self._handlers_setup = False
-        self._payment_callback: Optional[Callable[[PaymentResult], None]] = None
+        # callback теперь async
+        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = None
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Aiogram"""
@@ -61,13 +62,19 @@ class AiogramAdapter(PaymentAdapter):
             raise NeonPayError(f"Telegram API error: {e}")
 
     async def setup_handlers(
-        self, payment_callback: Callable[[PaymentResult], None]
+        self, payment_callback: Callable[[PaymentResult], Any]
     ) -> None:
         """Setup Aiogram payment handlers"""
         if self._handlers_setup:
             return
 
-        self._payment_callback = payment_callback
+        # Оборачиваем callback (sync или async) в async для безопасного await
+        async def async_cb(result: PaymentResult) -> None:
+            maybe_awaitable = payment_callback(result)
+            if hasattr(maybe_awaitable, "__await__"):
+                await maybe_awaitable
+
+        self._payment_callback = async_cb
 
         self.dispatcher.pre_checkout_query.register(self._handle_pre_checkout_query)
         self.dispatcher.message.register(
@@ -112,11 +119,7 @@ class AiogramAdapter(PaymentAdapter):
             metadata=payload_data,
         )
 
-        cb = self._payment_callback
-        if cb:
-            res = cb(result)
-            if hasattr(res, "__await__"):  # async callback
-                await res
+        await self._payment_callback(result)
 
     def get_library_info(self) -> Dict[str, str]:
         """Get Aiogram adapter information"""
@@ -124,4 +127,4 @@ class AiogramAdapter(PaymentAdapter):
             "library": "aiogram",
             "version": "3.0+",
             "features": "Telegram Stars, Pre-checkout handling, Payment callbacks",
-        }
+                }
