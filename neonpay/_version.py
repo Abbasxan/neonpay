@@ -2,8 +2,8 @@
 Version information for NEONPAY
 """
 
-__version__ = "2.3.0"
-__version_info__ = (2, 3, 0)
+__version__ = "2.4.0"
+__version_info__ = (2, 4, 0)
 
 # Version history
 VERSION_HISTORY = {
@@ -11,45 +11,37 @@ VERSION_HISTORY = {
     "2.0.0": "Major security improvements, enhanced validation, webhook security, comprehensive testing",
     "2.1.0": "Simplified architecture, removed unnecessary localization, cleaner API",
     "2.2.0": "Complete localization removal, maximum simplification, focused on core functionality",
-    "2.3.0": "Complete localization system removal, English-only library, reduced complexity by 40%"
+    "2.3.0": "Complete localization system removal, English-only library, reduced complexity by 40%",
+    "2.4.0": "Added official Bot API adapter, improved async/sync handling, extended adapter support"
 }
 
 # Latest version details
 LATEST_VERSION = {
     "version": __version__,
     "major": 2,
-    "minor": 3,
+    "minor": 4,
     "patch": 0,
-    "release_date": "2025-09-01",
+    "release_date": "2025-09-04",
     "highlights": [
-        "🔒 Enhanced security with comprehensive input validation",
-        "🛡️ Webhook signature verification and timestamp validation", 
-        "✅ Improved async/sync handling for all adapters",
-        "🧹 Complete localization removal for maximum simplicity",
-        "🎯 Focused on core payment functionality",
-        "🧪 Comprehensive security testing suite",
-        "📚 Streamlined English-only documentation",
+        "🆕 Added BotAPIAdapter for official Telegram Bot API support",
+        "✅ Full async and sync compatibility across all adapters",
+        "🔒 Enhanced security with stricter input validation",
+        "🛡️ Webhook signature verification and timestamp validation",
         "🚀 Performance improvements and better error handling",
-        "⚡ 40% complexity reduction while maintaining security"
+        "📚 Streamlined English-only documentation",
+        "⚡ Further complexity reduction while maintaining security"
     ],
     "breaking_changes": [
-        "PaymentStage validation enforces stricter limits (title: 32 chars, description: 255 chars)",
-        "WebhookHandler now requires WebhookVerifier for security",
-        "NeonPayCore constructor parameters changed (max_stages, enable_logging)",
-        "All localization features completely removed - English only",
-        "Language parameter removed from all adapters",
-        "LocalizationManager and Language enum no longer available"
+        "BotAPIAdapter introduces a slightly different async callback mechanism",
+        "All adapters now require explicit setup for payment handlers",
+        "PaymentStage validation stricter: title ≤ 32 chars, description ≤ 255 chars"
     ],
     "simplifications": [
-        "Removed entire localization system (LocalizationManager, Language enum)",
-        "Removed translation files (translations/*.json)",
-        "Simplified PaymentAdapter base class (no language parameter)",
-        "Simplified all adapters (no localization overhead)",
-        "English-only error messages and user feedback",
-        "Reduced complexity by 40% while maintaining security",
-        "Focused on core payment processing functionality",
-        "Faster initialization and reduced memory footprint"
+        "Adapters standardized for both async and sync usage",
+        "Legacy localization completely removed",
+        "Error messages and user feedback are English-only",
+        "Reduced memory footprint and faster initialization",
+        "Unified payload handling across all adapters"
     ],
-    "migration_guide": "See CHANGELOG.md for upgrade instructions from v2.2.0 to v2.3.0"
+    "migration_guide": "See CHANGELOG.md for upgrade instructions from v2.3.0 to v2.4.0"
 }
-
