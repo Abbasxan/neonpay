@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: neonpay
-Version: 1.0.0
+Version: 2.4.0
 Summary: Modern Python library for Telegram Stars (XTR) payments integration with support for Aiogram, Pyrogram, python-telegram-bot and more
 Home-page: https://github.com/Abbasxan/neonpay
 Author: Abbas Sultanov
@@ -972,3 +972,4 @@ If you find NEONPAY useful, please consider giving it a star on GitHub!
 ---
 
 Made with ❤️ by [Abbas Sultanov](https://github.com/Abbasxan)
+
