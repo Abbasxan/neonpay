@@ -19,10 +19,32 @@ if TYPE_CHECKING:
     import telebot
 
 
+try:
+    from aiogram import Bot as AiogramBot
+except ImportError:
+    AiogramBot = None
+
+try:
+    from pyrogram import Client as PyroClient
+except ImportError:
+    PyroClient = None
+
+try:
+    from telegram import Bot as PTBBotClass
+except ImportError:
+    PTBBotClass = None
+
+try:
+    import telebot
+except ImportError:
+    telebot = None
+
+
 def create_adapter(
     bot_instance: Union["Bot", "Client", "PTBBot", "telebot.TeleBot"],
     dispatcher: Optional["Dispatcher"] = None,
     application: Optional["Application"] = None,
+    adapter_type: Optional[str] = None,
 ) -> PaymentAdapter:
     """
     Create appropriate adapter based on bot instance type
@@ -31,6 +53,7 @@ def create_adapter(
         bot_instance: Bot instance from any supported library
         dispatcher: Aiogram dispatcher (required for aiogram)
         application: PTB application (required for python-telegram-bot)
+        adapter_type: Optional explicit adapter type ('botapi' or 'ptb')
 
     Returns:
         Configured PaymentAdapter instance
@@ -39,43 +62,42 @@ def create_adapter(
         ConfigurationError: If required dependencies are missing
     """
     try:
-        # Try Aiogram
-        if hasattr(bot_instance, "send_message") and hasattr(bot_instance, "get_me"):
+        # Aiogram
+        if AiogramBot is not None and isinstance(bot_instance, AiogramBot):
             if dispatcher is None:
                 raise ConfigurationError(
                     "Aiogram adapter requires dispatcher parameter"
                 )
-
             from .adapters.aiogram_adapter import AiogramAdapter
-
             return AiogramAdapter(bot_instance, dispatcher)
 
-        # Try Pyrogram
-        elif hasattr(bot_instance, "send_message") and hasattr(bot_instance, "get_me"):
+        # Pyrogram
+        elif PyroClient is not None and isinstance(bot_instance, PyroClient):
             from .adapters.pyrogram_adapter import PyrogramAdapter
-
             return PyrogramAdapter(bot_instance)
 
-        # Try Python Telegram Bot
-        elif hasattr(bot_instance, "send_message") and hasattr(bot_instance, "get_me"):
-            if application is None:
-                raise ConfigurationError(
-                    "Python Telegram Bot adapter requires application parameter"
-                )
+        # PTB vs BotAPI
+        elif PTBBotClass is not None and isinstance(bot_instance, PTBBotClass):
+            if adapter_type == "botapi":
+                from .adapters.botapi_adapter import BotAPIAdapter
+                return BotAPIAdapter(bot_instance)
+            else:
+                if application is None:
+                    raise ConfigurationError(
+                        "Python Telegram Bot adapter requires application parameter"
+                    )
+                from .adapters.ptb_adapter import PythonTelegramBotAdapter
+                return PythonTelegramBotAdapter(bot_instance, application)
 
-            from .adapters.ptb_adapter import PythonTelegramBotAdapter
-
-            return PythonTelegramBotAdapter(bot_instance, application)
-
-        # Try pyTelegramBotAPI
-        elif hasattr(bot_instance, "send_message") and hasattr(bot_instance, "get_me"):
+        # Telebot
+        elif telebot is not None and isinstance(bot_instance, telebot.TeleBot):
             from .adapters.telebot_adapter import TelebotAdapter
-
             return TelebotAdapter(bot_instance)
 
         else:
             raise ConfigurationError(
-                "Unsupported bot library. Please use a supported library or create custom adapter."
+                f"Unsupported bot type: {type(bot_instance).__name__}. "
+                "Please use a supported library or create custom adapter."
             )
 
     except ImportError as e:
@@ -89,6 +111,7 @@ def create_neonpay(
     application: Optional["Application"] = None,
     enable_logging: bool = True,
     max_stages: int = 100,
+    adapter_type: Optional[str] = None,
 ) -> NeonPayCore:
     """
     Create NEONPAY instance with automatic adapter detection
@@ -100,11 +123,12 @@ def create_neonpay(
         application: PTB application (required for python-telegram-bot)
         enable_logging: Enable security logging
         max_stages: Maximum number of payment stages
+        adapter_type: Optional explicit adapter type ('botapi' or 'ptb')
 
     Returns:
         Configured NeonPayCore instance
     """
-    adapter = create_adapter(bot_instance, dispatcher, application)
+    adapter = create_adapter(bot_instance, dispatcher, application, adapter_type)
 
     return NeonPayCore(
         adapter=adapter,
