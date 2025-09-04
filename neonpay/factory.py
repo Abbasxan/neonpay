@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from telegram.ext import Application
     import telebot
 
+
 # Dynamic runtime imports
 def _safe_import(module: str, attr: Optional[str] = None) -> Optional[Any]:
     try:
@@ -44,19 +45,24 @@ def create_adapter(
         # Aiogram
         if AiogramBot is not None and isinstance(bot_instance, AiogramBot):
             if dispatcher is None:
-                raise ConfigurationError("Aiogram adapter requires dispatcher parameter")
+                raise ConfigurationError(
+                    "Aiogram adapter requires dispatcher parameter"
+                )
             from .adapters.aiogram_adapter import AiogramAdapter
+
             return AiogramAdapter(bot_instance, dispatcher)
 
         # Pyrogram
         elif PyroClient is not None and isinstance(bot_instance, PyroClient):
             from .adapters.pyrogram_adapter import PyrogramAdapter
+
             return PyrogramAdapter(bot_instance)
 
         # PTB vs BotAPI
         elif PTBBotClass is not None and isinstance(bot_instance, PTBBotClass):
             if adapter_type == "botapi":
                 from .adapters.botapi_adapter import BotAPIAdapter
+
                 return BotAPIAdapter(bot_instance)
             else:
                 if application is None:
@@ -64,11 +70,15 @@ def create_adapter(
                         "Python Telegram Bot adapter requires application parameter"
                     )
                 from .adapters.ptb_adapter import PythonTelegramBotAdapter
+
                 return PythonTelegramBotAdapter(bot_instance, application)
 
         # Telebot
-        elif TelebotModule is not None and isinstance(bot_instance, TelebotModule.TeleBot):
+        elif TelebotModule is not None and isinstance(
+            bot_instance, TelebotModule.TeleBot
+        ):
             from .adapters.telebot_adapter import TelebotAdapter
+
             return TelebotAdapter(bot_instance)
 
         else:
@@ -97,4 +107,4 @@ def create_neonpay(
         thank_you_message=thank_you_message,
         enable_logging=enable_logging,
         max_stages=max_stages,
-)
+    )
