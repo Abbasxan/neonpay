@@ -81,7 +81,9 @@ class PythonTelegramBotAdapter(PaymentAdapter):
 
         self._handlers_setup = True
 
-    async def _handle_pre_checkout_query(self, pre_checkout_query: "PreCheckoutQuery") -> None:
+    async def _handle_pre_checkout_query(
+        self, pre_checkout_query: "PreCheckoutQuery"
+    ) -> None:
         """Handle pre-checkout query"""
         try:
             await pre_checkout_query.answer(ok=True)
@@ -126,4 +128,4 @@ class PythonTelegramBotAdapter(PaymentAdapter):
             "library": "python-telegram-bot",
             "version": "20.0+",
             "features": "Telegram Stars, Pre-checkout handling, Payment callbacks",
-            }
+        }
