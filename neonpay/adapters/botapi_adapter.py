@@ -1,0 +1,143 @@
+"""
+Official Telegram Bot API adapter for NEONPAY
+Supports sync and async usage with Telegram Bot API.
+"""
+
+from typing import Dict, Callable, Optional
+import json
+import logging
+import asyncio
+import threading
+
+from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
+from ..errors import NeonPayError
+
+logger = logging.getLogger(__name__)
+
+
+class BotAPIAdapter(PaymentAdapter):
+    """Telegram Bot API adapter for NEONPAY"""
+
+    def __init__(self, bot):
+        """
+        Initialize Bot API adapter.
+
+        Args:
+            bot: telegram.Bot instance (from python-telegram-bot)
+        """
+        self.bot = bot
+        self._handlers_setup = False
+        self._payment_callback: Optional[Callable[[PaymentResult], None]] = None
+
+    async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
+        """Send payment invoice using official Bot API"""
+        payload = json.dumps({
+            "user_id": user_id,
+            "amount": stage.price,
+            **stage.payload
+        })
+
+        try:
+            await self._call_async(
+                self.bot.send_invoice,
+                chat_id=user_id,
+                title=stage.title,
+                description=stage.description,
+                payload=payload,
+                provider_token="",  # Empty for Telegram Stars
+                currency="XTR",
+                prices=[{"label": stage.label, "amount": stage.price}],
+                photo_url=stage.photo_url,
+                start_parameter=stage.start_parameter
+            )
+            return True
+        except Exception as e:
+            raise NeonPayError(f"Bot API error: {e}")
+
+    async def setup_handlers(self, payment_callback: Callable[[PaymentResult], None]):
+        """Setup Bot API payment handlers"""
+        if self._handlers_setup:
+            return
+
+        self._payment_callback = payment_callback
+
+        # Here you would register handlers with Dispatcher (sync or async)
+        # For example, using python-telegram-bot's `Application.add_handler`
+        # The user must add `PreCheckoutQueryHandler` and `MessageHandler` externally
+
+        self._handlers_setup = True
+
+    async def handle_pre_checkout_query(self, query):
+        """Handle pre-checkout query"""
+        try:
+            await self._call_async(self.bot.answer_pre_checkout_query,
+                                   pre_checkout_query_id=query.id, ok=True)
+        except Exception as e:
+            logger.error(f"Error handling pre-checkout query: {e}")
+
+    async def handle_successful_payment(self, message):
+        """Handle successful payment"""
+        if not self._payment_callback:
+            return
+
+        payment = message.successful_payment
+        if not payment:
+            return
+
+        user_id = message.from_user.id
+        payload_data = {}
+        try:
+            if payment.invoice_payload:
+                payload_data = json.loads(payment.invoice_payload)
+        except json.JSONDecodeError:
+            pass
+
+        result = PaymentResult(
+            user_id=user_id,
+            amount=payment.total_amount,
+            currency=payment.currency,
+            status=PaymentStatus.COMPLETED,
+            transaction_id=payment.telegram_payment_charge_id,
+            metadata=payload_data
+        )
+
+        # Call callback safely (supports async)
+        await self._call_async_callback(result)
+
+    async def _call_async_callback(self, result: PaymentResult):
+        """Safely call async callback from sync context"""
+        if not self._payment_callback:
+            return
+
+        try:
+            try:
+                loop = asyncio.get_running_loop()
+                asyncio.create_task(self._payment_callback(result))
+            except RuntimeError:
+                # Run in separate thread if no loop
+                def run():
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        loop.run_until_complete(self._payment_callback(result))
+                    finally:
+                        loop.close()
+
+                thread = threading.Thread(target=run)
+                thread.start()
+        except Exception as e:
+            logger.error(f"Error calling payment callback: {e}")
+
+    async def _call_async(self, func, *args, **kwargs):
+        """Call sync function in thread-safe async way"""
+        if asyncio.iscoroutinefunction(func):
+            return await func(*args, **kwargs)
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+
+    def get_library_info(self) -> Dict[str, str]:
+        return {
+            "library": "python-telegram-bot",
+            "version": "20+",
+            "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
+        }
