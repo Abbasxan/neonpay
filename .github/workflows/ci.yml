@@ -7,9 +7,36 @@ on:
     branches: ["main"]
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Black
+        run: pip install black
+
+      - name: Run Black auto-fix
+        run: black .
+
+      - name: Commit changes (if any)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "style: auto-format with black" || echo "No changes to commit"
+          git push
+
   ci:
     runs-on: ubuntu-latest
-
+    needs: format
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
