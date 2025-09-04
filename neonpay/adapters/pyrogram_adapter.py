@@ -6,7 +6,7 @@ Supports Pyrogram v2.0+ with Telegram Stars payments
 import json
 import logging
 import mimetypes
-from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pyrogram import Client
