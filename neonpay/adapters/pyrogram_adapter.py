@@ -141,4 +141,3 @@ class PyrogramAdapter(PaymentAdapter):
                 "Payment callbacks",
             ],
         }
-
