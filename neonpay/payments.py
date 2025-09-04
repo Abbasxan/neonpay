@@ -1,10 +1,21 @@
+"""
+Pyrogram NeonStars Adapter for NEONPAY
+Handles Telegram Stars payments via raw updates.
+
+Requires Pyrogram (v2.0+ recommended).
+
+Features:
+- Send donation invoices to users
+- Automatic pre-checkout handling
+- Process successful payments with callback registration
+"""
+
 import json
 import random
 from typing import Callable, Optional
 
 # Legacy compatibility - only import if pyrogram is available
 try:
-    from pyrogram import Client
     from pyrogram.raw.types import (
         LabeledPrice, Invoice, InputWebDocument,
         InputMediaInvoice, DataJSON,
@@ -88,6 +99,6 @@ class NeonStars:
             if isinstance(action, MessageActionPaymentSentMe) and action.currency == "XTR":
                 user_id = update.message.from_id.user_id
                 amount = action.total_amount
-                print(f"✅ Пользователь {user_id} оплатил {amount} ⭐")
                 if self._payment_callback:
                     await self._payment_callback(user_id, amount)
+                    
