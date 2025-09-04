@@ -487,5 +487,4 @@ class SecurityManager:
             "security_events": len(self._security_events),
             "auto_block_enabled": self._auto_block_enabled,
             "max_risk_score": self._max_risk_score,
-    }
-            
+        }
