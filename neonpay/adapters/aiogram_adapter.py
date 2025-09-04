@@ -3,7 +3,7 @@ Aiogram adapter for NEONPAY
 Supports Aiogram v3.0+ with Telegram Stars payments
 """
 
-from typing import Dict, Callable, Optional, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 import json
 import logging
 
@@ -23,7 +23,6 @@ class AiogramAdapter(PaymentAdapter):
     def __init__(self, bot: "Bot", dispatcher: "Dispatcher"):
         """
         Initialize Aiogram adapter
-
         Args:
             bot: Aiogram Bot instance
             dispatcher: Aiogram Dispatcher instance (required)
@@ -36,21 +35,15 @@ class AiogramAdapter(PaymentAdapter):
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Aiogram"""
         try:
-            # Import aiogram types
             from aiogram.types import LabeledPrice
 
-            # Create price list
             prices = [LabeledPrice(label=stage.label, amount=stage.price)]
-
-            # Prepare photo
             photo = stage.photo_url if stage.photo_url else None
 
-            # Create payload
             payload = json.dumps(
-                {"user_id": user_id, "amount": stage.price, **stage.payload}
+                {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
             )
 
-            # Send invoice
             await self.bot.send_invoice(
                 chat_id=user_id,
                 title=stage.title,
@@ -76,7 +69,6 @@ class AiogramAdapter(PaymentAdapter):
 
         self._payment_callback = payment_callback
 
-        # Register handlers
         self.dispatcher.pre_checkout_query.register(self._handle_pre_checkout_query)
         self.dispatcher.message.register(
             self._handle_successful_payment,
@@ -85,7 +77,7 @@ class AiogramAdapter(PaymentAdapter):
 
         self._handlers_setup = True
 
-    async def _handle_pre_checkout_query(self, pre_checkout_query: "PreCheckoutQuery"):
+    async def _handle_pre_checkout_query(self, pre_checkout_query: "PreCheckoutQuery") -> None:
         """Handle pre-checkout query"""
         try:
             await self.bot.answer_pre_checkout_query(
@@ -94,46 +86,40 @@ class AiogramAdapter(PaymentAdapter):
         except Exception as e:
             logger.error(f"Error handling pre-checkout query: {e}")
 
-    async def _handle_successful_payment(self, message: "Message"):
+    async def _handle_successful_payment(self, message: "Message") -> None:
         """Handle successful payment"""
         if not self._payment_callback:
             return
 
-        payment = message.successful_payment
-        if not payment:
+        if not message.successful_payment or not message.from_user:
             return
 
-        user_id = message.from_user.id
-
-        # Parse payload
-        payload_data = {}
         try:
-            if payment.invoice_payload:
-                payload_data = json.loads(payment.invoice_payload)
+            payload_data: Dict[str, Any] = {}
+            if message.successful_payment.invoice_payload:
+                payload_data = json.loads(message.successful_payment.invoice_payload)
         except json.JSONDecodeError:
-            pass
+            payload_data = {}
 
-        # Create payment result
         result = PaymentResult(
-            user_id=user_id,
-            amount=payment.total_amount,
-            currency=payment.currency,
+            user_id=message.from_user.id,
+            amount=message.successful_payment.total_amount,
+            currency=message.successful_payment.currency,
             status=PaymentStatus.COMPLETED,
-            transaction_id=payment.telegram_payment_charge_id,
+            transaction_id=message.successful_payment.telegram_payment_charge_id,
             metadata=payload_data,
         )
 
-        # Call payment callback
-        await self._payment_callback(result)
+        cb = self._payment_callback
+        if cb:
+            res = cb(result)
+            if hasattr(res, "__await__"):  # async callback
+                await res
 
     def get_library_info(self) -> Dict[str, str]:
         """Get Aiogram adapter information"""
         return {
             "library": "aiogram",
             "version": "3.0+",
-            "features": [
-                "Telegram Stars payments",
-                "Pre-checkout handling",
-                "Payment callbacks",
-            ],
-        }
+            "features": "Telegram Stars, Pre-checkout handling, Payment callbacks",
+            }
