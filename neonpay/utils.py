@@ -109,7 +109,7 @@ class PaymentValidator:
 class NeonPayLogger:
     """Система логирования для NEONPAY"""
 
-    def __init__(self, name: str = "neonpay", level: int = logging.INFO):
+    def __init__(self, name: str = "neonpay", level: int = logging.INFO) -> None:
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
 
@@ -122,35 +122,35 @@ class NeonPayLogger:
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
 
-    def info(self, message: str, **kwargs):
+    def info(self, message: str, **kwargs: Any) -> None:
         """Логирование информационных сообщений"""
         self.logger.info(message, extra=kwargs)
 
-    def error(self, message: str, **kwargs):
+    def error(self, message: str, **kwargs: Any) -> None:
         """Логирование ошибок"""
         self.logger.error(message, extra=kwargs)
 
-    def warning(self, message: str, **kwargs):
+    def warning(self, message: str, **kwargs: Any) -> None:
         """Логирование предупреждений"""
         self.logger.warning(message, extra=kwargs)
 
-    def debug(self, message: str, **kwargs):
+    def debug(self, message: str, **kwargs: Any) -> None:
         """Логирование отладочной информации"""
         self.logger.debug(message, extra=kwargs)
 
-    def payment_sent(self, user_id: int, stage_id: str, amount: int):
+    def payment_sent(self, user_id: int, stage_id: str, amount: int) -> None:
         """Логирование отправки платежа"""
         self.info(
             f"Payment request sent to user {user_id} for stage '{stage_id}' amount {amount} stars"
         )
 
-    def payment_completed(self, payment_id: str, user_id: int, amount: int):
+    def payment_completed(self, payment_id: str, user_id: int, amount: int) -> None:
         """Логирование завершения платежа"""
         self.info(
             f"Payment completed: {payment_id} from user {user_id} amount {amount} stars"
         )
 
-    def payment_failed(self, user_id: int, stage_id: str, error: str):
+    def payment_failed(self, user_id: int, stage_id: str, error: str) -> None:
         """Логирование неудачного платежа"""
         self.error(f"Payment failed for user {user_id} stage '{stage_id}': {error}")
 
@@ -188,4 +188,4 @@ class PaymentHelper:
     @staticmethod
     def is_test_payment(payment_data: Dict[str, Any]) -> bool:
         """Проверка, является ли платеж тестовым"""
-        return payment_data.get("is_test", False)
+        return bool(payment_data.get("is_test", False))
