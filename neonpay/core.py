@@ -242,20 +242,20 @@ class NeonPayCore:
         enable_subscriptions: bool = True,
         enable_security: bool = True,
         webhook_secret: Optional[str] = None,
-    ):
-        self.adapter = adapter
-        self.thank_you_message = thank_you_message or "Thank you for your payment!"
+    ) -> None:
+        self.adapter: PaymentAdapter = adapter
+        self.thank_you_message: str = thank_you_message or "Thank you for your payment!"
         self._payment_stages: Dict[str, PaymentStage] = {}
-        self._payment_callbacks: List[Callable[[PaymentResult], None]] = []
-        self._setup_complete = False
-        self._enable_logging = enable_logging
-        self._max_stages = max_stages
+        self._payment_callbacks: List[Callable[[PaymentResult], Union[None, Any]]] = []
+        self._setup_complete: bool = False
+        self._enable_logging: bool = enable_logging
+        self._max_stages: int = max_stages
 
-        self._promo_system = PromoSystem() if enable_promotions else None
-        self._subscription_manager = (
+        self._promo_system: Optional[PromoSystem] = PromoSystem() if enable_promotions else None
+        self._subscription_manager: Optional[SubscriptionManager] = (
             SubscriptionManager() if enable_subscriptions else None
         )
-        self._security_manager = (
+        self._security_manager: Optional[SecurityManager] = (
             SecurityManager(webhook_secret=webhook_secret) if enable_security else None
         )
 
@@ -269,32 +269,18 @@ class NeonPayCore:
                 logger.info("Security system enabled")
 
     def create_payment_stage(self, stage_id: str, stage: PaymentStage) -> None:
-        """
-        Create a new payment stage with validation
-
-        Args:
-            stage_id: Unique identifier for the payment stage
-            stage: PaymentStage configuration
-        """
-        # Validate stage_id
+        """Create a new payment stage with validation"""
         if not isinstance(stage_id, str) or not stage_id.strip():
             raise ValueError("Stage ID is required")
-
         if len(stage_id) > 64:
             raise ValueError("Stage ID must be 64 characters or less")
-
-        # Check if stage_id already exists
         if stage_id in self._payment_stages:
             raise ValueError(f"Payment stage with ID '{stage_id}' already exists")
-
-        # Check maximum stages limit
         if len(self._payment_stages) >= self._max_stages:
             raise ValueError(
                 f"Maximum number of payment stages ({self._max_stages}) reached"
             )
-
         self._payment_stages[stage_id] = stage
-
         if self._enable_logging:
             logger.info(f"Created payment stage: {stage_id}")
 
@@ -302,7 +288,6 @@ class NeonPayCore:
         """Get payment stage by ID"""
         if not isinstance(stage_id, str):
             raise ValueError("Stage ID must be a string")
-
         return self._payment_stages.get(stage_id)
 
     def list_payment_stages(self) -> Dict[str, PaymentStage]:
@@ -313,10 +298,8 @@ class NeonPayCore:
         """Remove payment stage"""
         if not isinstance(stage_id, str):
             raise ValueError("Stage ID must be a string")
-
         if stage_id in self._payment_stages:
             del self._payment_stages[stage_id]
-
             if self._enable_logging:
                 logger.info(f"Removed payment stage: {stage_id}")
             return True
@@ -326,52 +309,30 @@ class NeonPayCore:
         """Initialize the payment system"""
         if self._setup_complete:
             return
-
         await self.adapter.setup_handlers(self._handle_payment)
         self._setup_complete = True
-
         if self._enable_logging:
             logger.info("Payment system initialized")
 
-    def on_payment(self, callback: Callable[[PaymentResult], None]) -> None:
-        """
-        Register payment completion callback
-
-        Args:
-            callback: Function to call when payment is completed
-        """
+    def on_payment(self, callback: Callable[[PaymentResult], Union[None, Any]]) -> None:
+        """Register payment completion callback"""
         if not callable(callback):
             raise ValueError("Callback must be callable")
-
         self._payment_callbacks.append(callback)
-
         if self._enable_logging:
             logger.info(f"Payment callback registered: {callback.__name__}")
 
     async def send_payment(
         self, user_id: int, stage_id: str, promo_code: Optional[str] = None
     ) -> bool:
-        """
-        Send payment invoice to user with validation and promo code support
-
-        Args:
-            user_id: Telegram user ID
-            stage_id: Payment stage identifier
-            promo_code: Optional promo code for discount
-
-        Returns:
-            True if invoice was sent successfully
-        """
-        # Validate user_id
+        """Send payment invoice to user with validation and promo code support"""
         if not isinstance(user_id, int) or user_id <= 0:
             raise ValueError("User ID must be a positive integer")
-
-        # Validate stage_id
         if not isinstance(stage_id, str) or not stage_id.strip():
             raise ValueError("Stage ID is required")
 
         if self._security_manager:
-            is_allowed, retry_after = self._security_manager.check_rate_limit(
+            is_allowed, _ = self._security_manager.check_rate_limit(
                 user_id, ActionType.PAYMENT_REQUEST
             )
             if not is_allowed:
@@ -386,8 +347,8 @@ class NeonPayCore:
             logger.error("Payment stage not found")
             return False
 
-        final_price = stage.price
-        applied_promo = None
+        final_price: int = stage.price
+        applied_promo: Optional[Any] = None
 
         if promo_code and self._promo_system:
             try:
@@ -401,7 +362,6 @@ class NeonPayCore:
 
         if final_price != stage.price:
             from copy import deepcopy
-
             stage = deepcopy(stage)
             stage.price = final_price
             if applied_promo:
@@ -422,21 +382,21 @@ class NeonPayCore:
         code: str,
         discount_type: DiscountType,
         discount_value: Union[int, float],
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> Any:
         """Create a new promo code"""
         if not self._promo_system:
             raise RuntimeError("Promotions system is not enabled")
-
         return self._promo_system.create_promo_code(
             code, discount_type, discount_value, **kwargs
         )
 
-    def validate_promo_code(self, code: str, user_id: int, amount: int):
+    def validate_promo_code(
+        self, code: str, user_id: int, amount: int
+    ) -> Union[tuple[bool, str, Optional[Any]], Any]:
         """Validate promo code for user and amount"""
         if not self._promo_system:
             return False, "Promotions system is not enabled", None
-
         return self._promo_system.validate_promo_code(code, user_id, amount)
 
     def create_subscription_plan(
@@ -446,49 +406,45 @@ class NeonPayCore:
         description: str,
         price: int,
         period: SubscriptionPeriod,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> Any:
         """Create a new subscription plan"""
         if not self._subscription_manager:
             raise RuntimeError("Subscriptions system is not enabled")
-
         return self._subscription_manager.create_plan(
             plan_id, name, description, price, period, **kwargs
         )
 
-    def subscribe_user(self, user_id: int, plan_id: str):
+    def subscribe_user(self, user_id: int, plan_id: str) -> Any:
         """Subscribe user to a plan"""
         if not self._subscription_manager:
             raise RuntimeError("Subscriptions system is not enabled")
-
         return self._subscription_manager.subscribe_user(user_id, plan_id)
 
-    def get_user_subscriptions(self, user_id: int, active_only: bool = True):
+    def get_user_subscriptions(
+        self, user_id: int, active_only: bool = True
+    ) -> List[Any]:
         """Get user subscriptions"""
         if not self._subscription_manager:
             return []
-
         return self._subscription_manager.get_user_subscriptions(user_id, active_only)
 
-    def block_user(self, user_id: int, duration: Optional[int] = None):
+    def block_user(self, user_id: int, duration: Optional[int] = None) -> None:
         """Block user for specified duration"""
         if not self._security_manager:
             raise RuntimeError("Security system is not enabled")
-
         self._security_manager.block_user(user_id, duration)
 
-    def trust_user(self, user_id: int):
+    def trust_user(self, user_id: int) -> None:
         """Mark user as trusted"""
         if not self._security_manager:
             raise RuntimeError("Security system is not enabled")
-
         self._security_manager.trust_user(user_id)
 
-    def get_user_risk_assessment(self, user_id: int):
+    def get_user_risk_assessment(self, user_id: int) -> Dict[str, Any]:
         """Get user risk assessment"""
         if not self._security_manager:
             return {"error": "Security system is not enabled"}
-
         return self._security_manager.get_user_risk_assessment(user_id)
 
     async def _handle_payment(self, result: PaymentResult) -> None:
@@ -502,8 +458,6 @@ class NeonPayCore:
                     f"Payment completion rate limit exceeded for user {result.user_id}"
                 )
                 return
-
-            # Check for fraud
             is_fraudulent, reason = self._security_manager.detect_payment_fraud(
                 result.user_id, result.amount
             )
@@ -517,11 +471,8 @@ class NeonPayCore:
                     amount=result.amount,
                 )
                 return
-
         if self._enable_logging:
             logger.info(f"Payment completed: {result.amount} Stars")
-
-        # Call all registered callbacks
         for callback in self._payment_callbacks:
             try:
                 if asyncio.iscoroutinefunction(callback):
@@ -533,7 +484,7 @@ class NeonPayCore:
 
     def get_stats(self) -> Dict[str, Any]:
         """Get payment system statistics with enhanced modules"""
-        stats = {
+        stats: Dict[str, Any] = {
             "total_stages": len(self._payment_stages),
             "registered_callbacks": len(self._payment_callbacks),
             "setup_complete": self._setup_complete,
@@ -541,50 +492,42 @@ class NeonPayCore:
             "max_stages": self._max_stages,
             "logging_enabled": self._enable_logging,
         }
-
         if self._promo_system:
             stats["promotions"] = self._promo_system.get_stats()
-
         if self._subscription_manager:
             stats["subscriptions"] = self._subscription_manager.get_stats()
-
         if self._security_manager:
             stats["security"] = self._security_manager.get_security_stats()
-
         return stats
 
     async def cleanup_old_data(self, max_age_days: int = 30) -> Dict[str, int]:
         """Clean up old data from all modules"""
-        cleanup_results = {}
-
+        cleanup_results: Dict[str, int] = {}
         if self._security_manager:
             cleanup_results["security_records"] = (
                 self._security_manager.cleanup_old_data(max_age_days)
             )
-
         if self._promo_system:
             cleanup_results["expired_promos"] = self._promo_system.cleanup_expired()
-
-        # Check subscription renewals and expirations
         if self._subscription_manager:
             renewals = await self._subscription_manager.check_renewals()
             expirations = await self._subscription_manager.check_expirations()
             cleanup_results["subscription_renewals"] = len(renewals)
             cleanup_results["subscription_expirations"] = len(expirations)
-
         return cleanup_results
 
     @property
-    def promotions(self):
+    def promotions(self) -> Optional[PromoSystem]:
         """Access to promotions system"""
         return self._promo_system
 
     @property
-    def subscriptions(self):
+    def subscriptions(self) -> Optional[SubscriptionManager]:
         """Access to subscriptions system"""
         return self._subscription_manager
 
     @property
-    def security(self):
+    def security(self) -> Optional[SecurityManager]:
         """Access to security system"""
         return self._security_manager
+        
