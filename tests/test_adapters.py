@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from neonpay.adapters.pyrogram_adapter import PyrogramAdapter
 from neonpay.adapters.aiogram_adapter import AiogramAdapter
 from neonpay.core import PaymentStage

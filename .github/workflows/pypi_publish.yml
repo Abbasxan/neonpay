@@ -3,8 +3,8 @@ name: Publish to PyPI / TestPyPI
 on:
   push:
     tags:
-      - "v*"       # v2.3.0 → публикация в PyPI
-      - "test/*"   # test/2.3.0 → публикация в TestPyPI
+      - "v*"       #  v2.3.0 → публикация в PyPI
+      - "test/*"   #  test/2.3.0 → публикация в TestPyPI
   workflow_dispatch: {}
 
 jobs:

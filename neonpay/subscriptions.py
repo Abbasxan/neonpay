@@ -5,7 +5,7 @@ Handles subscription-based payments with automatic renewal
 
 import time
 import asyncio
-from typing import Dict, Any, Optional, List, Callable, Union
+from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -357,7 +357,7 @@ class SubscriptionManager:
         
         logger.info(f"Processed payment for subscription {subscription_id}: {amount} Stars")
         return True
-    
+
     def on_renewal(self, callback: Callable[[Subscription], None]) -> None:
         """Register renewal callback"""
         if not callable(callback):
@@ -365,7 +365,7 @@ class SubscriptionManager:
         
         self._renewal_callbacks.append(callback)
         logger.info(f"Renewal callback registered: {callback.__name__}")
-    
+
     def on_expiration(self, callback: Callable[[Subscription], None]) -> None:
         """Register expiration callback"""
         if not callable(callback):
@@ -373,7 +373,7 @@ class SubscriptionManager:
         
         self._expiration_callbacks.append(callback)
         logger.info(f"Expiration callback registered: {callback.__name__}")
-    
+
     async def check_renewals(self) -> List[Subscription]:
         """Check for subscriptions that need renewal"""
         current_time = time.time()
@@ -400,7 +400,6 @@ class SubscriptionManager:
     
     async def check_expirations(self) -> List[Subscription]:
         """Check for expired subscriptions"""
-        current_time = time.time()
         expired_subscriptions = []
         
         for subscription in self._subscriptions.values():
@@ -419,6 +418,7 @@ class SubscriptionManager:
                         logger.error(f"Error in expiration callback: {e}")
         
         return expired_subscriptions
+
     
     def get_stats(self) -> Dict[str, Any]:
         """Get subscription system statistics"""

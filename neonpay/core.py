@@ -35,6 +35,8 @@ class BotLibrary(Enum):
     AIOGRAM = "aiogram"
     PYTHON_TELEGRAM_BOT = "python-telegram-bot"
     TELEBOT = "telebot"
+    BOTAPI = "botapi"
+    
 
 
 def validate_url(url: str, require_https: bool = False) -> bool:
@@ -559,5 +561,6 @@ class NeonPayCore:
         """Access to security system"""
         return self._security_manager
             
+
 
 

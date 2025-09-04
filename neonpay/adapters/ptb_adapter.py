@@ -5,12 +5,12 @@ Supports python-telegram-bot v20.0+ with Telegram Stars payments
 
 import json
 import logging
-from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from telegram import Bot
     from telegram.ext import Application
-    from telegram import LabeledPrice, PreCheckoutQuery, Message
+    from telegram import PreCheckoutQuery, Message
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -110,7 +110,7 @@ class PythonTelegramBotAdapter(PaymentAdapter):
         try:
             if payment.invoice_payload:
                 payload_data = json.loads(payment.invoice_payload)
-        except:
+        except json.JSONDecodeError:
             pass
         
         # Create payment result
@@ -133,3 +133,4 @@ class PythonTelegramBotAdapter(PaymentAdapter):
             "version": "20.0+",
             "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
         }
+

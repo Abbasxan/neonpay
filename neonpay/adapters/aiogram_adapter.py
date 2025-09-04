@@ -3,13 +3,13 @@ Aiogram adapter for NEONPAY
 Supports Aiogram v3.0+ with Telegram Stars payments
 """
 
-from typing import Dict, Any, Callable, Optional, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING
 import json
 import logging
 
 if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
-    from aiogram.types import LabeledPrice, InputFile, PreCheckoutQuery, Message
+    from aiogram.types import PreCheckoutQuery, Message
 
 from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
@@ -37,15 +37,13 @@ class AiogramAdapter(PaymentAdapter):
         """Send payment invoice using Aiogram"""
         try:
             # Import aiogram types
-            from aiogram.types import LabeledPrice, InputFile
+            from aiogram.types import LabeledPrice
             
             # Create price list
             prices = [LabeledPrice(label=stage.label, amount=stage.price)]
             
             # Prepare photo
-            photo = None
-            if stage.photo_url:
-                photo = stage.photo_url
+            photo = stage.photo_url if stage.photo_url else None
             
             # Create payload
             payload = json.dumps({
@@ -113,7 +111,7 @@ class AiogramAdapter(PaymentAdapter):
         try:
             if payment.invoice_payload:
                 payload_data = json.loads(payment.invoice_payload)
-        except:
+        except json.JSONDecodeError:
             pass
         
         # Create payment result

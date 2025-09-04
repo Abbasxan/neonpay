@@ -5,9 +5,9 @@ from neonpay.errors import PaymentValidationError
 
 class TestPaymentValidator:
     def test_validate_amount_success(self):
-        assert PaymentValidator.validate_amount(1) is True
-        assert PaymentValidator.validate_amount(100) is True
-        assert PaymentValidator.validate_amount(2500) is True
+        assert PaymentValidator.validate_amount(1)
+        assert PaymentValidator.validate_amount(100)
+        assert PaymentValidator.validate_amount(2500)
     
     def test_validate_amount_failure(self):
         with pytest.raises(PaymentValidationError):
@@ -23,9 +23,9 @@ class TestPaymentValidator:
             PaymentValidator.validate_amount("100")
     
     def test_validate_stage_id_success(self):
-        assert PaymentValidator.validate_stage_id("test_stage") is True
-        assert PaymentValidator.validate_stage_id("stage-123") is True
-        assert PaymentValidator.validate_stage_id("STAGE_ID") is True
+        assert PaymentValidator.validate_stage_id("test_stage")
+        assert PaymentValidator.validate_stage_id("stage-123")
+        assert PaymentValidator.validate_stage_id("STAGE_ID")
     
     def test_validate_stage_id_failure(self):
         with pytest.raises(PaymentValidationError):
@@ -38,23 +38,23 @@ class TestPaymentValidator:
             PaymentValidator.validate_stage_id("stage@invalid")
         
         with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_stage_id("a" * 65)  # Too long
+            PaymentValidator.validate_stage_id("a" * 65)
     
     def test_validate_title_success(self):
-        assert PaymentValidator.validate_title("Test Product") is True
-        assert PaymentValidator.validate_title("A") is True
+        assert PaymentValidator.validate_title("Test Product")
+        assert PaymentValidator.validate_title("A")
     
     def test_validate_title_failure(self):
         with pytest.raises(PaymentValidationError):
             PaymentValidator.validate_title("")
         
         with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_title("A" * 33)  # Too long
+            PaymentValidator.validate_title("A" * 33)
     
     def test_validate_logo_url_success(self):
-        assert PaymentValidator.validate_logo_url(None) is True
-        assert PaymentValidator.validate_logo_url("https://example.com/logo.png") is True
-        assert PaymentValidator.validate_logo_url("http://localhost:8000/logo.jpg") is True
+        assert PaymentValidator.validate_logo_url(None)
+        assert PaymentValidator.validate_logo_url("https://example.com/logo.png")
+        assert PaymentValidator.validate_logo_url("http://localhost:8000/logo.jpg")
     
     def test_validate_logo_url_failure(self):
         with pytest.raises(PaymentValidationError):
@@ -71,9 +71,9 @@ class TestPaymentHelper:
         assert PaymentHelper.format_stars_amount(2500) == "2500 ⭐"
     
     def test_calculate_fee(self):
-        assert PaymentHelper.calculate_fee(100, 5.0) == 5
-        assert PaymentHelper.calculate_fee(100, 0.0) == 0
-        assert PaymentHelper.calculate_fee(1000, 2.5) == 25
+        assert PaymentHelper.calculate_fee(100, 5.0) == pytest.approx(5.0)
+        assert PaymentHelper.calculate_fee(100, 0.0) == pytest.approx(0.0)
+        assert PaymentHelper.calculate_fee(1000, 2.5) == pytest.approx(25.0)
     
     def test_generate_payment_description(self):
         result = PaymentHelper.generate_payment_description("Test Product", 100)
@@ -99,9 +99,9 @@ class TestPaymentHelper:
         assert result == expected
     
     def test_is_test_payment(self):
-        assert PaymentHelper.is_test_payment({"is_test": True}) is True
-        assert PaymentHelper.is_test_payment({"is_test": False}) is False
-        assert PaymentHelper.is_test_payment({}) is False
+        assert PaymentHelper.is_test_payment({"is_test": True})
+        assert not PaymentHelper.is_test_payment({"is_test": False})
+        assert not PaymentHelper.is_test_payment({})
 
 
 class TestNeonPayLogger:

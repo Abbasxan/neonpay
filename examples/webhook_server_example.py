@@ -7,15 +7,12 @@ from fastapi import FastAPI, Request, HTTPException, Header
 from typing import Optional
 import uvicorn
 
-from neonpay.webhooks import WebhookHandler, create_webhook_handlers
+from neonpay.webhooks import WebhookHandler
 
 app = FastAPI(title="NEONPAY Webhook Server", version="1.0.0")
 
 # Initialize webhook handler with secret key
 webhook_handler = WebhookHandler(secret_key="your_webhook_secret_key")
-
-# Or use the pre-configured handlers
-# webhook_handler = create_webhook_handlers()
 
 # Custom event handlers
 @webhook_handler.on("payment_success")
@@ -29,12 +26,7 @@ async def handle_payment_success(data):
     print(f"👤 User: {user_id}")
     print(f"💰 Amount: {amount} XTR")
     
-    # Add your business logic here:
-    # - Update user subscription
-    # - Send confirmation email
-    # - Grant access to premium features
-    # - Update database records
-    
+    # Add your business logic here
     return {"status": "processed", "action": "user_upgraded"}
 
 
@@ -46,11 +38,7 @@ async def handle_payment_error(data):
     
     print(f"❌ Payment error for user {user_id}: {error}")
     
-    # Add your error handling logic here:
-    # - Log error to monitoring system
-    # - Send notification to admin
-    # - Retry payment if appropriate
-    
+    # Add your error handling logic here
     return {"status": "logged", "action": "error_reported"}
 
 
@@ -73,11 +61,9 @@ async def receive_webhook(
 ):
     """Receive and process NEONPAY webhooks."""
     try:
-        # Get raw payload
         payload = await request.body()
         payload_str = payload.decode('utf-8')
         
-        # Process webhook
         result = await webhook_handler.handle_webhook(
             payload_str, 
             x_neonpay_signature
@@ -121,4 +107,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True
-    )
+)

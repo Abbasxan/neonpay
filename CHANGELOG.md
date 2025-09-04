@@ -3,9 +3,34 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0/).
 
-## [2.3.0] - 2024-12-19
+## [2.4.0] - 2025-09-04
+
+### Added
+- 🆕 Official BotAPIAdapter for Telegram Bot API support
+- ✅ Full async and sync compatibility across all adapters
+- 🔒 Enhanced security with stricter input validation
+- 🛡️ Webhook signature verification and timestamp validation
+- 📚 Streamlined English-only documentation
+- ⚡ Further complexity reduction while maintaining security
+
+### Changed
+- Standardized adapters for both async and sync usage
+- Unified payload handling across all adapters
+- Improved error handling and performance across all modules
+
+### Breaking Changes
+- BotAPIAdapter introduces a slightly different async callback mechanism
+- All adapters now require explicit setup for payment handlers
+- PaymentStage validation stricter: title ≤ 32 chars, description ≤ 255 chars
+
+### Migration Guide
+- Use `BotAPIAdapter` for official Telegram Bot API integration
+- Ensure explicit registration of payment handlers for all adapters
+- Review updated PaymentStage validation rules
+
+## [2.3.0] - 2025-08-29
 
 ### Removed
 - **BREAKING**: Complete removal of localization system
@@ -36,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace localized error handling with English-only messages
 - Update custom implementations that relied on localization features
 
-## [2.2.0] - 2024-12-19
+## [2.2.0] - 2025-04-018
 
 ### Added
 - 🔒 Enhanced security with comprehensive input validation
@@ -83,3 +108,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic payment processing
 - Webhook handling
 - Multi-stage payment support
+- 

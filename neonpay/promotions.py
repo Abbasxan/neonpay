@@ -4,9 +4,8 @@ Provides flexible discount management for payment stages
 """
 
 import time
-import hashlib
 import secrets
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, Union
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -18,7 +17,7 @@ class DiscountType(Enum):
     """Types of discounts available"""
     PERCENTAGE = "percentage"
     FIXED_AMOUNT = "fixed_amount"
-
+    
 
 @dataclass
 class PromoCode:

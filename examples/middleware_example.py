@@ -3,7 +3,6 @@ NEONPAY Middleware Example
 Demonstrates how to use middleware for payment processing.
 """
 
-import asyncio
 import logging
 from pyrogram import Client, filters
 from pyrogram.types import Message
@@ -12,8 +11,7 @@ from neonpay import NeonPay
 from neonpay.middleware import (
     MiddlewareManager, 
     LoggingMiddleware, 
-    ValidationMiddleware, 
-    WebhookMiddleware
+    ValidationMiddleware
 )
 
 # Configure logging
@@ -198,3 +196,4 @@ async def course_command(client: Client, message: Message):
 if __name__ == "__main__":
     print("🚀 Starting NEONPAY Middleware Bot...")
     app.run()
+

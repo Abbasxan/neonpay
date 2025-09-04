@@ -7,10 +7,10 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, 
-    ContextTypes, MessageHandler, filters
+    ContextTypes
 )
 
-from neonpay import create_neonpay, PaymentStage, PaymentResult, PaymentStatus
+from neonpay import create_neonpay, PaymentStage, PaymentResult
 
 # Configure logging
 logging.basicConfig(
@@ -405,3 +405,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+

@@ -9,7 +9,7 @@ import logging
 from typing import Dict, Any, Optional
 import aiohttp
 
-from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
+from ..core import PaymentAdapter, PaymentStage
 from ..errors import NeonPayError
 
 logger = logging.getLogger(__name__)
@@ -136,3 +136,4 @@ class RawAPIAdapter(PaymentAdapter):
         """Cleanup on deletion"""
         if hasattr(self, '_session') and self._session and not self._session.closed:
             asyncio.create_task(self.close())
+

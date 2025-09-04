@@ -12,18 +12,25 @@ pyrogram>=2.0.106
 tgcrypto>=1.2.0
 python-telegram-bot>=20.0
 pyTelegramBotAPI>=4.0.0
+aiohttp>=3.8.0
+typing-extensions>=4.0.0; python_version < "3.10"
 
 [dev]
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
-black>=22.0.0
-isort>=5.10.0
+pytest-cov>=4.0.0
+black>=23.0.0
+isort>=5.12.0
 mypy>=1.0.0
+flake8>=6.0.0
 pre-commit>=2.20.0
 sphinx>=5.0.0
 sphinx-rtd-theme>=1.0.0
 
 [ptb]
+python-telegram-bot>=20.0
+
+[botapi]
 python-telegram-bot>=20.0
 
 [pyrogram]
@@ -32,3 +39,6 @@ tgcrypto>=1.2.0
 
 [telebot]
 pyTelegramBotAPI>=4.0.0
+
+[raw]
+aiohttp>=3.8.0
