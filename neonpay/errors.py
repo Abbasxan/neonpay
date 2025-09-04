@@ -21,26 +21,31 @@ class NeonPayError(Exception):
 
 class PaymentError(NeonPayError):
     """Payment processing error"""
+
     pass
 
 
 class ConfigurationError(NeonPayError):
     """Configuration or setup error"""
+
     pass
 
 
 class AdapterError(NeonPayError):
     """Bot library adapter error"""
+
     pass
 
 
 class ValidationError(NeonPayError):
     """General data validation error"""
+
     pass
 
 
 class PaymentValidationError(ValidationError):
     """Raised when payment-specific validation fails"""
+
     pass
 
 
