@@ -1,6 +1,8 @@
-"""
+""" 
 Webhook handling and verification for NEONPAY
+
 Secure webhook processing with signature validation
+
 """
 
 import hashlib
@@ -9,7 +11,6 @@ import time
 import json
 import logging
 from typing import Dict, Any, Optional, Callable, List
-from urllib.parse import urlparse
 import asyncio
 
 from .errors import NeonPayError
@@ -291,3 +292,4 @@ def create_secure_webhook_handler(
     """
     verifier = WebhookVerifier(secret_token, max_age)
     return WebhookHandler(verifier)
+                
