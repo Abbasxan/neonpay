@@ -1,7 +1,7 @@
 """Base adapter for bot library integration."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Callable
+from typing import Dict, Callable
 from ..core import PaymentStage, PaymentResult
 
 
@@ -26,4 +26,3 @@ class PaymentAdapter(ABC):
     def get_library_info(self) -> Dict[str, str]:
         """Get information about the bot library"""
         pass
-        
