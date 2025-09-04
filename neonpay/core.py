@@ -251,7 +251,9 @@ class NeonPayCore:
         self._enable_logging: bool = enable_logging
         self._max_stages: int = max_stages
 
-        self._promo_system: Optional[PromoSystem] = PromoSystem() if enable_promotions else None
+        self._promo_system: Optional[PromoSystem] = (
+            PromoSystem() if enable_promotions else None
+        )
         self._subscription_manager: Optional[SubscriptionManager] = (
             SubscriptionManager() if enable_subscriptions else None
         )
@@ -362,6 +364,7 @@ class NeonPayCore:
 
         if final_price != stage.price:
             from copy import deepcopy
+
             stage = deepcopy(stage)
             stage.price = final_price
             if applied_promo:
@@ -530,4 +533,3 @@ class NeonPayCore:
     def security(self) -> Optional[SecurityManager]:
         """Access to security system"""
         return self._security_manager
-        
