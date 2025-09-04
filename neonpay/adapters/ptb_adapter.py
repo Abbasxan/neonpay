@@ -31,7 +31,9 @@ class PythonTelegramBotAdapter(PaymentAdapter):
         self.application = application
         self._handlers_setup = False
         # callback теперь async
-        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = None
+        self._payment_callback: Optional[Callable[[PaymentResult], Awaitable[None]]] = (
+            None
+        )
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Python Telegram Bot"""
@@ -136,4 +138,4 @@ class PythonTelegramBotAdapter(PaymentAdapter):
             "library": "python-telegram-bot",
             "version": "20.0+",
             "features": "Telegram Stars, Pre-checkout handling, Payment callbacks",
-    }
+        }
