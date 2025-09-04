@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
 """
 Setup script for NEONPAY - Modern Python library for Telegram Stars payments integration.
 """
 
-import os
 import sys
 from pathlib import Path
 from setuptools import setup, find_packages
