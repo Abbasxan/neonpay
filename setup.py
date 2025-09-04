@@ -1,7 +1,6 @@
-"""
+""" 
 Setup script for NEONPAY - Modern Python library for Telegram Stars payments integration.
 """
-
 import sys
 from pathlib import Path
 from setuptools import setup, find_packages
@@ -56,9 +55,11 @@ extras_require = {
     "dev": [
         "pytest>=7.0.0",
         "pytest-asyncio>=0.21.0",
-        "black>=22.0.0",
-        "isort>=5.10.0",
+        "pytest-cov>=4.0.0",
+        "black>=23.0.0",
+        "isort>=5.12.0",
         "mypy>=1.0.0",
+        "flake8>=6.0.0",
         "pre-commit>=2.20.0",
         "sphinx>=5.0.0",
         "sphinx-rtd-theme>=1.0.0"
@@ -83,9 +84,7 @@ setup(
         "Telegram": "https://t.me/neonsahib",
     },
     packages=find_packages(exclude=["tests*", "examples*", "docs*", "website*"]),
-    package_data={
-        "neonpay": ["py.typed"],
-    },
+    package_data={"neonpay": ["py.typed"]},
     include_package_data=True,
     python_requires=">=3.9",
     install_requires=install_requires,
