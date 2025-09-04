@@ -141,5 +141,4 @@ class PyrogramAdapter(PaymentAdapter):
                 "Photo support",
                 "Payment callbacks",
             ],
-    }
-        
+        }
