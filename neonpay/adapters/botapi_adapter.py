@@ -61,10 +61,7 @@ class BotAPIAdapter(PaymentAdapter):
 
         self._payment_callback = payment_callback
 
-        # Here you would register handlers with Dispatcher (sync or async)
-        # For example, using python-telegram-bot's `Application.add_handler`
-        # The user must add `PreCheckoutQueryHandler` and `MessageHandler` externally
-
+        # Handlers should be registered externally by the user
         self._handlers_setup = True
 
     async def handle_pre_checkout_query(self, query):
@@ -111,7 +108,7 @@ class BotAPIAdapter(PaymentAdapter):
 
         try:
             try:
-                loop = asyncio.get_running_loop()
+                asyncio.get_running_loop()
                 asyncio.create_task(self._payment_callback(result))
             except RuntimeError:
                 # Run in separate thread if no loop
@@ -140,4 +137,5 @@ class BotAPIAdapter(PaymentAdapter):
             "library": "python-telegram-bot",
             "version": "20+",
             "features": ["Telegram Stars payments", "Pre-checkout handling", "Payment callbacks"]
-        }
+            }
+        
