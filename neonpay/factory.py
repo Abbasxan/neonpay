@@ -69,17 +69,20 @@ def create_adapter(
                     "Aiogram adapter requires dispatcher parameter"
                 )
             from .adapters.aiogram_adapter import AiogramAdapter
+
             return AiogramAdapter(bot_instance, dispatcher)
 
         # Pyrogram
         elif PyroClient is not None and isinstance(bot_instance, PyroClient):
             from .adapters.pyrogram_adapter import PyrogramAdapter
+
             return PyrogramAdapter(bot_instance)
 
         # PTB vs BotAPI
         elif PTBBotClass is not None and isinstance(bot_instance, PTBBotClass):
             if adapter_type == "botapi":
                 from .adapters.botapi_adapter import BotAPIAdapter
+
                 return BotAPIAdapter(bot_instance)
             else:
                 if application is None:
@@ -87,11 +90,13 @@ def create_adapter(
                         "Python Telegram Bot adapter requires application parameter"
                     )
                 from .adapters.ptb_adapter import PythonTelegramBotAdapter
+
                 return PythonTelegramBotAdapter(bot_instance, application)
 
         # Telebot
         elif telebot is not None and isinstance(bot_instance, telebot.TeleBot):
             from .adapters.telebot_adapter import TelebotAdapter
+
             return TelebotAdapter(bot_instance)
 
         else:
