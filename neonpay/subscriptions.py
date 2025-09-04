@@ -400,7 +400,6 @@ class SubscriptionManager:
     
     async def check_expirations(self) -> List[Subscription]:
         """Check for expired subscriptions"""
-        current_time = time.time()
         expired_subscriptions = []
         
         for subscription in self._subscriptions.values():
@@ -419,6 +418,7 @@ class SubscriptionManager:
                         logger.error(f"Error in expiration callback: {e}")
         
         return expired_subscriptions
+
     
     def get_stats(self) -> Dict[str, Any]:
         """Get subscription system statistics"""
