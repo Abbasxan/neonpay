@@ -44,7 +44,9 @@ class PyrogramAdapter(PaymentAdapter):
                 {"label": stage.label, "amount": stage.price}
             ]
 
-            await self.client.send_invoice(
+            # Note: Pyrogram Client doesn't have send_invoice method
+            # This would need to be implemented using raw API calls
+            raise NeonPayError("Pyrogram send_invoice not implemented - use raw API calls")
                 chat_id=user_id,
                 title=stage.title,
                 description=stage.description,
@@ -118,7 +120,8 @@ class PyrogramAdapter(PaymentAdapter):
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
-                        loop.run_until_complete(self._payment_callback(result))
+                        if self._payment_callback:
+                            loop.run_until_complete(self._payment_callback(result))
                     finally:
                         loop.close()
 
