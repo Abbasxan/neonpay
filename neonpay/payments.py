@@ -12,7 +12,8 @@ Features:
 
 import json
 import random
-from typing import Callable, Optional
+import logging
+from typing import Any, Callable, Optional, Dict, Union, cast
 
 # Legacy compatibility - only import if pyrogram is available
 try:
@@ -35,11 +36,12 @@ from .errors import StarsPaymentError
 
 
 class NeonStars:
-    def __init__(self, app, thank_you: str = "Спасибо за поддержку!"):
+    def __init__(self, app: Any, thank_you: str = "Спасибо за поддержку!") -> None:
         """
         :param app: pyrogram.Client
         :param thank_you: сообщение благодарности пользователю
         """
+        self.logger = logging.getLogger(__name__)
         if not PYROGRAM_AVAILABLE:
             raise ImportError(
                 "Pyrogram is not installed. Install with: pip install pyrogram"
@@ -52,7 +54,7 @@ class NeonStars:
         # Подписка на raw обновления
         app.add_handler(self._on_raw_update, group=-1)
 
-    def on_payment(self, callback: Callable[[int, int], None]):
+    def on_payment(self, callback: Callable[[int, int], Any]) -> None:
         """
         Регистрирует callback, который будет вызван при успешной оплате.
         callback(user_id: int, amount: int)
@@ -67,7 +69,7 @@ class NeonStars:
         title: str,
         description: str,
         photo_url: str = "https://telegram.org/img/t_logo.png",
-    ):
+    ) -> None:
         """Отправить пользователю инвойс"""
         try:
             peer = await self.app.resolve_peer(user_id)
@@ -104,20 +106,22 @@ class NeonStars:
         except Exception as e:
             raise StarsPaymentError(f"Ошибка отправки счета: {e}")
 
-    async def _on_raw_update(self, client, update, users, chats):
+    async def _on_raw_update(self, client: Any, update: Any, users: Any, chats: Any) -> None:
         """Автоматическая обработка pre_checkout и успешной оплаты"""
-        if isinstance(update, UpdateBotPrecheckoutQuery):
-            await client.invoke(
-                SetBotPrecheckoutResults(query_id=update.query_id, success=True)
-            )
+        try:
+            if hasattr(update, 'query_id') and hasattr(update, 'query_id'):  # Check if it's a pre-checkout query
+                await client.invoke(
+                    SetBotPrecheckoutResults(query_id=update.query_id, success=True)
+                )
+                return
 
-        if hasattr(update, "message") and hasattr(update.message, "action"):
-            action = update.message.action
-            if (
-                isinstance(action, MessageActionPaymentSentMe)
-                and action.currency == "XTR"
-            ):
-                user_id = update.message.from_id.user_id
-                amount = action.total_amount
-                if self._payment_callback:
-                    await self._payment_callback(user_id, amount)
+            if hasattr(update, "message") and hasattr(update.message, "action"):
+                action = update.message.action
+                if (hasattr(action, 'currency') and action.currency == "XTR" and 
+                    hasattr(update.message, 'from_id') and hasattr(update.message.from_id, 'user_id')):
+                    user_id = update.message.from_id.user_id
+                    amount = action.total_amount
+                    if self._payment_callback:
+                        await self._payment_callback(user_id, amount)
+        except Exception as e:
+            self.logger.error(f"Error in _on_raw_update: {e}")
