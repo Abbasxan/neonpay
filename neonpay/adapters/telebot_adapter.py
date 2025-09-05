@@ -7,7 +7,7 @@ import json
 import logging
 import asyncio
 import threading
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, List, cast
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import telebot
@@ -85,11 +85,7 @@ class TelebotAdapter(PaymentAdapter):
 
     def _handle_successful_payment(self, message: Any) -> None:
         """Handle successful payment"""
-        if (
-            not self._payment_callback
-            or not hasattr(message, "successful_payment")
-            or not message.successful_payment
-        ):
+        if not self._payment_callback or not hasattr(message, 'successful_payment') or not message.successful_payment:
             return
 
         payment = message.successful_payment
@@ -154,6 +150,6 @@ class TelebotAdapter(PaymentAdapter):
             "features": [
                 "Telegram Stars payments",
                 "Pre-checkout handling",
-                "Payment status tracking",
+                "Payment status tracking"
             ],
         }
