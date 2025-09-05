@@ -5,7 +5,7 @@ Handles subscription-based payments with automatic renewal
 
 import time
 import asyncio
-from typing import Dict, Any, Optional, List, Callable, Union, Tuple
+from typing import Dict, Any, Optional, List, Callable, Union
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -221,10 +221,10 @@ class SubscriptionManager:
     def get_plan(self, plan_id: str) -> Optional[SubscriptionPlan]:
         """
         Get a subscription plan by ID
-
+        
         Args:
             plan_id: ID of the plan to get
-
+            
         Returns:
             SubscriptionPlan if found, None otherwise
         """
@@ -303,10 +303,10 @@ class SubscriptionManager:
     def get_subscription(self, subscription_id: str) -> Optional[Subscription]:
         """
         Get a subscription by ID
-
+        
         Args:
             subscription_id: ID of the subscription to get
-
+            
         Returns:
             Subscription if found, None otherwise
         """
@@ -318,11 +318,11 @@ class SubscriptionManager:
     ) -> List[Subscription]:
         """
         Get all subscriptions for a user
-
+        
         Args:
             user_id: ID of the user
             active_only: Whether to return only active subscriptions
-
+            
         Returns:
             List of user's subscriptions
         """
@@ -423,7 +423,7 @@ class SubscriptionManager:
     async def _check_renewals(self) -> List[Subscription]:
         """
         Check for subscriptions that need to be renewed
-
+        
         Returns:
             List of renewed subscriptions
         """
@@ -455,7 +455,7 @@ class SubscriptionManager:
     async def _check_expirations(self) -> List[Subscription]:
         """
         Check for expired subscriptions
-
+        
         Returns:
             List of expired subscriptions
         """
@@ -485,7 +485,7 @@ class SubscriptionManager:
     def get_stats(self) -> Dict[str, Any]:
         """
         Get subscription statistics
-
+        
         Returns:
             Dictionary containing subscription statistics
         """
