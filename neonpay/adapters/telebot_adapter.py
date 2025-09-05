@@ -36,9 +36,10 @@ class TelebotAdapter(PaymentAdapter):
         """Send payment invoice using pyTelegramBotAPI"""
         try:
             # Create payload
-            payload = json.dumps(
-                {"user_id": user_id, "amount": stage.price, **stage.payload}
-            )
+            payload_data = {"user_id": user_id, "amount": stage.price}
+            if stage.payload:
+                payload_data.update(stage.payload)
+            payload = json.dumps(payload_data)
 
             # Send invoice
             self.bot.send_invoice(
@@ -127,16 +128,19 @@ class TelebotAdapter(PaymentAdapter):
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    asyncio.create_task(self._payment_callback(result))
+                    if self._payment_callback:
+                        asyncio.create_task(self._payment_callback(result))
                 else:
-                    loop.run_until_complete(self._payment_callback(result))
+                    if self._payment_callback:
+                        loop.run_until_complete(self._payment_callback(result))
             except RuntimeError:
                 # No event loop running, create one in a separate thread
                 def run_callback() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
-                        loop.run_until_complete(self._payment_callback(result))
+                        if self._payment_callback:
+                            loop.run_until_complete(self._payment_callback(result))
                     finally:
                         loop.close()
 
@@ -151,9 +155,5 @@ class TelebotAdapter(PaymentAdapter):
         return {
             "library": "pyTelegramBotAPI",
             "version": "4.0+",
-            "features": [
-                "Telegram Stars payments",
-                "Pre-checkout handling",
-                "Payment status tracking",
-            ],
+            "features": "Telegram Stars payments, Pre-checkout handling, Payment status tracking",
         }
