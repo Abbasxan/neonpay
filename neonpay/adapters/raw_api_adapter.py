@@ -132,8 +132,8 @@ class RawAPIAdapter(PaymentAdapter):
             "features": [
                 "Direct API integration",
                 "Webhook support",
-                "Enhanced error handling"
-            ]
+                "Enhanced error handling",
+            ],
         }
 
     async def close(self) -> None:
