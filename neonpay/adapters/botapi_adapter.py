@@ -33,9 +33,10 @@ class BotAPIAdapter(PaymentAdapter):
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using official Bot API"""
-        payload = json.dumps(
-            {"user_id": user_id, "amount": stage.price, **stage.payload}
-        )
+        payload_data = {"user_id": user_id, "amount": stage.price}
+        if stage.payload:
+            payload_data.update(stage.payload)
+        payload = json.dumps(payload_data)
 
         try:
             await self._call_async(
@@ -46,7 +47,7 @@ class BotAPIAdapter(PaymentAdapter):
                 payload=payload,
                 provider_token="",  # Empty for Telegram Stars
                 currency="XTR",
-                prices=[{"label": stage.label, "amount": stage.price}],  # type: ignore
+                prices=[{"label": stage.label, "amount": stage.price}],
                 photo_url=stage.photo_url,
                 start_parameter=stage.start_parameter,
             )
@@ -111,18 +112,20 @@ class BotAPIAdapter(PaymentAdapter):
         try:
             try:
                 asyncio.get_running_loop()
-                task = self._payment_callback(result)
-                if asyncio.iscoroutine(task):
-                    asyncio.create_task(task)
+                if self._payment_callback:
+                    task = self._payment_callback(result)
+                    if asyncio.iscoroutine(task):
+                        asyncio.create_task(task)
             except RuntimeError:
 
                 def run() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
-                        task = self._payment_callback(result)
-                        if asyncio.iscoroutine(task):
-                            loop.run_until_complete(task)
+                        if self._payment_callback:
+                            task = self._payment_callback(result)
+                            if asyncio.iscoroutine(task):
+                                loop.run_until_complete(task)
                     finally:
                         loop.close()
 
