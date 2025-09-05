@@ -7,7 +7,7 @@ import json
 import logging
 import asyncio
 import threading
-from typing import Dict, Callable, Optional, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, List, cast
 
 if TYPE_CHECKING:
     import telebot
@@ -76,21 +76,19 @@ class TelebotAdapter(PaymentAdapter):
 
         self._handlers_setup = True
 
-    def _handle_pre_checkout_query(self, pre_checkout_query):
+    def _handle_pre_checkout_query(self, pre_checkout_query: Any) -> None:
         """Handle pre-checkout query"""
         try:
             self.bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
         except Exception as e:
             logger.error(f"Error handling pre-checkout query: {e}")
 
-    def _handle_successful_payment(self, message):
+    def _handle_successful_payment(self, message: Any) -> None:
         """Handle successful payment"""
-        if not self._payment_callback:
+        if not self._payment_callback or not hasattr(message, 'successful_payment') or not message.successful_payment:
             return
 
         payment = message.successful_payment
-        if not payment:
-            return
 
         user_id = message.from_user.id
 
@@ -115,7 +113,7 @@ class TelebotAdapter(PaymentAdapter):
         # Call payment callback safely (telebot is sync, callback might be async)
         self._call_async_callback(result)
 
-    def _call_async_callback(self, result: PaymentResult):
+    def _call_async_callback(self, result: PaymentResult) -> None:
         """Safely call async callback from sync context"""
         if not self._payment_callback:
             return
@@ -123,10 +121,14 @@ class TelebotAdapter(PaymentAdapter):
         try:
             # Try to get running loop
             try:
-                asyncio.create_task(self._payment_callback(result))
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self._payment_callback(result))
+                else:
+                    loop.run_until_complete(self._payment_callback(result))
             except RuntimeError:
                 # No event loop running, create one in a separate thread
-                def run_callback():
+                def run_callback() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
@@ -134,7 +136,7 @@ class TelebotAdapter(PaymentAdapter):
                     finally:
                         loop.close()
 
-                thread = threading.Thread(target=run_callback)
+                thread = threading.Thread(target=run_callback, daemon=True)
                 thread.start()
 
         except Exception as e:
@@ -148,6 +150,6 @@ class TelebotAdapter(PaymentAdapter):
             "features": [
                 "Telegram Stars payments",
                 "Pre-checkout handling",
-                "Payment callbacks",
+                "Payment status tracking"
             ],
         }
