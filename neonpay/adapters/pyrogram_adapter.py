@@ -6,7 +6,7 @@ Supports Pyrogram v2.0+ with Telegram Stars payments
 
 import json
 import logging
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, cast
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 import asyncio
 import threading
 
@@ -34,15 +34,12 @@ class PyrogramAdapter(PaymentAdapter):
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using Pyrogram"""
         try:
-            # Подготовим фото (у Pyrogram нет InputWebDocument, поэтому даём URL напрямую)
             photo = stage.photo_url if stage.photo_url else None
 
-            # Создаём payload
             payload: str = json.dumps(
                 {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
             )
 
-            # Цены должны быть списком LabeledPrice, но Pyrogram принимает dict
             prices: list[dict[str, Any]] = [
                 {"label": stage.label, "amount": stage.price}
             ]
@@ -80,7 +77,6 @@ class PyrogramAdapter(PaymentAdapter):
 
         payment = message.successful_payment
 
-        # Check if message has from_user
         if not hasattr(message, "from_user") or not message.from_user:
             logger.warning("Payment without from_user, skipping")
             return
@@ -97,7 +93,7 @@ class PyrogramAdapter(PaymentAdapter):
             user_id=user_id,
             amount=payment.total_amount,
             currency=payment.currency,
-            status=PaymentStatus.COMPLETED,  # Enum вместо строки
+            status=PaymentStatus.COMPLETED,
             transaction_id=payment.telegram_payment_charge_id,
             metadata=payload_data,
         )
@@ -111,14 +107,12 @@ class PyrogramAdapter(PaymentAdapter):
 
         try:
             try:
-                # If there's an active event loop, create a task
                 loop = asyncio.get_running_loop()
                 if loop.is_running():
                     asyncio.create_task(self._payment_callback(result))
                 else:
                     await self._payment_callback(result)
             except RuntimeError:
-                # If no event loop, create a new one in a separate thread
                 def run() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
