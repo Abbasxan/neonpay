@@ -5,7 +5,7 @@ Provides flexible discount management for payment stages
 
 import time
 import secrets
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, Tuple, List
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -88,7 +88,7 @@ class PromoCode:
         if not isinstance(self.user_limit, int) or self.user_limit <= 0:
             raise ValueError("User limit must be a positive integer")
 
-    def is_valid(self, user_id: int, amount: int) -> tuple[bool, str]:
+    def is_valid(self, user_id: int, amount: int) -> Tuple[bool, str]:
         """
         Check if promo code is valid for user and amount
 
@@ -153,19 +153,22 @@ class PromoSystem:
 
     def create_promo_code(
         self,
-        code: str,
-        discount_type: DiscountType,
-        discount_value: Union[int, float],
-        **kwargs,
+        code: Optional[str] = None,
+        discount_type: Union[DiscountType, str] = DiscountType.PERCENTAGE,
+        discount_value: Union[int, float] = 10,
+        **kwargs: Any,
     ) -> PromoCode:
         """
         Create a new promo code
 
         Args:
-            code: Promo code string
-            discount_type: Type of discount
-            discount_value: Discount value
+            code: Promo code (auto-generated if None)
+            discount_type: Type of discount (PERCENTAGE or FIXED_AMOUNT)
+            discount_value: Discount value (percentage or fixed amount)
             **kwargs: Additional promo code parameters
+
+        Returns:
+            Created PromoCode instance
         """
         # Check maximum codes limit
         if len(self._promo_codes) >= self._max_codes:
@@ -174,18 +177,18 @@ class PromoSystem:
             )
 
         # Check if code already exists
-        if code.upper() in self._promo_codes:
+        if code and code.upper() in self._promo_codes:
             raise ValueError(f"Promo code '{code}' already exists")
 
         promo_code = PromoCode(
-            code=code.upper(),
+            code=code.upper() if code else secrets.token_urlsafe(8)[:8].upper(),
             discount_type=discount_type,
             discount_value=discount_value,
             **kwargs,
         )
 
-        self._promo_codes[code.upper()] = promo_code
-        logger.info(f"Created promo code: {code}")
+        self._promo_codes[promo_code.code] = promo_code
+        logger.info(f"Created promo code: {promo_code.code}")
 
         return promo_code
 
@@ -209,17 +212,32 @@ class PromoSystem:
         return self.create_promo_code(code, discount_type, discount_value, **kwargs)
 
     def get_promo_code(self, code: str) -> Optional[PromoCode]:
-        """Get promo code by code string"""
+        """
+        Get promo code by code
+
+        Args:
+            code: Promo code to look up
+
+        Returns:
+            PromoCode instance if found, None otherwise
+        """
+        if not isinstance(code, str):
+            return None
         return self._promo_codes.get(code.upper())
 
     def validate_promo_code(
         self, code: str, user_id: int, amount: int
-    ) -> tuple[bool, str, Optional[PromoCode]]:
+    ) -> Tuple[bool, str, Optional[PromoCode]]:
         """
-        Validate promo code for user and amount
+        Validate a promo code for a user and amount
+
+        Args:
+            code: Promo code to validate
+            user_id: User ID attempting to use the code
+            amount: Amount the code is being applied to
 
         Returns:
-            (is_valid, error_message, promo_code)
+            Tuple of (is_valid, message, promo_code)
         """
         promo_code = self.get_promo_code(code)
         if not promo_code:
@@ -230,19 +248,24 @@ class PromoSystem:
 
     def apply_promo_code(
         self, code: str, user_id: int, amount: int
-    ) -> tuple[int, Optional[PromoCode]]:
+    ) -> Tuple[bool, Union[int, str], Optional[PromoCode]]:
         """
-        Apply promo code and return discounted amount
+        Apply a promo code to an amount
+
+        Args:
+            code: Promo code to apply
+            user_id: User ID using the code
+            amount: Amount to apply discount to
 
         Returns:
-            (discounted_amount, promo_code)
+            Tuple of (success, discount_or_error, promo_code)
         """
         is_valid, error_message, promo_code = self.validate_promo_code(
             code, user_id, amount
         )
 
         if not is_valid or not promo_code:
-            raise ValueError(error_message)
+            return False, error_message, None
 
         discount = promo_code.calculate_discount(amount)
         discounted_amount = amount - discount
@@ -252,7 +275,7 @@ class PromoSystem:
 
         logger.info(f"Applied promo code {code}: {amount} -> {discounted_amount} Stars")
 
-        return discounted_amount, promo_code
+        return True, discounted_amount, promo_code
 
     def deactivate_promo_code(self, code: str) -> bool:
         """Deactivate a promo code"""
@@ -263,8 +286,16 @@ class PromoSystem:
             return True
         return False
 
-    def remove_promo_code(self, code: str) -> bool:
-        """Remove a promo code completely"""
+    def delete_promo_code(self, code: str) -> bool:
+        """
+        Delete a promo code
+
+        Args:
+            code: Promo code to delete
+
+        Returns:
+            True if deleted, False if not found
+        """
         code_upper = code.upper()
         if code_upper in self._promo_codes:
             del self._promo_codes[code_upper]
@@ -272,14 +303,19 @@ class PromoSystem:
             return True
         return False
 
-    def list_promo_codes(self, active_only: bool = False) -> Dict[str, PromoCode]:
+    def list_promo_codes(self, active_only: bool = True) -> List[PromoCode]:
         """Get all promo codes"""
         if active_only:
-            return {k: v for k, v in self._promo_codes.items() if v.active}
-        return self._promo_codes.copy()
+            return [v for v in self._promo_codes.values() if v.active]
+        return list(self._promo_codes.values())
 
-    def cleanup_expired(self) -> int:
-        """Remove expired promo codes and return count"""
+    def cleanup_expired(self) -> List[str]:
+        """
+        Clean up expired promo codes
+
+        Returns:
+            List of deleted promo codes
+        """
         current_time = time.time()
         expired_codes = []
 
@@ -293,10 +329,15 @@ class PromoSystem:
         if expired_codes:
             logger.info(f"Cleaned up {len(expired_codes)} expired promo codes")
 
-        return len(expired_codes)
+        return expired_codes
 
     def get_stats(self) -> Dict[str, Any]:
-        """Get promo system statistics"""
+        """
+        Get promo system statistics
+
+        Returns:
+            Dictionary with statistics
+        """
         active_codes = sum(1 for code in self._promo_codes.values() if code.active)
         total_uses = sum(code.used_count for code in self._promo_codes.values())
 
