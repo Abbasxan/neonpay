@@ -273,7 +273,11 @@ class PromoSystem:
             return False, "Invalid promo code", None
 
         is_valid, error_message = promo_code.is_valid(user_id, amount)
-        return is_valid, error_message, promo_code
+
+        if not is_valid:
+            return False, error_message or "Promo code is not valid", promo_code
+
+        return True, "Promo code applied successfully", promo_code
 
     def apply_promo_code(
         self, code: str, user_id: int, amount: int
