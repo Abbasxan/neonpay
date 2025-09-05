@@ -3,10 +3,10 @@ NEONPAY Middleware System
 Provides flexible payment processing pipeline with hooks and filters.
 """
 
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 from abc import ABC, abstractmethod
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from .core import PaymentStage, PaymentResult
 
@@ -53,7 +53,9 @@ class LoggingMiddleware(PaymentMiddleware):
         start_time = context.get("start_time")
         if isinstance(start_time, datetime):
             duration = datetime.now() - start_time
-            self.logger.info(f"Payment completed in {duration.total_seconds():.2f}s")
+            self.logger.info(
+                f"Payment completed in {duration.total_seconds():.2f}s"
+            )
         else:
             self.logger.info("Payment completed")
         return result
@@ -107,13 +109,13 @@ class WebhookMiddleware(PaymentMiddleware):
     async def after_payment(
         self, result: PaymentResult, context: Dict[str, Any]
     ) -> Optional[PaymentResult]:
-        if hasattr(result, "transaction_id") and result.transaction_id:
+        if hasattr(result, 'transaction_id') and result.transaction_id:
             await self._send_webhook(
                 "payment_success",
                 {
                     "payment_id": result.transaction_id,
                     "user_id": context.get("user_id"),
-                    "amount": getattr(result, "amount", 0),
+                    "amount": getattr(result, 'amount', 0),
                     "timestamp": datetime.now().isoformat(),
                 },
             )
