@@ -3,7 +3,7 @@ Official Telegram Bot API adapter for NEONPAY
 Supports sync and async usage with Telegram Bot API.
 """
 
-from typing import Dict, Callable, Optional, Any, List, TypeVar, cast
+from typing import Dict, Callable, Optional, Any, Awaitable, Union
 import json
 import logging
 import asyncio
@@ -27,7 +27,9 @@ class BotAPIAdapter(PaymentAdapter):
         """
         self.bot = bot
         self._handlers_setup = False
-        self._payment_callback: Optional[Callable[[PaymentResult], None]] = None
+        self._payment_callback: Optional[
+            Callable[[PaymentResult], Union[None, Awaitable[None]]]
+        ] = None
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
         """Send payment invoice using official Bot API"""
@@ -44,7 +46,7 @@ class BotAPIAdapter(PaymentAdapter):
                 payload=payload,
                 provider_token="",  # Empty for Telegram Stars
                 currency="XTR",
-                prices=[{"label": stage.label, "amount": stage.price}],
+                prices=[{"label": stage.label, "amount": stage.price}],  # type: ignore
                 photo_url=stage.photo_url,
                 start_parameter=stage.start_parameter,
             )
@@ -53,15 +55,13 @@ class BotAPIAdapter(PaymentAdapter):
             raise NeonPayError(f"Bot API error: {e}")
 
     async def setup_handlers(
-        self, payment_callback: Callable[[PaymentResult], Any]
+        self, payment_callback: Callable[[PaymentResult], Union[None, Awaitable[None]]]
     ) -> None:
         """Setup Bot API payment handlers"""
         if self._handlers_setup:
             return
 
         self._payment_callback = payment_callback
-
-        # Handlers should be registered externally by the user
         self._handlers_setup = True
 
     async def handle_pre_checkout_query(self, query: Any) -> None:
@@ -85,7 +85,7 @@ class BotAPIAdapter(PaymentAdapter):
             return
 
         user_id = message.from_user.id
-        payload_data = {}
+        payload_data: Dict[str, Any] = {}
         try:
             if payment.invoice_payload:
                 payload_data = json.loads(payment.invoice_payload)
@@ -101,7 +101,6 @@ class BotAPIAdapter(PaymentAdapter):
             metadata=payload_data,
         )
 
-        # Call callback safely (supports async)
         await self._call_async_callback(result)
 
     async def _call_async_callback(self, result: PaymentResult) -> None:
@@ -112,14 +111,17 @@ class BotAPIAdapter(PaymentAdapter):
         try:
             try:
                 asyncio.get_running_loop()
-                asyncio.create_task(self._payment_callback(result))
+                task = self._payment_callback(result)
+                if asyncio.iscoroutine(task):
+                    asyncio.create_task(task)
             except RuntimeError:
-                # Run in separate thread if no loop
-                def run():
+                def run() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
-                        loop.run_until_complete(self._payment_callback(result))
+                        task = self._payment_callback(result)
+                        if asyncio.iscoroutine(task):
+                            loop.run_until_complete(task)
                     finally:
                         loop.close()
 
