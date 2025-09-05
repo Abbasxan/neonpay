@@ -5,7 +5,7 @@ Handles subscription-based payments with automatic renewal
 
 import time
 import asyncio
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List, Callable, Union, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -172,14 +172,14 @@ class SubscriptionManager:
     Handles subscription plans, user subscriptions, and automatic renewals
     """
 
-    def __init__(self, max_plans: int = 100, max_subscriptions: int = 10000):
+    def __init__(self, max_plans: int = 100, max_subscriptions: int = 10000) -> None:
         self._plans: Dict[str, SubscriptionPlan] = {}
         self._subscriptions: Dict[str, Subscription] = {}
         self._user_subscriptions: Dict[int, List[str]] = (
             {}
         )  # user_id -> subscription_ids
-        self._renewal_callbacks: List[Callable[[Subscription], None]] = []
-        self._expiration_callbacks: List[Callable[[Subscription], None]] = []
+        self._renewal_callbacks: List[Callable[[Subscription], Any]] = []
+        self._expiration_callbacks: List[Callable[[Subscription], Any]] = []
         self._max_plans = max_plans
         self._max_subscriptions = max_subscriptions
         self._auto_renewal_enabled = True
@@ -192,8 +192,8 @@ class SubscriptionManager:
         name: str,
         description: str,
         price: int,
-        period: SubscriptionPeriod,
-        **kwargs,
+        period: Union[SubscriptionPeriod, str],
+        **kwargs: Any,
     ) -> SubscriptionPlan:
         """Create a new subscription plan"""
         # Check maximum plans limit
@@ -219,6 +219,15 @@ class SubscriptionManager:
         return plan
 
     def get_plan(self, plan_id: str) -> Optional[SubscriptionPlan]:
+        """
+        Get a subscription plan by ID
+        
+        Args:
+            plan_id: ID of the plan to get
+            
+        Returns:
+            SubscriptionPlan if found, None otherwise
+        """
         """Get subscription plan by ID"""
         return self._plans.get(plan_id)
 
@@ -292,12 +301,31 @@ class SubscriptionManager:
         return subscription
 
     def get_subscription(self, subscription_id: str) -> Optional[Subscription]:
+        """
+        Get a subscription by ID
+        
+        Args:
+            subscription_id: ID of the subscription to get
+            
+        Returns:
+            Subscription if found, None otherwise
+        """
         """Get subscription by ID"""
         return self._subscriptions.get(subscription_id)
 
     def get_user_subscriptions(
         self, user_id: int, active_only: bool = True
     ) -> List[Subscription]:
+        """
+        Get all subscriptions for a user
+        
+        Args:
+            user_id: ID of the user
+            active_only: Whether to return only active subscriptions
+            
+        Returns:
+            List of user's subscriptions
+        """
         """Get all subscriptions for a user"""
         subscription_ids = self._user_subscriptions.get(user_id, [])
         subscriptions = []
@@ -376,7 +404,7 @@ class SubscriptionManager:
         )
         return True
 
-    def on_renewal(self, callback: Callable[[Subscription], None]) -> None:
+    def on_renewal(self, callback: Callable[[Subscription], Any]) -> None:
         """Register renewal callback"""
         if not callable(callback):
             raise ValueError("Callback must be callable")
@@ -384,7 +412,7 @@ class SubscriptionManager:
         self._renewal_callbacks.append(callback)
         logger.info(f"Renewal callback registered: {callback.__name__}")
 
-    def on_expiration(self, callback: Callable[[Subscription], None]) -> None:
+    def on_expiration(self, callback: Callable[[Subscription], Any]) -> None:
         """Register expiration callback"""
         if not callable(callback):
             raise ValueError("Callback must be callable")
@@ -392,7 +420,13 @@ class SubscriptionManager:
         self._expiration_callbacks.append(callback)
         logger.info(f"Expiration callback registered: {callback.__name__}")
 
-    async def check_renewals(self) -> List[Subscription]:
+    async def _check_renewals(self) -> List[Subscription]:
+        """
+        Check for subscriptions that need to be renewed
+        
+        Returns:
+            List of renewed subscriptions
+        """
         """Check for subscriptions that need renewal"""
         current_time = time.time()
         renewals_needed = []
@@ -418,7 +452,13 @@ class SubscriptionManager:
 
         return renewals_needed
 
-    async def check_expirations(self) -> List[Subscription]:
+    async def _check_expirations(self) -> List[Subscription]:
+        """
+        Check for expired subscriptions
+        
+        Returns:
+            List of expired subscriptions
+        """
         """Check for expired subscriptions"""
         expired_subscriptions = []
 
@@ -443,6 +483,12 @@ class SubscriptionManager:
         return expired_subscriptions
 
     def get_stats(self) -> Dict[str, Any]:
+        """
+        Get subscription statistics
+        
+        Returns:
+            Dictionary containing subscription statistics
+        """
         """Get subscription system statistics"""
         active_subs = sum(1 for sub in self._subscriptions.values() if sub.is_active())
         total_revenue = sum(sub.total_paid for sub in self._subscriptions.values())
