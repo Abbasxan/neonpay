@@ -3,10 +3,10 @@ NEONPAY Middleware System
 Provides flexible payment processing pipeline with hooks and filters.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 from abc import ABC, abstractmethod
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .core import PaymentStage, PaymentResult
 
@@ -50,10 +50,14 @@ class LoggingMiddleware(PaymentMiddleware):
     async def after_payment(
         self, result: PaymentResult, context: Dict[str, Any]
     ) -> Optional[PaymentResult]:
-        duration = datetime.now() - context.get("start_time", datetime.now())
-        self.logger.info(
-            f"Payment completed: {result.success} in {duration.total_seconds():.2f}s"
-        )
+        start_time = context.get("start_time")
+        if isinstance(start_time, datetime):
+            duration = datetime.now() - start_time
+            self.logger.info(
+                f"Payment completed in {duration.total_seconds():.2f}s"
+            )
+        else:
+            self.logger.info("Payment completed")
         return result
 
     async def on_error(self, error: Exception, context: Dict[str, Any]) -> bool:
@@ -105,13 +109,13 @@ class WebhookMiddleware(PaymentMiddleware):
     async def after_payment(
         self, result: PaymentResult, context: Dict[str, Any]
     ) -> Optional[PaymentResult]:
-        if result.success:
+        if hasattr(result, 'transaction_id') and result.transaction_id:
             await self._send_webhook(
                 "payment_success",
                 {
-                    "payment_id": result.payment_charge_id,
+                    "payment_id": result.transaction_id,
                     "user_id": context.get("user_id"),
-                    "amount": context.get("amount"),
+                    "amount": getattr(result, 'amount', 0),
                     "timestamp": datetime.now().isoformat(),
                 },
             )
@@ -161,11 +165,11 @@ class MiddlewareManager:
     def __init__(self):
         self.middlewares: List[PaymentMiddleware] = []
 
-    def add_middleware(self, middleware: PaymentMiddleware):
+    def add_middleware(self, middleware: PaymentMiddleware) -> None:
         """Add middleware to the pipeline."""
         self.middlewares.append(middleware)
 
-    def remove_middleware(self, middleware_class: type):
+    def remove_middleware(self, middleware_class: type) -> None:
         """Remove middleware by class type."""
         self.middlewares = [
             m for m in self.middlewares if not isinstance(m, middleware_class)
@@ -198,6 +202,8 @@ class MiddlewareManager:
 
         for middleware in self.middlewares:
             try:
+                if current_result is None:
+                    return None
                 processed_result = await middleware.after_payment(
                     current_result, context
                 )
