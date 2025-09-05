@@ -130,7 +130,7 @@ class WebhookMiddleware(PaymentMiddleware):
         )
         return True
 
-    async def _send_webhook(self, event_type: str, data: Dict[str, Any]):
+    async def _send_webhook(self, event_type: str, data: Dict[str, Any]) -> None:
         """Send webhook notification."""
         import aiohttp
         import hashlib
@@ -160,7 +160,7 @@ class WebhookMiddleware(PaymentMiddleware):
 class MiddlewareManager:
     """Manages payment middleware pipeline."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.middlewares: List[PaymentMiddleware] = []
 
     def add_middleware(self, middleware: PaymentMiddleware) -> None:
