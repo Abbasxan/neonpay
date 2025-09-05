@@ -70,29 +70,25 @@ class PyrogramAdapter(PaymentAdapter):
         self._payment_callback = payment_callback
         logger.info("Pyrogram payment handlers configured")
 
-    async def handle_successful_payment(self, message: "Message") -> None:
+    async def handle_successful_payment(self, message: Any) -> None:
         """Handle successful payment update from Pyrogram"""
-        if not self._payment_callback:
+        if not self._payment_callback or not hasattr(message, 'successful_payment') or not message.successful_payment:
             return
 
-        payment: Optional["SuccessfulPayment"] = getattr(
-            message, "successful_payment", None
-        )
-        if not payment:
-            return
-
-        # ⚠️ from_user может быть None, проверим
-        if not message.from_user:
+        payment = message.successful_payment
+        
+        # Check if message has from_user
+        if not hasattr(message, 'from_user') or not message.from_user:
             logger.warning("Payment without from_user, skipping")
             return
 
         user_id: int = message.from_user.id
         payload_data: dict[str, Any] = {}
         try:
-            if payment.invoice_payload:
-                payload_data = json.loads(payment.invoice_payload)
-        except json.JSONDecodeError:
-            pass
+            if hasattr(payment, 'invoice_payload') and payment.invoice_payload:
+                payload_data = json.loads(str(payment.invoice_payload))
+        except (json.JSONDecodeError, AttributeError) as e:
+            logger.warning(f"Failed to parse invoice payload: {e}")
 
         result = PaymentResult(
             user_id=user_id,
@@ -112,20 +108,23 @@ class PyrogramAdapter(PaymentAdapter):
 
         try:
             try:
-                # Если есть активный цикл — запускаем задачу
+                # If there's an active event loop, create a task
                 loop = asyncio.get_running_loop()
-                loop.create_task(self._payment_callback(result))  # type: ignore
+                if loop.is_running():
+                    asyncio.create_task(cast(Callable, self._payment_callback)(result))
+                else:
+                    loop.run_until_complete(cast(Callable, self._payment_callback)(result))
             except RuntimeError:
-                # Если цикла нет — создаём новый в отдельном потоке
+                # If no event loop, create a new one in a separate thread
                 def run() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
-                        loop.run_until_complete(self._payment_callback(result))  # type: ignore
+                        loop.run_until_complete(cast(Callable, self._payment_callback)(result))
                     finally:
                         loop.close()
 
-                thread = threading.Thread(target=run)
+                thread = threading.Thread(target=run, daemon=True)
                 thread.start()
         except Exception as e:
             logger.error(f"Error calling payment callback: {e}")
@@ -138,6 +137,6 @@ class PyrogramAdapter(PaymentAdapter):
             "features": [
                 "Telegram Stars payments",
                 "Photo support",
-                "Payment callbacks",
-            ],
+                "Payment callbacks"
+            ]
         }
