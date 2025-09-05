@@ -115,6 +115,7 @@ class BotAPIAdapter(PaymentAdapter):
                 if asyncio.iscoroutine(task):
                     asyncio.create_task(task)
             except RuntimeError:
+
                 def run() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
