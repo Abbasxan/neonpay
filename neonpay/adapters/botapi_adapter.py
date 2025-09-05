@@ -112,7 +112,7 @@ class BotAPIAdapter(PaymentAdapter):
         try:
             try:
                 asyncio.get_running_loop()
-                if self._payment_callback:
+                if self._payment_callback is not None:
                     task = self._payment_callback(result)
                     if asyncio.iscoroutine(task):
                         asyncio.create_task(task)
@@ -122,7 +122,7 @@ class BotAPIAdapter(PaymentAdapter):
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
-                        if self._payment_callback:
+                        if self._payment_callback is not None:
                             task = self._payment_callback(result)
                             if asyncio.iscoroutine(task):
                                 loop.run_until_complete(task)
