@@ -49,7 +49,7 @@ class SubscriptionPlan:
     features: List[str] = field(default_factory=list)
     created_at: float = field(default_factory=time.time)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate subscription plan configuration"""
         # Validate plan_id
         if not isinstance(self.plan_id, str) or not self.plan_id.strip():
@@ -116,7 +116,7 @@ class Subscription:
     total_paid: int = 0
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize subscription dates"""
         if self.started_at is None and self.status == SubscriptionStatus.ACTIVE:
             self.started_at = time.time()
@@ -161,8 +161,8 @@ class Subscription:
             return current_time + (30 * 24 * 60 * 60)  # Approximate month
         elif self.plan.period == SubscriptionPeriod.YEARLY:
             return current_time + (365 * 24 * 60 * 60)  # Approximate year
-
-        return current_time
+        else:
+            return current_time
 
 
 class SubscriptionManager:
@@ -204,6 +204,13 @@ class SubscriptionManager:
         if plan_id in self._plans:
             raise ValueError(f"Plan with ID '{plan_id}' already exists")
 
+        # Convert string period to enum if needed
+        if isinstance(period, str):
+            try:
+                period = SubscriptionPeriod(period)
+            except ValueError:
+                raise ValueError(f"Invalid period: {period}")
+        
         plan = SubscriptionPlan(
             plan_id=plan_id,
             name=name,
