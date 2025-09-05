@@ -167,7 +167,7 @@ class PaymentResult:
     timestamp: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate payment result data"""
         # Validate user_id
         if not isinstance(self.user_id, int) or self.user_id <= 0:
@@ -213,7 +213,7 @@ class PaymentAdapter(ABC):
 
     @abstractmethod
     async def setup_handlers(
-        self, payment_callback: Callable[[PaymentResult], None]
+        self, payment_callback: Callable[[PaymentResult], Any]
     ) -> None:
         """Setup payment event handlers"""
         pass
@@ -246,7 +246,7 @@ class NeonPayCore:
         self.adapter: PaymentAdapter = adapter
         self.thank_you_message: str = thank_you_message or "Thank you for your payment!"
         self._payment_stages: Dict[str, PaymentStage] = {}
-        self._payment_callbacks: List[Callable[[PaymentResult], Union[None, Any]]] = []
+        self._payment_callbacks: List[Callable[[PaymentResult], Any]] = []
         self._setup_complete: bool = False
         self._enable_logging: bool = enable_logging
         self._max_stages: int = max_stages
@@ -316,7 +316,7 @@ class NeonPayCore:
         if self._enable_logging:
             logger.info("Payment system initialized")
 
-    def on_payment(self, callback: Callable[[PaymentResult], Union[None, Any]]) -> None:
+    def on_payment(self, callback: Callable[[PaymentResult], Any]) -> None:
         """Register payment completion callback"""
         if not callable(callback):
             raise ValueError("Callback must be callable")
