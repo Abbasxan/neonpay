@@ -71,20 +71,24 @@ class PyrogramAdapter(PaymentAdapter):
 
     async def handle_successful_payment(self, message: Any) -> None:
         """Handle successful payment update from Pyrogram"""
-        if not self._payment_callback or not hasattr(message, 'successful_payment') or not message.successful_payment:
+        if (
+            not self._payment_callback
+            or not hasattr(message, "successful_payment")
+            or not message.successful_payment
+        ):
             return
 
         payment = message.successful_payment
-        
+
         # Check if message has from_user
-        if not hasattr(message, 'from_user') or not message.from_user:
+        if not hasattr(message, "from_user") or not message.from_user:
             logger.warning("Payment without from_user, skipping")
             return
 
         user_id: int = message.from_user.id
         payload_data: dict[str, Any] = {}
         try:
-            if hasattr(payment, 'invoice_payload') and payment.invoice_payload:
+            if hasattr(payment, "invoice_payload") and payment.invoice_payload:
                 payload_data = json.loads(str(payment.invoice_payload))
         except (json.JSONDecodeError, AttributeError) as e:
             logger.warning(f"Failed to parse invoice payload: {e}")
@@ -136,6 +140,6 @@ class PyrogramAdapter(PaymentAdapter):
             "features": [
                 "Telegram Stars payments",
                 "Photo support",
-                "Payment callbacks"
-            ]
+                "Payment callbacks",
+            ],
         }
