@@ -52,7 +52,9 @@ class BotAPIAdapter(PaymentAdapter):
         except Exception as e:
             raise NeonPayError(f"Bot API error: {e}")
 
-    async def setup_handlers(self, payment_callback: Callable[[PaymentResult], Any]) -> None:
+    async def setup_handlers(
+        self, payment_callback: Callable[[PaymentResult], Any]
+    ) -> None:
         """Setup Bot API payment handlers"""
         if self._handlers_setup:
             return
@@ -140,6 +142,6 @@ class BotAPIAdapter(PaymentAdapter):
             "features": [
                 "Telegram Stars payments",
                 "Pre-checkout handling",
-                "Payment callbacks"
-            ]
+                "Payment callbacks",
+            ],
         }
