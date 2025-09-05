@@ -91,7 +91,7 @@ class PaymentStage:
     provider_token: str = ""
     start_parameter: str = "neonpay"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate payment stage data with enhanced security"""
         # Validate price
         if not isinstance(self.price, int):
@@ -354,9 +354,11 @@ class NeonPayCore:
 
         if promo_code and self._promo_system:
             try:
-                final_price, applied_promo = self._promo_system.apply_promo_code(
+                promo_result = self._promo_system.apply_promo_code(
                     promo_code, user_id, stage.price
                 )
+                final_price = promo_result[0]
+                applied_promo = promo_result[1]
                 logger.info(f"Promo code applied: {stage.price} -> {final_price} Stars")
             except ValueError as e:
                 logger.warning(f"Promo code validation failed: {e}")
@@ -511,10 +513,10 @@ class NeonPayCore:
                 self._security_manager.cleanup_old_data(max_age_days)
             )
         if self._promo_system:
-            cleanup_results["expired_promos"] = self._promo_system.cleanup_expired()
+            cleanup_results["expired_promos"] = len(self._promo_system.cleanup_expired())
         if self._subscription_manager:
-            renewals = await self._subscription_manager.check_renewals()
-            expirations = await self._subscription_manager.check_expirations()
+            renewals = await self._subscription_manager._check_renewals()
+            expirations = await self._subscription_manager._check_expirations()
             cleanup_results["subscription_renewals"] = len(renewals)
             cleanup_results["subscription_expirations"] = len(expirations)
         return cleanup_results
