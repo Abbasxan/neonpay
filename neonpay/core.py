@@ -513,7 +513,9 @@ class NeonPayCore:
                 self._security_manager.cleanup_old_data(max_age_days)
             )
         if self._promo_system:
-            cleanup_results["expired_promos"] = len(self._promo_system.cleanup_expired())
+            cleanup_results["expired_promos"] = len(
+                self._promo_system.cleanup_expired()
+            )
         if self._subscription_manager:
             renewals = await self._subscription_manager._check_renewals()
             expirations = await self._subscription_manager._check_expirations()
