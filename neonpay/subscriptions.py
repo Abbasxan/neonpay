@@ -210,7 +210,7 @@ class SubscriptionManager:
                 period = SubscriptionPeriod(period)
             except ValueError:
                 raise ValueError(f"Invalid period: {period}")
-        
+
         plan = SubscriptionPlan(
             plan_id=plan_id,
             name=name,
