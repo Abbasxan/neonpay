@@ -106,10 +106,14 @@ class NeonStars:
         except Exception as e:
             raise StarsPaymentError(f"Ошибка отправки счета: {e}")
 
-    async def _on_raw_update(self, client: Any, update: Any, users: Any, chats: Any) -> None:
+    async def _on_raw_update(
+        self, client: Any, update: Any, users: Any, chats: Any
+    ) -> None:
         """Автоматическая обработка pre_checkout и успешной оплаты"""
         try:
-            if hasattr(update, 'query_id') and hasattr(update, 'query_id'):  # Check if it's a pre-checkout query
+            if hasattr(update, "query_id") and hasattr(
+                update, "query_id"
+            ):  # Check if it's a pre-checkout query
                 await client.invoke(
                     SetBotPrecheckoutResults(query_id=update.query_id, success=True)
                 )
@@ -117,8 +121,12 @@ class NeonStars:
 
             if hasattr(update, "message") and hasattr(update.message, "action"):
                 action = update.message.action
-                if (hasattr(action, 'currency') and action.currency == "XTR" and 
-                    hasattr(update.message, 'from_id') and hasattr(update.message.from_id, 'user_id')):
+                if (
+                    hasattr(action, "currency")
+                    and action.currency == "XTR"
+                    and hasattr(update.message, "from_id")
+                    and hasattr(update.message.from_id, "user_id")
+                ):
                     user_id = update.message.from_id.user_id
                     amount = action.total_amount
                     if self._payment_callback:
