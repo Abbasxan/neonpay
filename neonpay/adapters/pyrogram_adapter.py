@@ -115,6 +115,7 @@ class PyrogramAdapter(PaymentAdapter):
                         cast(Callable, self._payment_callback)(result)
                     )
             except RuntimeError:
+
                 def run() -> None:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
