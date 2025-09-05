@@ -108,7 +108,9 @@ class NeonStars:
         except Exception as e:
             raise StarsPaymentError(f"Ошибка отправки счета: {e}")
 
-    async def _on_raw_update(self, client: Any, update: Any, users: Any, chats: Any) -> None:
+    async def _on_raw_update(
+        self, client: Any, update: Any, users: Any, chats: Any
+    ) -> None:
         """Автоматическая обработка pre_checkout и успешной оплаты"""
         try:
             # Pre-checkout запрос
