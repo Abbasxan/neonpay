@@ -13,7 +13,7 @@ Features:
 import json
 import random
 import logging
-from typing import Any, Callable, Optional, Dict, Union, cast
+from typing import Any, Callable, Optional
 
 # Legacy compatibility - only import if pyrogram is available
 try:
@@ -33,6 +33,8 @@ except ImportError:
     PYROGRAM_AVAILABLE = False
 
 from .errors import StarsPaymentError
+
+logger = logging.getLogger(__name__)
 
 
 class NeonStars:
@@ -106,30 +108,27 @@ class NeonStars:
         except Exception as e:
             raise StarsPaymentError(f"Ошибка отправки счета: {e}")
 
-    async def _on_raw_update(
-        self, client: Any, update: Any, users: Any, chats: Any
-    ) -> None:
+    async def _on_raw_update(self, client: Any, update: Any, users: Any, chats: Any) -> None:
         """Автоматическая обработка pre_checkout и успешной оплаты"""
         try:
-            if hasattr(update, "query_id") and hasattr(
-                update, "query_id"
-            ):  # Check if it's a pre-checkout query
+            # Pre-checkout запрос
+            if isinstance(update, UpdateBotPrecheckoutQuery):
                 await client.invoke(
                     SetBotPrecheckoutResults(query_id=update.query_id, success=True)
                 )
                 return
 
-            if hasattr(update, "message") and hasattr(update.message, "action"):
-                action = update.message.action
-                if (
-                    hasattr(action, "currency")
-                    and action.currency == "XTR"
-                    and hasattr(update.message, "from_id")
-                    and hasattr(update.message.from_id, "user_id")
-                ):
-                    user_id = update.message.from_id.user_id
-                    amount = action.total_amount
-                    if self._payment_callback:
-                        await self._payment_callback(user_id, amount)
+            # Успешная оплата Stars
+            if (
+                hasattr(update, "message")
+                and isinstance(update.message.action, MessageActionPaymentSentMe)
+                and hasattr(update.message, "from_id")
+                and hasattr(update.message.from_id, "user_id")
+            ):
+                user_id = update.message.from_id.user_id
+                amount = update.message.action.total_amount
+                if self._payment_callback:
+                    await self._payment_callback(user_id, amount)
+
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
