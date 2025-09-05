@@ -8,7 +8,7 @@ from ..core import PaymentStage, PaymentResult
 class PaymentAdapter(ABC):
     """Abstract base class for bot library adapters"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize adapter."""
         pass
 
