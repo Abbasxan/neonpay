@@ -6,7 +6,7 @@ Direct API integration without external bot libraries
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable, List, cast
 import aiohttp
 
 from ..core import PaymentAdapter, PaymentStage
@@ -20,7 +20,7 @@ class RawAPIAdapter(PaymentAdapter):
 
     def __init__(
         self, bot_token: str, webhook_url: Optional[str] = None, timeout: int = 30
-    ):
+    ) -> None:
         """
         Initialize Raw API adapter
 
@@ -34,7 +34,7 @@ class RawAPIAdapter(PaymentAdapter):
         self.timeout = timeout
         self.api_url = f"https://api.telegram.org/bot{bot_token}"
         self._session: Optional[aiohttp.ClientSession] = None
-        self._payment_callback: Optional[callable] = None
+        self._payment_callback: Optional[Callable[[Any], Any]] = None
 
         # Configure timeout
         self._timeout = aiohttp.ClientTimeout(total=timeout)
@@ -114,7 +114,7 @@ class RawAPIAdapter(PaymentAdapter):
             logger.error(f"Failed to send invoice: {e}")
             return False
 
-    async def setup_handlers(self, payment_callback: callable) -> None:
+    async def setup_handlers(self, payment_callback: Callable[[Any], Any]) -> None:
         """
         Setup payment event handlers
 
@@ -124,7 +124,7 @@ class RawAPIAdapter(PaymentAdapter):
         self._payment_callback = payment_callback
         logger.info("Raw API adapter handlers configured")
 
-    def get_library_info(self) -> Dict[str, str]:
+    def get_library_info(self) -> Dict[str, Any]:
         """Get information about the bot library"""
         return {
             "library": "Raw Telegram Bot API",
@@ -132,17 +132,21 @@ class RawAPIAdapter(PaymentAdapter):
             "features": [
                 "Direct API integration",
                 "Webhook support",
-                "Enhanced error handling",
-            ],
+                "Enhanced error handling"
+            ]
         }
 
-    async def close(self):
+    async def close(self) -> None:
         """Close aiohttp session"""
         if self._session and not self._session.closed:
             await self._session.close()
             logger.info("Raw API adapter session closed")
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Cleanup on deletion"""
         if hasattr(self, "_session") and self._session and not self._session.closed:
-            asyncio.create_task(self.close())
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.create_task(self.close())
+            else:
+                loop.run_until_complete(self.close())
