@@ -64,7 +64,11 @@ class RawAPIAdapter(PaymentAdapter):
                     error_msg = result.get("description", "Unknown API error")
                     raise NeonPayError(f"Telegram API error: {error_msg}")
 
-                return result.get("result", {})
+                result_data = result.get("result", {})
+                if isinstance(result_data, dict):
+                    return result_data
+                else:
+                    return {}
 
         except asyncio.TimeoutError:
             raise NeonPayError("Request timeout. Please try again.")
