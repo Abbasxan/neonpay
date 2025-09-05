@@ -6,7 +6,7 @@ Direct API integration without external bot libraries
 import asyncio
 import json
 import logging
-from typing import Dict, Any, Optional, Callable, List, cast
+from typing import Dict, Any, Optional, Callable, Awaitable, Union
 import aiohttp
 
 from ..core import PaymentAdapter, PaymentStage
@@ -34,7 +34,9 @@ class RawAPIAdapter(PaymentAdapter):
         self.timeout = timeout
         self.api_url = f"https://api.telegram.org/bot{bot_token}"
         self._session: Optional[aiohttp.ClientSession] = None
-        self._payment_callback: Optional[Callable[[Any], Any]] = None
+        self._payment_callback: Optional[
+            Callable[[Any], Union[None, Awaitable[None]]]
+        ] = None
 
         # Configure timeout
         self._timeout = aiohttp.ClientTimeout(total=timeout)
@@ -114,7 +116,9 @@ class RawAPIAdapter(PaymentAdapter):
             logger.error(f"Failed to send invoice: {e}")
             return False
 
-    async def setup_handlers(self, payment_callback: Callable[[Any], Any]) -> None:
+    async def setup_handlers(
+        self, payment_callback: Callable[[Any], Union[None, Awaitable[None]]]
+    ) -> None:
         """
         Setup payment event handlers
 
@@ -145,8 +149,12 @@ class RawAPIAdapter(PaymentAdapter):
     def __del__(self) -> None:
         """Cleanup on deletion"""
         if hasattr(self, "_session") and self._session and not self._session.closed:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.create_task(self.close())
-            else:
-                loop.run_until_complete(self.close())
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self.close())
+                else:
+                    loop.run_until_complete(self.close())
+            except RuntimeError:
+                # No event loop in this context
+                pass
