@@ -130,7 +130,9 @@ class NeonStars:
                 user_id = update.message.from_id.user_id
                 amount = update.message.action.total_amount
                 if self._payment_callback:
-                    await self._payment_callback(user_id, amount)
+                    callback_result = self._payment_callback(user_id, amount)
+                    if asyncio.iscoroutine(callback_result):
+                        await callback_result
 
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
