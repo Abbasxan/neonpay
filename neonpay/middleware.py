@@ -53,9 +53,7 @@ class LoggingMiddleware(PaymentMiddleware):
         start_time = context.get("start_time")
         if isinstance(start_time, datetime):
             duration = datetime.now() - start_time
-            self.logger.info(
-                f"Payment completed in {duration.total_seconds():.2f}s"
-            )
+            self.logger.info(f"Payment completed in {duration.total_seconds():.2f}s")
         else:
             self.logger.info("Payment completed")
         return result
@@ -109,13 +107,13 @@ class WebhookMiddleware(PaymentMiddleware):
     async def after_payment(
         self, result: PaymentResult, context: Dict[str, Any]
     ) -> Optional[PaymentResult]:
-        if hasattr(result, 'transaction_id') and result.transaction_id:
+        if hasattr(result, "transaction_id") and result.transaction_id:
             await self._send_webhook(
                 "payment_success",
                 {
                     "payment_id": result.transaction_id,
                     "user_id": context.get("user_id"),
-                    "amount": getattr(result, 'amount', 0),
+                    "amount": getattr(result, "amount", 0),
                     "timestamp": datetime.now().isoformat(),
                 },
             )
