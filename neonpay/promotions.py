@@ -392,4 +392,4 @@ class PromoSystem:
             "active_codes": active_codes,
             "total_uses": total_uses,
             "max_codes": self._max_codes,
-    }
+        }
