@@ -7,9 +7,10 @@ Supports Pyrogram v2.0+ with Telegram Stars payments
 import json
 import random
 import logging
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 import asyncio
 import threading
+import traceback
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pyrogram import Client
@@ -51,7 +52,7 @@ class PyrogramAdapter(PaymentAdapter):
 
             payload = json.dumps(
                 {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
-            ).encode()
+            )
 
             peer = await self.client.resolve_peer(user_id)
 
@@ -78,12 +79,13 @@ class PyrogramAdapter(PaymentAdapter):
                         start_param=stage.start_parameter or "neonpay_invoice",
                     ),
                     message=f"{stage.title}\n{stage.description}",
-                    random_id=random.randint(100000, 999999),
+                    random_id=random.getrandbits(64),
                 )
             )
             return True
 
         except Exception as e:
+            logger.error("Send invoice failed:\n%s", traceback.format_exc())
             raise NeonPayError(f"Telegram API error: {e}") from e
 
     async def setup_handlers(
