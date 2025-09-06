@@ -196,7 +196,7 @@ class MiddlewareManager:
         self, result: PaymentResult, context: Dict[str, Any]
     ) -> Optional[PaymentResult]:
         """Process all after_payment middleware."""
-        current_result = result
+        current_result: Optional[PaymentResult] = result
 
         for middleware in self.middlewares:
             try:
