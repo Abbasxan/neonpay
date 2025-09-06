@@ -45,7 +45,7 @@ class BotAPIAdapter(PaymentAdapter):
                 title=stage.title,
                 description=stage.description,
                 payload=payload,
-                provider_token="",  # Empty for Telegram Stars
+                provider_token="",  # Empty for Telegram Stars  # nosec B106
                 currency="XTR",
                 prices=[{"label": stage.label, "amount": stage.price}],
                 photo_url=stage.photo_url,
