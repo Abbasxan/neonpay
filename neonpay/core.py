@@ -63,14 +63,13 @@ def validate_json_payload(payload: Dict[str, Any]) -> bool:
     if not isinstance(payload, dict):
         return False
 
-    # Check payload size (max 1024 bytes when serialized)
     try:
         serialized = json.dumps(payload)
-        if len(serialized.encode("utf-8")) > 1024:
-            return False
-        return True
     except Exception:
         return False
+
+    return len(serialized.encode("utf-8")) <= 1024
+
 
 
 @dataclass
@@ -537,3 +536,4 @@ class NeonPayCore:
     def security(self) -> Optional[SecurityManager]:
         """Access to security system"""
         return self._security_manager
+
