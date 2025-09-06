@@ -41,7 +41,10 @@ class BotLibrary(Enum):
 
 
 def validate_url(url: str, require_https: bool = False) -> bool:
-    """Validate URL format and security"""
+    """
+    Validate URL format and security.
+    Returns True if URL is valid and optionally HTTPS.
+    """
     if not url:
         return False
 
@@ -50,14 +53,14 @@ def validate_url(url: str, require_https: bool = False) -> bool:
         if not parsed.scheme or not parsed.netloc:
             return False
 
-        if require_https and parsed.scheme != "https":
+        if require_https and parsed.scheme.lower() != "https":
             return False
 
         return True
     except Exception:
         return False
 
-
+        
 def validate_json_payload(payload: Dict[str, Any]) -> bool:
     """
     Validate JSON payload structure and size.
@@ -67,12 +70,13 @@ def validate_json_payload(payload: Dict[str, Any]) -> bool:
         return False
 
     try:
+        # Попытка сериализации payload
         serialized = json.dumps(payload).encode("utf-8")
     except (TypeError, ValueError):
-        # payload is not serializable
         return False
 
     return len(serialized) <= 1024
+
 
 
 @dataclass
@@ -539,3 +543,4 @@ class NeonPayCore:
     def security(self) -> Optional[SecurityManager]:
         """Access to security system"""
         return self._security_manager
+
