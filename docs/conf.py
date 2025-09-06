@@ -52,4 +52,3 @@ myst_enable_extensions = [
 
 # Optionally, allow markdown math
 myst_update_mathjax = True
-
