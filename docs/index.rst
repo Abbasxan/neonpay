@@ -3,19 +3,9 @@ NEONPAY Documentation
 
 Welcome to NEONPAY documentation! NEONPAY is a comprehensive payment processing library for Telegram bots with support for multiple bot frameworks.
 
-Choose your language / Выберите язык / Dilinizi seçin:
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Language Selection:
-
-   en/index
-   ru/index
-   az/index
-
 .. toctree::
    :maxdepth: 2
-   :caption: Documentation:
+   :caption: Contents:
 
    en/README
    en/API
