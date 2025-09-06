@@ -130,6 +130,7 @@ class TelebotAdapter(PaymentAdapter):
                 else:
                     loop.run_until_complete(coro)
         except RuntimeError:
+
             def run() -> None:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
