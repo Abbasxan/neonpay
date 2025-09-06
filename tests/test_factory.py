@@ -10,7 +10,7 @@ from neonpay.adapters.raw_api_adapter import RawAPIAdapter
 
 
 class TestAdapterFactory:
-    @patch('neonpay.factory.PyroClient', MagicMock)
+    @patch("neonpay.factory.PyroClient", MagicMock)
     def test_create_pyrogram_adapter(self):
         mock_client = MagicMock()
         mock_client.__class__.__name__ = "Client"
@@ -19,7 +19,7 @@ class TestAdapterFactory:
         adapter = create_adapter(mock_client)
         assert isinstance(adapter, PyrogramAdapter)
 
-    @patch('neonpay.factory.AiogramBot', MagicMock)
+    @patch("neonpay.factory.AiogramBot", MagicMock)
     def test_create_aiogram_adapter(self):
         mock_bot = MagicMock()
         mock_bot.__class__.__name__ = "Bot"
@@ -29,7 +29,7 @@ class TestAdapterFactory:
         adapter = create_adapter(mock_bot, dispatcher=mock_dispatcher)
         assert isinstance(adapter, AiogramAdapter)
 
-    @patch('neonpay.factory.PTBBotClass', MagicMock)
+    @patch("neonpay.factory.PTBBotClass", MagicMock)
     def test_create_ptb_adapter(self):
         mock_bot = MagicMock()
         mock_bot.__class__.__name__ = "Bot"
@@ -39,7 +39,7 @@ class TestAdapterFactory:
         adapter = create_adapter(mock_bot, application=mock_application)
         assert isinstance(adapter, PythonTelegramBotAdapter)
 
-    @patch('neonpay.factory.TelebotModule', MagicMock)
+    @patch("neonpay.factory.TelebotModule", MagicMock)
     def test_create_telebot_adapter(self):
         mock_bot = MagicMock()
         mock_bot.__class__.__name__ = "TeleBot"
