@@ -141,5 +141,3 @@ class NeonStars:
 
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
-
-
