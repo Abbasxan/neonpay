@@ -7,7 +7,7 @@ import json
 import logging
 import asyncio
 import threading
-from typing import Dict, Callable, Optional, Any, Union
+from typing import Dict, Callable, Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     import telebot
@@ -143,3 +143,4 @@ class TelebotAdapter(PaymentAdapter):
             "version": "4.0+",
             "features": "Telegram Stars payments, Pre-checkout handling, Payment status tracking",
         }
+
