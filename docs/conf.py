@@ -77,7 +77,7 @@ gettext_compact = False
 # Supported languages
 languages = {
     "en": "English",
-    "ru": "Русский", 
+    "ru": "Русский",
     "az": "Azərbaycan",
 }
 
