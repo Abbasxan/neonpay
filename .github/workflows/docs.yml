@@ -78,6 +78,7 @@ jobs:
     
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
       - name: 📥 Checkout repository
@@ -90,11 +91,11 @@ jobs:
           path: docs/_build/html/
 
       - name: 🚀 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        id: deployment
+        uses: actions/deploy-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
-          cname: docs.neonpay.dev  # Optional: custom domain
+          path: docs/_build/html
 
   docs-quality:
     name: 📋 Documentation Quality
