@@ -163,7 +163,8 @@ class MiddlewareManager:
 
     def __init__(self) -> None:
         self.middlewares: List[PaymentMiddleware] = []
-        self.logger = logging.getLogger(__name__)
+        self.logger: logging.Logger = logging.getLogger(__name__)
+
 
     def add_middleware(self, middleware: PaymentMiddleware) -> None:
         """Add middleware to the pipeline."""
