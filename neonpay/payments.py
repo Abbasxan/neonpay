@@ -39,7 +39,9 @@ logger = logging.getLogger(__name__)
 
 
 class NeonStars:
-    def __init__(self, app: Any, thank_you: str = "Thank you for your support!") -> None:
+    def __init__(
+        self, app: Any, thank_you: str = "Thank you for your support!"
+    ) -> None:
         """
         :param app: pyrogram.Client instance
         :param thank_you: message of appreciation to send along with invoices
