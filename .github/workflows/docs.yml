@@ -59,7 +59,7 @@ jobs:
       - name: 📊 Upload docs as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/_build/html
+          path: docs/_build/html   # автоматически создаётся артефакт "github-pages"
 
   deploy-docs:
     name: 🚀 Deploy Documentation
@@ -77,8 +77,6 @@ jobs:
       - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          token: ${{ secrets.MY_GITHUB_TOKEN }}
 
   docs-quality:
     name: 📋 Documentation Quality
