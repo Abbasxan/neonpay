@@ -35,19 +35,17 @@ SetBotPrecheckoutResults = None
 
 def _load_pyrogram():
     """Lazy load Pyrogram types and functions"""
-    global (
-        PYROGRAM_AVAILABLE,
-        LabeledPrice,
-        Invoice,
-        InputWebDocument,
-        InputMediaInvoice,
-        DataJSON,
-        UpdateBotPrecheckoutQuery,
-        MessageActionPaymentSentMe,
-        SendMedia,
-        SetBotPrecheckoutResults,
-    )
-    
+    global PYROGRAM_AVAILABLE
+    global LabeledPrice
+    global Invoice
+    global InputWebDocument
+    global InputMediaInvoice
+    global DataJSON
+    global UpdateBotPrecheckoutQuery
+    global MessageActionPaymentSentMe
+    global SendMedia
+    global SetBotPrecheckoutResults
+
     if PYROGRAM_AVAILABLE is None:
         try:
             from pyrogram.raw.types import (
