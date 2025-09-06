@@ -7,17 +7,18 @@ Based on real production usage patterns
 import asyncio
 import logging
 from datetime import datetime
-from aiogram import Bot, Dispatcher, Router, F
-from aiogram.types import (
-    Message,
-    CallbackQuery,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
-from aiogram.filters import Command
 
-from neonpay.factory import create_neonpay
+from aiogram import Bot, Dispatcher, F, Router
+from aiogram.filters import Command
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
+
 from neonpay.core import PaymentStage, PaymentStatus
+from neonpay.factory import create_neonpay
 
 # Configure logging
 logging.basicConfig(

@@ -3,15 +3,15 @@ Aiogram adapter for NEONPAY
 Supports Aiogram v3.0+ with Telegram Stars payments
 """
 
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, Awaitable
 import json
 import logging
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, Optional
 
 if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
     from aiogram.types import PreCheckoutQuery, Message
 
-from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
+from ..core import PaymentAdapter, PaymentResult, PaymentStage, PaymentStatus
 from ..errors import NeonPayError
 
 logger = logging.getLogger(__name__)

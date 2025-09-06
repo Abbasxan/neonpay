@@ -3,17 +3,17 @@ pyTelegramBotAPI adapter for NEONPAY
 Supports pyTelegramBotAPI v4.0+ with Telegram Stars payments
 """
 
+import asyncio
 import json
 import logging
-import asyncio
 import threading
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 from collections.abc import Awaitable, Coroutine
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 if TYPE_CHECKING:
     import telebot
 
-from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
+from ..core import PaymentAdapter, PaymentResult, PaymentStage, PaymentStatus
 from ..errors import NeonPayError
 
 logger = logging.getLogger(__name__)
