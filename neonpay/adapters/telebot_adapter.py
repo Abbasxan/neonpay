@@ -7,7 +7,8 @@ import json
 import logging
 import asyncio
 import threading
-from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, Union
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
+from collections.abc import Awaitable
 
 if TYPE_CHECKING:
     import telebot
@@ -29,9 +30,7 @@ class TelebotAdapter(PaymentAdapter):
             bot: Telebot instance
         """
         self.bot = bot
-        self._payment_callback: Optional[
-            Callable[[PaymentResult], Union[None, asyncio.Future]]
-        ] = None
+        self._payment_callback: Optional[Callable[[PaymentResult], Any]] = None
         self._handlers_setup = False
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
@@ -62,7 +61,7 @@ class TelebotAdapter(PaymentAdapter):
             raise NeonPayError(f"Telegram API error: {e}") from e
 
     async def setup_handlers(
-        self, payment_callback: Callable[[PaymentResult], Union[None, asyncio.Future]]
+        self, payment_callback: Callable[[PaymentResult], Any]
     ) -> None:
         """Setup pyTelegramBotAPI payment handlers"""
         if self._handlers_setup:
@@ -116,35 +115,37 @@ class TelebotAdapter(PaymentAdapter):
         self._call_async_callback(result)
 
     def _call_async_callback(self, result: PaymentResult) -> None:
-        """Safely call async callback from sync context"""
+        """Безопасный вызов коллбека (sync или async)"""
         callback = self._payment_callback
         if callback is None:
             return
 
         try:
             loop = asyncio.get_event_loop()
-            coro = callback(result)
-            if asyncio.iscoroutine(coro):
-                if loop.is_running():
-                    asyncio.create_task(coro)
-                else:
-                    loop.run_until_complete(coro)
-        except RuntimeError:
+            ret = callback(result)
 
+            if isinstance(ret, Awaitable):
+                if loop.is_running():
+                    asyncio.create_task(ret)
+                else:
+                    loop.run_until_complete(ret)
+
+        except RuntimeError:
+            # Нет активного event loop → создаём новый поток
             def run() -> None:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
-                    coro_inner = callback(result)
-                    if asyncio.iscoroutine(coro_inner):
-                        loop.run_until_complete(coro_inner)
+                    ret = callback(result)
+                    if isinstance(ret, Awaitable):
+                        loop.run_until_complete(ret)
                 finally:
                     loop.close()
 
-            thread = threading.Thread(target=run, daemon=True)
-            thread.start()
+            threading.Thread(target=run, daemon=True).start()
+
         except Exception as e:
-            logger.error(f"Error calling payment callback: {e}")
+            logger.error(f"Ошибка при вызове payment callback: {e}")
 
     def get_library_info(self) -> Dict[str, str]:
         """Get pyTelegramBotAPI adapter information"""
