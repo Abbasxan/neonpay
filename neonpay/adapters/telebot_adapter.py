@@ -8,7 +8,7 @@ import logging
 import asyncio
 import threading
 from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Coroutine
 
 if TYPE_CHECKING:
     import telebot
@@ -126,7 +126,10 @@ class TelebotAdapter(PaymentAdapter):
 
             if isinstance(ret, Awaitable):
                 if loop.is_running():
-                    asyncio.create_task(ret)
+                    if isinstance(ret, Coroutine):
+                        asyncio.create_task(ret)
+                    else:
+                        asyncio.ensure_future(ret)
                 else:
                     loop.run_until_complete(ret)
 
