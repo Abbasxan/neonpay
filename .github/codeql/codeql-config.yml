@@ -1,0 +1,50 @@
+name: "NEONPAY CodeQL Configuration"
+
+# CodeQL configuration for NEONPAY security analysis
+# This configuration enables comprehensive security scanning
+
+paths:
+  - "neonpay/"
+  - "tests/"
+  - "examples/"
+
+paths-ignore:
+  - "**/__pycache__/"
+  - "**/.*"
+  - "**/node_modules/"
+  - "**/venv/"
+  - "**/.venv/"
+
+queries:
+  - name: "Python Security and Quality"
+    uses: security-and-quality
+    with:
+      packs: "python"
+      
+  - name: "Python Security Extended"
+    uses: security-extended
+    with:
+      packs: "python"
+      
+  - name: "Python Security Experimental"
+    uses: security-experimental
+    with:
+      packs: "python"
+
+# Custom queries for Telegram bot security
+queries:
+  - name: "Custom Security Queries"
+    uses: security-and-quality
+    with:
+      packs: "python"
+      
+# Disable specific queries that may cause false positives
+disable-default-queries: false
+
+# Additional configuration for Python
+python:
+  # Analyze all Python files
+  analyze: ["neonpay/", "tests/", "examples/"]
+  
+  # Exclude test files from some security checks
+  exclude: ["**/test_*.py", "**/*_test.py"]
