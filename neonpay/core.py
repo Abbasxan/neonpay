@@ -61,7 +61,7 @@ def validate_url(url: str, require_https: bool = False) -> bool:
         return False
 
 
-def validate_json_payload(payload: Dict[str, Any]) -> bool:
+def validate_json_payload(payload: Any) -> bool:
     """
     Validate JSON payload structure and size.
     Returns True if payload is a dict, JSON-serializable, and <= 1024 bytes.
