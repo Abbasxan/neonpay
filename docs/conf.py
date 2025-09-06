@@ -39,15 +39,10 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.githubpages",
-    "myst_parser",
-    "sphinx_autodoc_typehints",
 ]
 
-# Source file extensions - support both RST and Markdown
-source_suffix = {
-    ".rst": None,
-    ".md": "myst_parser",
-}
+# Source file extensions - using only RST for now
+source_suffix = ".rst"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -82,25 +77,11 @@ gettext_compact = False
 # Supported languages
 languages = {
     "en": "English",
-    "ru": "Русский",
+    "ru": "Русский", 
     "az": "Azərbaycan",
 }
 
 # -- Extension configuration -------------------------------------------------
-
-# MyST parser configuration
-myst_enable_extensions = [
-    "colon_fence",
-    "deflist",
-    "dollarmath",
-    "html_admonition",
-    "html_image",
-    "linkify",
-    "replacements",
-    "smartquotes",
-    "substitution",
-    "tasklist",
-]
 
 # Napoleon settings
 napoleon_google_docstring = True
