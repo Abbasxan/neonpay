@@ -59,16 +59,21 @@ def validate_url(url: str, require_https: bool = False) -> bool:
 
 
 def validate_json_payload(payload: Dict[str, Any]) -> bool:
-    """Validate JSON payload structure and size"""
+    """
+    Validate JSON payload structure and size.
+    Returns True if payload is a dict, JSON-serializable, and <= 1024 bytes.
+    """
     if not isinstance(payload, dict):
         return False
 
     try:
-        serialized = json.dumps(payload)
-    except Exception:
+        serialized = json.dumps(payload).encode("utf-8")
+    except (TypeError, ValueError):
+        # payload is not serializable
         return False
 
-    return len(serialized.encode("utf-8")) <= 1024
+    return len(serialized) <= 1024
+
 
 
 @dataclass
@@ -535,3 +540,4 @@ class NeonPayCore:
     def security(self) -> Optional[SecurityManager]:
         """Access to security system"""
         return self._security_manager
+
