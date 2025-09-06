@@ -7,7 +7,7 @@ import json
 import logging
 import asyncio
 import threading
-from typing import Dict, Callable, Optional, Any, TYPE_CHECKING
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
     import telebot
@@ -22,10 +22,14 @@ class TelebotAdapter(PaymentAdapter):
     """pyTelegramBotAPI library adapter for NEONPAY"""
 
     def __init__(self, bot: "telebot.TeleBot"):
+        """
+        Initialize Telebot adapter
+
+        Args:
+            bot: Telebot instance
+        """
         self.bot = bot
-        self._payment_callback: Optional[
-            Callable[[PaymentResult], Union[None, asyncio.Future]]
-        ] = None
+        self._payment_callback: Optional[Callable[[PaymentResult], Union[None, asyncio.Future]]] = None
         self._handlers_setup = False
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
@@ -58,6 +62,7 @@ class TelebotAdapter(PaymentAdapter):
     async def setup_handlers(
         self, payment_callback: Callable[[PaymentResult], Union[None, asyncio.Future]]
     ) -> None:
+        """Setup pyTelegramBotAPI payment handlers"""
         if self._handlers_setup:
             return
         self._payment_callback = payment_callback
@@ -73,12 +78,14 @@ class TelebotAdapter(PaymentAdapter):
         self._handlers_setup = True
 
     def _handle_pre_checkout_query(self, pre_checkout_query: Any) -> None:
+        """Handle pre-checkout query"""
         try:
             self.bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
         except Exception as e:
             logger.error(f"Error handling pre-checkout query: {e}")
 
     def _handle_successful_payment(self, message: Any) -> None:
+        """Handle successful payment"""
         if not self._payment_callback or not hasattr(message, "successful_payment"):
             return
 
@@ -138,6 +145,7 @@ class TelebotAdapter(PaymentAdapter):
             logger.error(f"Error calling payment callback: {e}")
 
     def get_library_info(self) -> Dict[str, str]:
+        """Get pyTelegramBotAPI adapter information"""
         return {
             "library": "pyTelegramBotAPI",
             "version": "4.0+",
