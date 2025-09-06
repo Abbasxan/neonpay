@@ -143,4 +143,3 @@ class TelebotAdapter(PaymentAdapter):
             "version": "4.0+",
             "features": "Telegram Stars payments, Pre-checkout handling, Payment status tracking",
         }
-
