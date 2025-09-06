@@ -41,6 +41,7 @@ class PyrogramAdapter(PaymentAdapter):
                 Invoice,
                 InputWebDocument,
                 DataJSON,
+                InputPeerUser,
             )
             from pyrogram.raw.functions.messages import SendMedia
             from pyrogram.raw.types import InputMediaInvoice
@@ -52,9 +53,20 @@ class PyrogramAdapter(PaymentAdapter):
 
             payload = json.dumps(
                 {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
-            )
+            ).encode("utf-8")  # bytes
 
             peer = await self.client.resolve_peer(user_id)
+            if not isinstance(peer, InputPeerUser):
+                raise NeonPayError(f"Cannot resolve user_id {user_id} to InputPeerUser")
+
+            photo_doc = None
+            if stage.photo_url:
+                photo_doc = InputWebDocument(
+                    url=stage.photo_url,
+                    size=0,
+                    mime_type="image/png",
+                    attributes=[]
+                )
 
             await self.client.invoke(
                 SendMedia(
@@ -64,18 +76,9 @@ class PyrogramAdapter(PaymentAdapter):
                         description=stage.description,
                         invoice=invoice,
                         payload=payload,
-                        provider="",  # Telegram Stars → пусто
-                        provider_data=DataJSON(data=r"{}"),
-                        photo=(
-                            InputWebDocument(
-                                url=stage.photo_url,
-                                size=0,
-                                mime_type="image/png",
-                                attributes=[],
-                            )
-                            if stage.photo_url
-                            else None
-                        ),
+                        provider="",  # Telegram Stars
+                        provider_data=DataJSON(data=b"{}"),
+                        photo=photo_doc,
                         start_param=stage.start_parameter or "neonpay_invoice",
                     ),
                     message=f"{stage.title}\n{stage.description}",
@@ -135,25 +138,24 @@ class PyrogramAdapter(PaymentAdapter):
             return
 
         try:
-            try:
-                loop = asyncio.get_running_loop()
-                if loop.is_running():
-                    asyncio.create_task(self._payment_callback(result))
-                else:
-                    await self._payment_callback(result)
-            except RuntimeError:
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+                asyncio.create_task(self._payment_callback(result))
+            else:
+                await self._payment_callback(result)
+        except RuntimeError:
+            # fallback for sync context
+            def run() -> None:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    if self._payment_callback:
+                        loop.run_until_complete(self._payment_callback(result))
+                finally:
+                    loop.close()
 
-                def run() -> None:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    try:
-                        if self._payment_callback:
-                            loop.run_until_complete(self._payment_callback(result))
-                    finally:
-                        loop.close()
-
-                thread = threading.Thread(target=run, daemon=True)
-                thread.start()
+            thread = threading.Thread(target=run, daemon=True)
+            thread.start()
         except Exception as e:
             logger.error(f"Error calling payment callback: {e}")
 
