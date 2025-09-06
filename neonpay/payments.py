@@ -52,7 +52,7 @@ class NeonStars:
 
         self.app = app
         self.thank_you = thank_you
-        self._payment_callback: Optional[Callable[[int, int], None]] = None
+        self._payment_callback: Optional[Callable[[int, int], Any]] = None
 
         # Подписка на raw обновления
         app.add_handler(self._on_raw_update, group=-1)
@@ -130,10 +130,16 @@ class NeonStars:
             ):
                 user_id = update.message.from_id.user_id
                 amount = update.message.action.total_amount
+
                 if self._payment_callback:
                     callback_result = self._payment_callback(user_id, amount)
+
                     if asyncio.iscoroutine(callback_result):
                         await callback_result
+                    else:
+                        return callback_result
 
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
+
+
