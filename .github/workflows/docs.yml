@@ -60,6 +60,9 @@ jobs:
           make html
           make linkcheck || echo "Link check failed, continuing..."
 
+      - name: 📂 Verify built docs
+        run: ls -R docs/_build/html/
+
       - name: 📊 Upload documentation artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -75,10 +78,8 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    
     environment:
       name: github-pages
-    
     steps:
       - name: 📥 Download documentation artifact
         uses: actions/download-artifact@v4
@@ -112,7 +113,6 @@ jobs:
 
       - name: 🔍 Check documentation quality
         run: |
-          # Check README
           echo "Checking README.md..."
           if [ -f "README.md" ]; then
             echo "✅ README.md exists"
@@ -121,7 +121,6 @@ jobs:
             exit 1
           fi
           
-          # Check for broken links in documentation
           echo "Checking for broken links..."
           find docs/ -name "*.md" -exec grep -l "http" {} \; | head -5
 
