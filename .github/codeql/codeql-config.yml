@@ -14,37 +14,14 @@ paths-ignore:
   - "**/node_modules/"
   - "**/venv/"
   - "**/.venv/"
+  - "**/.pytest_cache/"
+  - "**/.mypy_cache/"
 
+# Use security and quality packs for comprehensive analysis
 queries:
-  - name: "Python Security and Quality"
-    uses: security-and-quality
-    with:
-      packs: "python"
-      
-  - name: "Python Security Extended"
-    uses: security-extended
-    with:
-      packs: "python"
-      
-  - name: "Python Security Experimental"
-    uses: security-experimental
-    with:
-      packs: "python"
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security-experimental
 
-# Custom queries for Telegram bot security
-queries:
-  - name: "Custom Security Queries"
-    uses: security-and-quality
-    with:
-      packs: "python"
-      
-# Disable specific queries that may cause false positives
-disable-default-queries: false
-
-# Additional configuration for Python
-python:
-  # Analyze all Python files
-  analyze: ["neonpay/", "tests/", "examples/"]
-  
-  # Exclude test files from some security checks
-  exclude: ["**/test_*.py", "**/*_test.py"]
+# Disable default queries to avoid duplicates
+disable-default-queries: true
