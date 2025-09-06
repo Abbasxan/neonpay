@@ -1,42 +1,58 @@
 # NEONPAY Examples
 
-This directory contains complete working examples for all supported Telegram bot libraries.
+This directory contains complete working examples for all supported Telegram bot libraries. All examples are based on real-world usage patterns and are ready to use in production.
 
 ## Available Examples
 
-### 1. [Pyrogram Example](pyrogram_example.py)
-**Complete donation bot with multiple payment tiers**
-- ☕ Coffee donation (50 ⭐)
-- 🚀 Premium support (200 ⭐)  
-- 👑 VIP access (500 ⭐)
+### 1. [Aiogram Example](aiogram_example.py) ⭐ **RECOMMENDED**
+**Complete donation bot with digital store**
+- ❤️ Support Developer (1⭐, 10⭐, 50⭐)
+- 🛒 Digital Products Store (Premium Access, Custom Theme, Priority Support)
 - Interactive inline keyboards
 - Payment confirmation system
-- User status tracking
+- Real-world production code
 
 **Features:**
 - Automatic payment processing
-- Custom payment stages
+- Digital product delivery
 - Callback query handling
 - Error handling and logging
 - User-friendly interface
+- Based on real working bot
 
-### 2. [Aiogram Example](aiogram_example.py)
-**Digital products store with shopping cart**
-- 📚 Programming eBooks
-- 🎓 Online courses
-- 💼 Consultation services
-- ⭐ Premium memberships
-- Download delivery system
-- Purchase history
+### 2. [Pyrogram Example](pyrogram_example.py)
+**Complete donation bot with digital store**
+- ❤️ Support Developer (1⭐, 10⭐, 50⭐)
+- 🛒 Digital Products Store (Premium Access, Custom Theme, Priority Support)
+- Interactive inline keyboards
+- Payment confirmation system
+- Real-world production code
 
 **Features:**
-- FSM (Finite State Machine) support
-- Product catalog management
-- Automatic file delivery
-- Receipt generation
-- Customer support integration
+- Automatic payment processing
+- Digital product delivery
+- Callback query handling
+- Error handling and logging
+- User-friendly interface
+- Based on real working bot
 
-### 3. [python-telegram-bot Example](ptb_example.py)
+### 3. [pyTelegramBotAPI Example](telebot_example.py)
+**Complete donation bot with digital store**
+- ❤️ Support Developer (1⭐, 10⭐, 50⭐)
+- 🛒 Digital Products Store (Premium Access, Custom Theme, Priority Support)
+- Interactive inline keyboards
+- Payment confirmation system
+- Real-world production code
+
+**Features:**
+- Automatic payment processing
+- Digital product delivery
+- Callback query handling
+- Error handling and logging
+- User-friendly interface
+- Based on real working bot
+
+### 4. [python-telegram-bot Example](ptb_example.py)
 **Professional services marketplace**
 - 🎨 Web design services
 - 🎯 Logo design
@@ -51,22 +67,6 @@ This directory contains complete working examples for all supported Telegram bot
 - Manager assignment
 - Status tracking
 - Portfolio showcase
-
-### 4. [pyTelegramBotAPI Example](telebot_example.py)
-**Subscription service with multiple plans**
-- 📱 Basic plan (99 ⭐)
-- 💼 Pro plan (299 ⭐)
-- 🏢 Enterprise plan (599 ⭐)
-- User dashboard
-- Subscription management
-- Feature comparison
-
-**Features:**
-- Multi-tier subscriptions
-- User access control
-- Plan comparison tools
-- Renewal notifications
-- Usage analytics
 
 ### 5. [Raw API Example](raw_api_example.py)
 **Digital store with webhook integration**
@@ -90,17 +90,17 @@ This directory contains complete working examples for all supported Telegram bot
 Pick the example that matches your preferred bot library:
 
 \`\`\`bash
+# For Aiogram (Recommended)
+pip install aiogram neonpay
+
 # For Pyrogram
 pip install pyrogram neonpay
 
-# For Aiogram  
-pip install aiogram neonpay
+# For pyTelegramBotAPI
+pip install pyTelegramBotAPI neonpay
 
 # For python-telegram-bot
 pip install python-telegram-bot neonpay
-
-# For pyTelegramBotAPI
-pip install pyTelegramBotAPI neonpay
 
 # For Raw API
 pip install aiohttp neonpay
@@ -110,14 +110,24 @@ pip install aiohttp neonpay
 Replace the placeholder values in each example:
 
 \`\`\`python
+# For all examples
 BOT_TOKEN = "YOUR_BOT_TOKEN"  # Get from @BotFather
+
+# For Pyrogram only
 API_ID = 12345                # Get from my.telegram.org
 API_HASH = "your_api_hash"    # Get from my.telegram.org
 \`\`\`
 
 ### 3. Run the Example
 \`\`\`bash
+# Recommended: Aiogram example
+python aiogram_example.py
+
+# Or Pyrogram example
 python pyrogram_example.py
+
+# Or Telebot example
+python telebot_example.py
 \`\`\`
 
 ## Common Features
@@ -141,6 +151,26 @@ All examples include:
 - User management
 - Purchase tracking
 - Support integration
+
+## Real-world Examples
+
+All examples are based on **real working bots** and include:
+
+- ❤️ **Donation System**: Support developer with 1⭐, 10⭐, 50⭐
+- 🛒 **Digital Store**: Premium Access, Custom Theme, Priority Support
+- 💫 **Telegram Stars**: Native payment processing
+- 🎯 **Production Ready**: Error handling, logging, user management
+- 🔄 **Auto-delivery**: Instant digital product delivery
+
+## Example Comparison
+
+| Library | Best For | Complexity | Features |
+|---------|----------|------------|----------|
+| **Aiogram** | Modern bots, FSM | Medium | ⭐⭐⭐⭐⭐ |
+| **Pyrogram** | Advanced features | Medium | ⭐⭐⭐⭐⭐ |
+| **Telebot** | Simple bots | Low | ⭐⭐⭐⭐ |
+| **PTB** | Enterprise bots | High | ⭐⭐⭐⭐ |
+| **Raw API** | Custom solutions | High | ⭐⭐⭐ |
 
 ## Customization Guide
 

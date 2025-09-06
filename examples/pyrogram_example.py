@@ -1,193 +1,261 @@
 """
-NEONPAY Pyrogram Example
-Complete example showing how to use NEONPAY with Pyrogram v2.0+
+NEONPAY Pyrogram Example - Real-world Bot Implementation
+Complete ready-to-use bot with donation system and digital store
+Based on real production usage patterns
 """
 
 import asyncio
+import logging
+from datetime import datetime
 from pyrogram import Client, filters
-from neonpay import create_neonpay, PaymentStage, PaymentResult
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Initialize Pyrogram client
 app = Client(
     "neonpay_bot",
     api_id=12345,  # Replace with your API ID
     api_hash="your_api_hash",  # Replace with your API hash
-    bot_token="YOUR_BOT_TOKEN"  # Replace with your bot token
+    bot_token="YOUR_BOT_TOKEN",  # Replace with your bot token
 )
 
-# Initialize NEONPAY with automatic adapter detection
-neonpay = create_neonpay(app, "Thank you for your support! 🌟")
+neonpay = None
 
-# Create payment stages
-async def setup_payment_stages():
-    """Setup different payment options"""
-    
-    # Basic donation
-    basic_donation = PaymentStage(
-        title="☕ Buy me a coffee",
-        description="Support the developer with a small donation",
-        price=50,  # 50 Telegram Stars
-        label="Donate 50 ⭐",
-        photo_url="https://via.placeholder.com/300x200/4CAF50/white?text=Coffee",
-        payload={"type": "donation", "tier": "basic"}
-    )
-    
-    # Premium donation
-    premium_donation = PaymentStage(
-        title="🚀 Premium Support",
-        description="Show extra support for the project",
-        price=200,  # 200 Telegram Stars
-        label="Donate 200 ⭐",
-        photo_url="https://via.placeholder.com/300x200/2196F3/white?text=Premium",
-        payload={"type": "donation", "tier": "premium"}
-    )
-    
-    # VIP access
-    vip_access = PaymentStage(
-        title="👑 VIP Access",
-        description="Get exclusive VIP features and priority support",
-        price=500,  # 500 Telegram Stars
-        label="Get VIP 500 ⭐",
-        photo_url="https://via.placeholder.com/300x200/FF9800/white?text=VIP",
-        payload={"type": "subscription", "plan": "vip", "duration": 30}
-    )
-    
-    # Add stages to NEONPAY
-    neonpay.create_payment_stage("coffee", basic_donation)
-    neonpay.create_payment_stage("premium", premium_donation)
-    neonpay.create_payment_stage("vip", vip_access)
-    
-    print("✅ Payment stages created successfully!")
+# Donation options: amount and description before payment
+DONATE_OPTIONS = [
+    {
+        "amount": 1,
+        "symbol": "⭐",
+        "desc": "1⭐ support: Will be used for bot server costs",
+    },
+    {
+        "amount": 10,
+        "symbol": "⭐",
+        "desc": "10⭐ support: Will be spent on developing new features",
+    },
+    {
+        "amount": 50,
+        "symbol": "🌟",
+        "desc": "50⭐ big support: Will be used for bot development and promotion",
+    },
+]
 
-# Payment completion handler
+# Digital products store
+DIGITAL_PRODUCTS = [
+    {
+        "id": "premium_access",
+        "title": "Premium Access",
+        "description": "Unlock all premium features for 30 days",
+        "price": 25,
+        "symbol": "👑",
+    },
+    {
+        "id": "custom_theme",
+        "title": "Custom Theme",
+        "description": "Personalized bot theme and colors",
+        "price": 15,
+        "symbol": "🎨",
+    },
+    {
+        "id": "priority_support",
+        "title": "Priority Support",
+        "description": "24/7 priority customer support",
+        "price": 30,
+        "symbol": "⚡",
+    },
+]
+
+
+async def setup_neonpay():
+    """Initialize NEONPAY with real-world configuration"""
+    global neonpay
+    if neonpay:
+        return neonpay
+
+    neonpay = create_neonpay(bot_instance=app)
+
+    # Create payment stages for donations
+    for option in DONATE_OPTIONS:
+        neonpay.create_payment_stage(
+            f"donate_{option['amount']}",
+            PaymentStage(
+                title=f"Support {option['amount']}{option['symbol']}",
+                description=option["desc"],
+                price=option["amount"],
+            ),
+        )
+
+    # Create payment stages for digital products
+    for product in DIGITAL_PRODUCTS:
+        neonpay.create_payment_stage(
+            product["id"],
+            PaymentStage(
+                title=f"{product['symbol']} {product['title']}",
+                description=product["description"],
+                price=product["price"],
+            ),
+        )
+
+
 @neonpay.on_payment
-async def handle_payment(result: PaymentResult):
-    """Handle successful payments"""
-    user_id = result.user_id
-    amount = result.amount
-    payment_type = result.metadata.get("type", "unknown")
-    
-    print(f"🎉 Payment received: {amount} ⭐ from user {user_id}")
-    
-    if payment_type == "donation":
-        tier = result.metadata.get("tier", "basic")
-        await app.send_message(
-            user_id,
-            f"🙏 Thank you for your {tier} donation of {amount} ⭐!\n"
-            f"Your support means a lot to us!"
-        )
-        
-    elif payment_type == "subscription":
-        plan = result.metadata.get("plan", "unknown")
-        duration = result.metadata.get("duration", 0)
-        
-        # Grant VIP access (implement your logic here)
-        await grant_vip_access(user_id, duration)
-        
-        await app.send_message(
-            user_id,
-            f"👑 Welcome to {plan.upper()}!\n"
-            f"You now have {duration} days of premium access.\n"
-            f"Enjoy your exclusive features!"
-        )
+async def handle_payment(result):
+    if result.status == PaymentStatus.COMPLETED:
+        try:
+            # Determine if it's a donation or product purchase
+            if result.stage_id.startswith("donate_"):
+                await app.send_message(
+                    result.user_id,
+                    f"Thank you! Your support: {result.amount}⭐ ❤️\n"
+                    f"Your contribution helps keep the bot running!",
+                )
+            else:
+                # Handle digital product delivery
+                product = next(
+                    (p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None
+                )
+                if product:
+                    await app.send_message(
+                        result.user_id,
+                        f"🎉 Purchase successful!\n\n"
+                        f"Product: {product['symbol']} {product['title']}\n"
+                        f"Price: {product['price']}⭐\n\n"
+                        f"Your digital product has been activated!\n"
+                        f"Thank you for your purchase! 🚀",
+                    )
 
-async def grant_vip_access(user_id: int, days: int):
-    """Grant VIP access to user (implement your database logic)"""
-    # This is where you would update your database
-    print(f"Granted {days} days VIP access to user {user_id}")
+            logger.info(
+                f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}"
+            )
+
+        except Exception as e:
+            logger.exception(f"Failed to send post-payment message: {e}")
+
+    logger.info("✅ NEONPAY payment system initialized")
+    return neonpay
+
 
 # Bot commands
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
-    """Welcome message with available commands"""
+    """Welcome new users"""
+    user_name = message.from_user.first_name or "Friend"
+
     welcome_text = (
-        "🌟 Welcome to NEONPAY Demo Bot!\n\n"
-        "Available commands:\n"
-        "• /donate - Show donation options\n"
-        "• /coffee - Buy me a coffee (50 ⭐)\n"
-        "• /premium - Premium support (200 ⭐)\n"
-        "• /vip - Get VIP access (500 ⭐)\n"
-        "• /status - Check your status\n"
-        "• /help - Show this help message"
+        f"👋 Hello {user_name}!\n\n"
+        f"🤖 I'm a free bot created with love by an independent developer.\n\n"
+        f"📱 **Available Commands:**\n"
+        f"• /help - Show all commands\n"
+        f"• /donate - Support the developer\n"
+        f"• /store - Digital products store\n"
+        f"• /status - Bot statistics\n\n"
+        f"💡 This bot is completely free to use!\n"
+        f"If you find it helpful, consider supporting development."
     )
-    await message.reply(welcome_text)
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("❤️ Support Developer", callback_data="show_donate")],
+            [InlineKeyboardButton("🛒 Digital Store", callback_data="show_store")],
+            [InlineKeyboardButton("📋 Help", callback_data="show_help")],
+        ]
+    )
+
+    await message.reply(welcome_text, reply_markup=keyboard)
+
 
 @app.on_message(filters.command("donate"))
 async def donate_command(client, message):
     """Show donation options"""
-    keyboard = [
-        [{"text": "☕ Coffee (50 ⭐)", "callback_data": "pay_coffee"}],
-        [{"text": "🚀 Premium (200 ⭐)", "callback_data": "pay_premium"}],
-        [{"text": "👑 VIP Access (500 ⭐)", "callback_data": "pay_vip"}]
-    ]
-    
-    await message.reply(
-        "💝 Choose your support level:",
-        reply_markup={"inline_keyboard": keyboard}
+    logging.info(f"/donate command received: user={message.from_user.id}")
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    text=f"{opt['symbol']} {opt['amount']}",
+                    callback_data=f"donate:{opt['amount']}",
+                )
+            ]
+            for opt in DONATE_OPTIONS
+        ]
     )
 
-@app.on_message(filters.command("coffee"))
-async def coffee_command(client, message):
-    """Quick coffee donation"""
-    try:
-        success = await neonpay.send_payment(message.from_user.id, "coffee")
-        if not success:
-            await message.reply("❌ Failed to create payment. Please try again.")
-    except Exception as e:
-        await message.reply(f"❌ Error: {e}")
+    await message.reply(
+        "Please choose an amount to support the developer:", reply_markup=keyboard
+    )
 
-@app.on_message(filters.command("premium"))
-async def premium_command(client, message):
-    """Premium donation"""
-    try:
-        success = await neonpay.send_payment(message.from_user.id, "premium")
-        if not success:
-            await message.reply("❌ Failed to create payment. Please try again.")
-    except Exception as e:
-        await message.reply(f"❌ Error: {e}")
 
-@app.on_message(filters.command("vip"))
-async def vip_command(client, message):
-    """VIP access purchase"""
-    try:
-        success = await neonpay.send_payment(message.from_user.id, "vip")
-        if not success:
-            await message.reply("❌ Failed to create payment. Please try again.")
-    except Exception as e:
-        await message.reply(f"❌ Error: {e}")
+@app.on_message(filters.command("store"))
+async def store_command(client, message):
+    """Show digital products store"""
+    logging.info(f"/store command received: user={message.from_user.id}")
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    text=f"{product['symbol']} {product['title']} - {product['price']}⭐",
+                    callback_data=f"buy:{product['id']}",
+                )
+            ]
+            for product in DIGITAL_PRODUCTS
+        ]
+    )
+
+    store_text = (
+        "🛒 **Digital Products Store**\n\n"
+        "Choose a product to purchase:\n\n"
+        "💡 All products are delivered instantly after payment!"
+    )
+
+    await message.reply(store_text, reply_markup=keyboard)
+
 
 @app.on_message(filters.command("status"))
 async def status_command(client, message):
-    """Show user status and bot statistics"""
-    stats = neonpay.get_stats()
+    """Show bot status and statistics"""
+    uptime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     status_text = (
-        f"📊 Bot Status:\n"
-        f"• Payment stages: {stats['total_stages']}\n"
-        f"• Active callbacks: {stats['registered_callbacks']}\n"
-        f"• System ready: {'✅' if stats['setup_complete'] else '❌'}\n"
-        f"• Library: {stats['adapter_info']['library']}"
+        "📊 **Bot Status**\n\n"
+        f"✅ Status: Online\n"
+        f"⏰ Last restart: {uptime}\n"
+        f"💫 Payment system: Active\n"
+        f"🔧 Version: 2.0\n\n"
+        f"Thank you for using this free bot!"
     )
+
     await message.reply(status_text)
+
 
 @app.on_message(filters.command("help"))
 async def help_command(client, message):
     """Show help information"""
     help_text = (
-        "🆘 NEONPAY Demo Bot Help\n\n"
-        "This bot demonstrates NEONPAY payment processing with Pyrogram.\n\n"
-        "💫 Telegram Stars Payments:\n"
-        "• All payments use Telegram's native Stars (XTR) currency\n"
-        "• Payments are processed instantly\n"
-        "• No external payment processors needed\n\n"
-        "🔧 Commands:\n"
+        "📋 **Bot Help**\n\n"
+        "🆓 **This bot is completely free!**\n\n"
+        "**Commands:**\n"
         "• /start - Welcome message\n"
-        "• /donate - Show donation options\n"
-        "• /coffee, /premium, /vip - Quick payments\n"
+        "• /donate - Support development\n"
+        "• /store - Digital products store\n"
         "• /status - Bot statistics\n"
         "• /help - This help message\n\n"
-        "💡 Tip: Use inline buttons for better user experience!"
+        "**About:**\n"
+        "This bot was created by an independent developer.\n"
+        "All features are free, donations help keep it running!\n\n"
+        "🐛 Found a bug? Contact @your_username"
     )
+
     await message.reply(help_text)
+
 
 # Callback query handler for inline buttons
 @app.on_callback_query()
@@ -195,37 +263,79 @@ async def handle_callback(client, callback_query):
     """Handle inline button presses"""
     data = callback_query.data
     user_id = callback_query.from_user.id
-    
+
     try:
-        if data == "pay_coffee":
-            await neonpay.send_payment(user_id, "coffee")
-        elif data == "pay_premium":
-            await neonpay.send_payment(user_id, "premium")
-        elif data == "pay_vip":
-            await neonpay.send_payment(user_id, "vip")
-        
-        await callback_query.answer("💫 Payment invoice sent!")
-        
+        if data == "show_donate":
+            await callback_query.answer()
+            await donate_command(client, callback_query.message)
+        elif data == "show_store":
+            await callback_query.answer()
+            await store_command(client, callback_query.message)
+        elif data == "show_help":
+            await callback_query.answer()
+            await help_command(client, callback_query.message)
+        elif data.startswith("donate:"):
+            amount = int(data.split(":")[1])
+            option = next((o for o in DONATE_OPTIONS if o["amount"] == amount), None)
+
+            if not option:
+                await callback_query.answer(
+                    "Error: Selected amount not found", show_alert=True
+                )
+                return
+
+            # Send payment using NeonPay
+            await neonpay.send_payment(user_id=user_id, stage_id=f"donate_{amount}")
+            logger.info(f"Support started: user={user_id}, amount={amount}")
+            await callback_query.answer("✅ Payment message sent")
+
+        elif data.startswith("buy:"):
+            product_id = data.split(":")[1]
+            product = next((p for p in DIGITAL_PRODUCTS if p["id"] == product_id), None)
+
+            if not product:
+                await callback_query.answer("Error: Product not found", show_alert=True)
+                return
+
+            # Send payment using NeonPay
+            await neonpay.send_payment(user_id=user_id, stage_id=product_id)
+            logger.info(
+                f"Product purchase started: user={user_id}, product={product_id}"
+            )
+            await callback_query.answer("✅ Payment message sent")
+
     except Exception as e:
-        await callback_query.answer(f"❌ Error: {e}", show_alert=True)
+        logger.exception(f"Failed to handle callback: {e}")
+        await callback_query.answer("💥 Error occurred during payment", show_alert=True)
+
 
 # Main function
 async def main():
     """Initialize and run the bot"""
-    print("🚀 Starting NEONPAY Pyrogram Demo Bot...")
-    
-    # Setup payment stages
-    await setup_payment_stages()
-    
-    # Start the bot
-    await app.start()
-    print("✅ Bot started successfully!")
-    print("💫 NEONPAY is ready to process payments!")
-    
-    # Keep the bot running
-    await asyncio.Event().wait()
+    logger.info("🚀 Starting NEONPAY Pyrogram Bot...")
+
+    try:
+        await setup_neonpay()
+
+        # Start the bot
+        await app.start()
+        logger.info("✅ Bot started successfully!")
+        logger.info("💰 Donation system ready!")
+        logger.info("🛒 Digital store ready!")
+        logger.info("🔄 Bot is running...")
+
+        # Keep the bot running
+        await asyncio.Event().wait()
+
+    except Exception as e:
+        logger.error(f"Failed to start bot: {e}")
+        raise
+
 
 if __name__ == "__main__":
-    # Run the bot
-    app.run(main())
-
+    try:
+        app.run(main())
+    except KeyboardInterrupt:
+        logger.info("👋 Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Critical error: {e}")

@@ -9,9 +9,11 @@
 3. [Поддержка библиотек](#поддержка-библиотек)
 4. [Основные концепции](#основные-концепции)
 5. [Справочник API](#справочник-api)
-6. [Примеры](#примеры)
+6. [Реальные примеры](#реальные-примеры)
 7. [Лучшие практики](#лучшие-практики)
-8. [Решение проблем](#решение-проблем)
+8. [Продакшн развертывание](#продакшн-развертывание)
+9. [Решение проблем](#решение-проблем)
+10. [Поддержка](#поддержка)
 
 ## Установка
 
@@ -39,40 +41,55 @@ pip install neonpay pyTelegramBotAPI
 
 ## Быстрый старт
 
-### 1. Импорт и инициализация
+### 1. Установка зависимостей
 
-\`\`\`python
-from neonpay import create_neonpay, PaymentStage
+\`\`\`bash
+# Для Aiogram (Рекомендуется)
+pip install neonpay aiogram
 
-# Автоматическое определение адаптера
-neonpay = create_neonpay(ваш_экземпляр_бота)
+# Для Pyrogram
+pip install neonpay pyrogram
+
+# Для pyTelegramBotAPI
+pip install neonpay pyTelegramBotAPI
 \`\`\`
 
-### 2. Создание этапа оплаты
+### 2. Импорт и инициализация
+
+\`\`\`python
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
+
+# Автоматическое определение адаптера
+neonpay = create_neonpay(bot_instance=ваш_экземпляр_бота)
+\`\`\`
+
+### 3. Создание этапа платежа
 
 \`\`\`python
 stage = PaymentStage(
     title="Премиум доступ",
-    description="Разблокировать премиум функции",
-    price=100,  # 100 Telegram Stars
-    photo_url="https://example.com/logo.png"
+    description="Разблокировать премиум функции на 30 дней",
+    price=25,  # 25 Telegram Stars
 )
 
-neonpay.create_payment_stage("premium", stage)
+neonpay.create_payment_stage("premium_access", stage)
 \`\`\`
 
-### 3. Отправка платежа
+### 4. Отправка платежа
 
 \`\`\`python
-await neonpay.send_payment(user_id=12345, stage_id="premium")
+await neonpay.send_payment(user_id=12345, stage_id="premium_access")
 \`\`\`
 
-### 4. Обработка платежей
+### 5. Обработка платежей
 
 \`\`\`python
 @neonpay.on_payment
 async def handle_payment(result):
-    print(f"Получено {result.amount} звезд от пользователя {result.user_id}")
+    if result.status == PaymentStatus.COMPLETED:
+        print(f"Получено {result.amount} звезд от пользователя {result.user_id}")
+        # Доставьте ваш продукт/услугу здесь
 \`\`\`
 
 ## Поддержка библиотек

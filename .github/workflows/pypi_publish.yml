@@ -3,13 +3,16 @@ name: Publish to PyPI / TestPyPI
 on:
   push:
     tags:
-      - "v*"       #  v2.3.0 → публикация в PyPI
-      - "test/*"   #  test/2.3.0 → публикация в TestPyPI
+      - "v*"       # v2.3.0 → publish to PyPI
+      - "test/*"   # test/2.3.0 → publish to TestPyPI
   workflow_dispatch: {}
 
 jobs:
   build-n-publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout source
@@ -28,9 +31,20 @@ jobs:
       - name: Build package
         run: python -m build
 
+      - name: Determine repository and token
+        id: vars
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/test/* ]]; then
+            echo "REPO_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
+            echo "PYPI_TOKEN=${{ secrets.TEST_PYPI_API_TOKEN }}" >> $GITHUB_ENV
+          else
+            echo "REPO_URL=https://upload.pypi.org/legacy/" >> $GITHUB_ENV
+            echo "PYPI_TOKEN=${{ secrets.PYPI_API_TOKEN }}" >> $GITHUB_ENV
+          fi
+
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ startsWith(github.ref, 'refs/tags/test/') && secrets.TEST_PYPI_API_TOKEN || secrets.PYPI_API_TOKEN }}
-          repository-url: ${{ startsWith(github.ref, 'refs/tags/test/') && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
+          password: ${{ env.PYPI_TOKEN }}
+          repository-url: ${{ env.REPO_URL }}

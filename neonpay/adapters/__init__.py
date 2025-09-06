@@ -11,7 +11,7 @@ from .botapi_adapter import BotAPIAdapter
 
 __all__ = [
     "PyrogramAdapter",
-    "AiogramAdapter", 
+    "AiogramAdapter",
     "PythonTelegramBotAdapter",
     "TelebotAdapter",
     "RawAPIAdapter",

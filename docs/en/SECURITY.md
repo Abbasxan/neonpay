@@ -1,338 +1,409 @@
-# NEONPAY Security Guide
+# Security Guide - NEONPAY
 
-## 🔒 Security Overview
+This document outlines security best practices for using NEONPAY in production environments.
 
-NEONPAY is designed with security as a top priority. This document outlines the security features, best practices, and recommendations for secure deployment.
+## Table of Contents
 
-## 🛡️ Security Features
+1. [Token Security](#token-security)
+2. [Payment Validation](#payment-validation)
+3. [Data Protection](#data-protection)
+4. [Error Handling](#error-handling)
+5. [Logging Security](#logging-security)
+6. [Production Checklist](#production-checklist)
 
-### 1. Input Validation
+## Token Security
 
-NEONPAY implements comprehensive input validation to prevent injection attacks and ensure data integrity:
+### Bot Token Protection
 
+**❌ Never do this:**
 ```python
-from neonpay import PaymentStage
-
-# All inputs are validated automatically
-stage = PaymentStage(
-    title="Product Name",           # Max 32 chars, non-empty
-    description="Description",      # Max 255 chars, non-empty
-    price=100,                     # 1-2500 Telegram Stars only
-    photo_url="https://example.com/image.jpg",  # Valid URL required
-    start_parameter="valid_param"  # Alphanumeric + underscore only
-)
+# DON'T: Hardcode tokens in source code
+BOT_TOKEN = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
 ```
 
-**Validation Rules:**
-- **Title**: 1-32 characters, non-empty string
-- **Description**: 1-255 characters, non-empty string
-- **Price**: Integer between 1-2500 Telegram Stars
-- **Photo URL**: Valid HTTP/HTTPS URL format
-- **Start Parameter**: Alphanumeric characters and underscores only
-- **Payload**: JSON dictionary under 1024 bytes
-
-### 2. Webhook Security
-
-NEONPAY provides secure webhook handling with signature verification and timestamp validation:
-
+**✅ Do this instead:**
 ```python
-from neonpay import create_secure_webhook_handler
-
-# Create secure webhook handler
-handler = create_secure_webhook_handler(
-    secret_token="your_secret_token",
-    max_age=300,  # 5 minutes
-    language="en"
-)
-
-# Register event handlers
-@handler.on_event("payment_success")
-async def handle_payment_success(event_type, data, headers):
-    # Verify webhook authenticity is automatic
-    return {"processed": True}
-
-# Process incoming webhook
-result = await handler.process_webhook(
-    payload=raw_payload,
-    signature=telegram_signature,
-    timestamp=telegram_timestamp
-)
-```
-
-**Security Features:**
-- **HMAC-SHA256 Signature Verification**: Ensures webhook authenticity
-- **Timestamp Validation**: Prevents replay attacks (configurable max age)
-- **Automatic Validation**: All webhooks are verified before processing
-- **Secure Headers**: Validates Telegram Bot API headers
-
-### 3. Rate Limiting and Limits
-
-NEONPAY implements configurable limits to prevent abuse:
-
-```python
-from neonpay import NeonPayCore
-
-# Configure limits
-core = NeonPayCore(
-    adapter=adapter,
-    max_stages=100,        # Maximum payment stages
-    enable_logging=True     # Security logging
-)
-```
-
-**Built-in Limits:**
-- **Payment Stages**: Configurable maximum (default: 100)
-- **Payload Size**: Maximum 1024 bytes for JSON payloads
-- **URL Validation**: Only HTTP/HTTPS URLs accepted
-- **Character Limits**: Enforced on all text fields
-
-### 4. Secure Logging
-
-NEONPAY provides secure logging without exposing sensitive information:
-
-```python
-# Logging is automatically sanitized
-core = NeonPayCore(
-    adapter=adapter,
-    enable_logging=True  # Secure logging enabled
-)
-
-# Sensitive data is never logged
-# Only metadata and status information is recorded
-```
-
-**Logging Security:**
-- **No Sensitive Data**: Tokens, user IDs, and payment details are never logged
-- **Structured Logs**: Consistent format for security monitoring
-- **Configurable**: Logging can be disabled for production if needed
-
-## 🚨 Security Best Practices
-
-### 1. Bot Token Security
-
-```python
-# ❌ NEVER do this
-bot_token = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
-
-# ✅ Use environment variables
 import os
-bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
 
-# ✅ Use secure configuration management
+# DO: Use environment variables
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN environment variable is required")
+```
+
+### Environment Variables
+
+Create a `.env` file (never commit to version control):
+```bash
+# .env
+BOT_TOKEN=your_bot_token_here
+API_ID=your_api_id_here
+API_HASH=your_api_hash_here
+DATABASE_URL=postgresql://user:pass@localhost/db
+```
+
+Load with python-dotenv:
+```python
 from dotenv import load_dotenv
 load_dotenv()
-bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
 ```
 
-### 2. Webhook Secret Management
+## Payment Validation
+
+### Verify Payment Amounts
 
 ```python
-# ❌ Hardcoded secrets
-webhook_secret = "my_secret_123"
-
-# ✅ Use secure secret management
-webhook_secret = os.getenv("WEBHOOK_SECRET")
-if not webhook_secret:
-    raise ValueError("WEBHOOK_SECRET environment variable required")
+@neonpay.on_payment
+async def handle_payment(result):
+    # Always verify the payment amount
+    expected_amount = get_expected_amount(result.stage_id)
+    
+    if result.amount != expected_amount:
+        logger.warning(
+            f"Payment amount mismatch: expected {expected_amount}, "
+            f"got {result.amount} from user {result.user_id}"
+        )
+        return
+    
+    # Process payment only after validation
+    await process_payment(result)
 ```
 
-### 3. Input Sanitization
+### Validate Stage IDs
 
 ```python
-# ❌ Trusting user input
-user_title = user_input  # Could be malicious
+async def safe_send_payment(user_id: int, stage_id: str):
+    # Validate stage exists
+    stage = neonpay.get_payment_stage(stage_id)
+    if not stage:
+        logger.error(f"Invalid stage_id: {stage_id}")
+        await bot.send_message(user_id, "Payment option not available.")
+        return
+    
+    # Validate user permissions
+    if not await user_can_purchase(user_id, stage_id):
+        await bot.send_message(user_id, "You don't have permission to purchase this item.")
+        return
+    
+    # Send payment
+    await neonpay.send_payment(user_id, stage_id)
+```
 
-# ✅ Always validate through NEONPAY
-try:
-    stage = PaymentStage(
-        title=user_title,      # Automatically validated
-        description=user_desc, # Automatically validated
-        price=user_price       # Automatically validated
+## Data Protection
+
+### User Data Handling
+
+```python
+import hashlib
+
+def hash_user_id(user_id: int) -> str:
+    """Hash user ID for logging (one-way)"""
+    return hashlib.sha256(str(user_id).encode()).hexdigest()[:8]
+
+@neonpay.on_payment
+async def handle_payment(result):
+    # Log with hashed user ID
+    hashed_id = hash_user_id(result.user_id)
+    logger.info(f"Payment received from user {hashed_id}: {result.amount} stars")
+    
+    # Store in database with proper encryption
+    await store_payment_securely(result)
+```
+
+### Database Security
+
+```python
+import asyncpg
+from cryptography.fernet import Fernet
+
+class SecurePaymentStorage:
+    def __init__(self, db_url: str, encryption_key: str):
+        self.db_url = db_url
+        self.cipher = Fernet(encryption_key.encode())
+    
+    async def store_payment(self, payment_data: dict):
+        # Encrypt sensitive data
+        encrypted_data = self.cipher.encrypt(
+            json.dumps(payment_data).encode()
+        )
+        
+        conn = await asyncpg.connect(self.db_url)
+        await conn.execute(
+            "INSERT INTO payments (encrypted_data, created_at) VALUES ($1, NOW())",
+            encrypted_data
+        )
+        await conn.close()
+```
+
+## Error Handling
+
+### Secure Error Messages
+
+```python
+async def handle_payment_error(user_id: int, error: Exception):
+    # Log full error details
+    logger.error(f"Payment error for user {user_id}: {error}", exc_info=True)
+    
+    # Send generic message to user
+    await bot.send_message(
+        user_id, 
+        "Something went wrong with your payment. Please try again later."
     )
-except ValueError as e:
-    # Handle validation errors securely
-    logger.warning(f"Invalid input: {e}")
-    return {"error": "Invalid input"}
+    
+    # Don't expose internal details
+    # ❌ DON'T: await bot.send_message(user_id, f"Error: {str(error)}")
 ```
 
-### 4. Error Handling
+### Input Validation
 
 ```python
-# ❌ Exposing internal errors
-except Exception as e:
-    return {"error": str(e)}  # Could expose sensitive info
-
-# ✅ Use NEONPAY's secure error handling
-from neonpay import NeonPayError
-
-try:
-    result = await core.send_payment(user_id, stage_id)
-except NeonPayError as e:
-    # NEONPAY errors are safe to expose
-    return {"error": str(e)}
-except Exception as e:
-    # Log internal errors, return generic message
-    logger.error(f"Internal error: {e}")
-    return {"error": "Internal server error"}
+def validate_user_input(user_id: int, stage_id: str) -> bool:
+    """Validate user input before processing"""
+    
+    # Check user_id is valid
+    if not isinstance(user_id, int) or user_id <= 0:
+        return False
+    
+    # Check stage_id format
+    if not isinstance(stage_id, str) or len(stage_id) > 100:
+        return False
+    
+    # Check for suspicious patterns
+    if any(char in stage_id for char in ['<', '>', '&', '"', "'"]):
+        return False
+    
+    return True
 ```
 
-## 🔐 Deployment Security
+## Logging Security
 
-### 1. Environment Configuration
-
-```bash
-# .env file (never commit to version control)
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-WEBHOOK_SECRET=your_webhook_secret_here
-NEONPAY_LOG_LEVEL=INFO
-NEONPAY_MAX_STAGES=50
-```
-
-### 2. HTTPS Requirements
+### Secure Logging Configuration
 
 ```python
-# Webhook URLs must use HTTPS in production
-webhook_url = "https://yourdomain.com/webhook"
+import logging
+import logging.handlers
+from datetime import datetime
 
-# Local development can use HTTP
+def setup_secure_logging():
+    """Setup secure logging configuration"""
+    
+    # Create formatter that excludes sensitive data
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # File handler with rotation
+    file_handler = logging.handlers.RotatingFileHandler(
+        'bot.log',
+        maxBytes=10*1024*1024,  # 10MB
+        backupCount=5
+    )
+    file_handler.setFormatter(formatter)
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    
+    # Setup logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    # Disable debug in production
 if os.getenv("ENVIRONMENT") == "production":
-    assert webhook_url.startswith("https://")
+        logger.setLevel(logging.WARNING)
 ```
 
-### 3. Network Security
+### Sensitive Data Filtering
 
 ```python
-# Use secure HTTP client settings
-from neonpay import RawAPIAdapter
+class SensitiveDataFilter(logging.Filter):
+    """Filter out sensitive data from logs"""
+    
+    def filter(self, record):
+        # Remove tokens from log messages
+        if hasattr(record, 'msg'):
+            msg = str(record.msg)
+            # Replace token patterns
+            import re
+            record.msg = re.sub(
+                r'\b\d{10}:[A-Za-z0-9_-]{35}\b',
+                '[TOKEN_REDACTED]',
+                msg
+            )
+        return True
 
-adapter = RawAPIAdapter(
-    bot_token=bot_token,
-    timeout=30,  # Prevent hanging connections
-    webhook_url=webhook_url
-)
+# Apply filter
+logger.addFilter(SensitiveDataFilter())
 ```
 
-## 🧪 Security Testing
+## Production Checklist
 
-### 1. Validation Tests
+### Pre-deployment Security Check
+
+- [ ] **Environment Variables**: All sensitive data in environment variables
+- [ ] **Token Protection**: Bot tokens not in source code
+- [ ] **Database Security**: Encrypted connections and data
+- [ ] **Input Validation**: All user inputs validated
+- [ ] **Error Handling**: Generic error messages for users
+- [ ] **Logging**: Sensitive data filtered from logs
+- [ ] **HTTPS**: All webhooks use HTTPS
+- [ ] **Rate Limiting**: Implement rate limiting for payments
+- [ ] **Monitoring**: Set up payment monitoring and alerts
+- [ ] **Backup**: Regular database backups
+
+### Rate Limiting
 
 ```python
-import pytest
-from neonpay import PaymentStage
+from collections import defaultdict
+import time
 
-def test_security_validation():
-    # Test malicious inputs
-    with pytest.raises(ValueError):
-        PaymentStage(
-            title="A" * 33,  # Too long
-            description="Test",
-            price=100
+class PaymentRateLimiter:
+    def __init__(self, max_payments: int = 5, window: int = 3600):
+        self.max_payments = max_payments
+        self.window = window
+        self.user_payments = defaultdict(list)
+    
+    def can_make_payment(self, user_id: int) -> bool:
+        now = time.time()
+        user_payments = self.user_payments[user_id]
+        
+        # Remove old payments outside window
+        user_payments[:] = [t for t in user_payments if now - t < self.window]
+        
+        # Check if under limit
+        return len(user_payments) < self.max_payments
+    
+    def record_payment(self, user_id: int):
+        self.user_payments[user_id].append(time.time())
+
+# Usage
+rate_limiter = PaymentRateLimiter()
+
+async def safe_send_payment(user_id: int, stage_id: str):
+    if not rate_limiter.can_make_payment(user_id):
+        await bot.send_message(
+            user_id, 
+            "Too many payment attempts. Please try again later."
         )
+        return
     
-    with pytest.raises(ValueError):
-        PaymentStage(
-            title="Test",
-            description="Test",
-            price=3000  # Too high
-        )
+    await neonpay.send_payment(user_id, stage_id)
+    rate_limiter.record_payment(user_id)
 ```
 
-### 2. Webhook Security Tests
+### Monitoring and Alerts
 
 ```python
-def test_webhook_security():
-    from neonpay import WebhookVerifier
+import asyncio
+from datetime import datetime, timedelta
+
+class PaymentMonitor:
+    def __init__(self):
+        self.payment_counts = defaultdict(int)
+        self.error_counts = defaultdict(int)
     
-    verifier = WebhookVerifier("secret", max_age=300)
+    async def monitor_payments(self):
+        """Monitor payment patterns for anomalies"""
+        while True:
+            await asyncio.sleep(300)  # Check every 5 minutes
+            
+            # Check for unusual payment patterns
+            recent_payments = self.get_recent_payments()
+            
+            if len(recent_payments) > 100:  # Threshold
+                await send_alert(f"High payment volume: {len(recent_payments)} payments")
+            
+            # Check for errors
+            recent_errors = self.get_recent_errors()
+            if len(recent_errors) > 10:  # Threshold
+                await send_alert(f"High error rate: {len(recent_errors)} errors")
     
-    # Test invalid signature
-    assert not verifier.verify_signature("payload", "invalid")
-    
-    # Test expired timestamp
-    old_timestamp = str(int(time.time()) - 400)
-    assert not verifier.verify_timestamp(old_timestamp)
+    async def send_alert(self, message: str):
+        """Send security alert"""
+        # Send to monitoring system
+        logger.critical(f"SECURITY ALERT: {message}")
 ```
 
-## 📊 Security Monitoring
+## Common Security Mistakes
 
-### 1. Log Analysis
+### 1. Exposing Internal Errors
 
-Monitor NEONPAY logs for security events:
-
+**❌ Wrong:**
 ```python
-# Enable security logging
-core = NeonPayCore(
-    adapter=adapter,
-    enable_logging=True
-)
-
-# Monitor for:
-# - Failed webhook verifications
-# - Validation errors
-# - Rate limit violations
-# - Suspicious input patterns
+except Exception as e:
+    await bot.send_message(user_id, f"Error: {str(e)}")
 ```
 
-### 2. Metrics Collection
-
+**✅ Correct:**
 ```python
-# Get security statistics
-stats = core.get_stats()
-webhook_stats = handler.get_stats()
-
-# Monitor:
-# - Total payment stages
-# - Webhook verification success rate
-# - Validation error frequency
-# - Resource usage
+except Exception as e:
+    logger.error(f"Payment error: {e}")
+    await bot.send_message(user_id, "Payment failed. Please try again.")
 ```
 
-## 🚨 Incident Response
+### 2. Storing Sensitive Data in Logs
 
-### 1. Security Breach Checklist
+**❌ Wrong:**
+```python
+logger.info(f"User {user_id} paid with token {bot_token}")
+```
 
-If you suspect a security breach:
+**✅ Correct:**
+```python
+logger.info(f"User {hash_user_id(user_id)} completed payment")
+```
 
-1. **Immediate Actions:**
-   - Rotate bot token
-   - Change webhook secret
-   - Disable webhook temporarily
-   - Review logs for suspicious activity
+### 3. No Input Validation
 
-2. **Investigation:**
-   - Check webhook verification logs
-   - Review input validation failures
-   - Analyze rate limiting violations
-   - Check for unauthorized access
+**❌ Wrong:**
+```python
+await neonpay.send_payment(user_id, stage_id)  # No validation
+```
 
-3. **Recovery:**
-   - Update security configurations
-   - Implement additional monitoring
-   - Review and update access controls
-   - Document incident and lessons learned
+**✅ Correct:**
+```python
+if validate_user_input(user_id, stage_id):
+    await neonpay.send_payment(user_id, stage_id)
+else:
+    await bot.send_message(user_id, "Invalid request.")
+```
 
-### 2. Contact Information
+## Incident Response
 
-For security issues:
-- **Email**: security@neonpay.dev
-- **GitHub**: Create security advisory
-- **Response Time**: Within 24 hours for critical issues
+### Security Incident Checklist
 
-## 📚 Additional Resources
+1. **Immediate Response**
+   - [ ] Disable affected bot if necessary
+   - [ ] Review logs for suspicious activity
+   - [ ] Change bot token if compromised
+   - [ ] Notify users if data breach
 
-- [Telegram Bot API Security](https://core.telegram.org/bots/api#security-considerations)
-- [OWASP Security Guidelines](https://owasp.org/www-project-top-ten/)
+2. **Investigation**
+   - [ ] Analyze attack vector
+   - [ ] Identify affected users
+   - [ ] Document incident details
+   - [ ] Preserve evidence
+
+3. **Recovery**
+   - [ ] Patch security vulnerabilities
+   - [ ] Update security measures
+   - [ ] Test system thoroughly
+   - [ ] Monitor for continued attacks
+
+4. **Post-incident**
+   - [ ] Update security documentation
+   - [ ] Conduct security review
+   - [ ] Implement additional safeguards
+   - [ ] Train team on lessons learned
+
+## Resources
+
+- [Telegram Bot Security](https://core.telegram.org/bots/security)
+- [OWASP Security Guidelines](https://owasp.org/)
 - [Python Security Best Practices](https://python-security.readthedocs.io/)
-
-## 🔄 Security Updates
-
-NEONPAY is regularly updated with security improvements:
-
-- **Automatic Updates**: Security patches are released promptly
-- **Vulnerability Reporting**: Security issues are addressed within 24 hours
-- **Backward Compatibility**: Security updates maintain API compatibility
-- **Transparency**: All security changes are documented and announced
 
 ---
 
-**Remember**: Security is a shared responsibility. Always follow security best practices and keep your NEONPAY installation updated.
+**Remember: Security is an ongoing process, not a one-time setup. Regularly review and update your security measures.**

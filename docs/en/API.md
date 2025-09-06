@@ -2,6 +2,24 @@
 
 Complete API documentation for NEONPAY library.
 
+## Quick Start
+
+### Factory Function
+
+\`\`\`python
+from neonpay.factory import create_neonpay
+
+# Automatic adapter detection
+neonpay = create_neonpay(bot_instance=your_bot_instance)
+\`\`\`
+
+**Parameters:**
+- `bot_instance`: Your bot instance (Bot, Client, TeleBot, etc.)
+- `dispatcher`: Dispatcher instance (for Aiogram)
+- `thank_you_message`: Custom thank you message
+
+**Returns:** Configured NeonPayCore instance
+
 ## Core Classes
 
 ### NeonPayCore

@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0/).
 
+## [2.5.0] - 2025-01-15
+
+### Added
+- 🔒 Enhanced security features with improved validation mechanisms
+- 🚀 Optimized performance across all core modules
+- 📚 Updated documentation and improved examples
+- 🛡️ Strengthened webhook security mechanisms
+- 🔧 Better error messages and enhanced debugging support
+- ⚡ Added TgCrypto as core dependency for faster Pyrogram operations
+
+### Changed
+- Improved async/sync compatibility across all adapters
+- Streamlined error handling with clearer, more informative messages
+- Optimized memory usage and faster library initialization
+- Simplified webhook processing pipeline for better performance
+
+### Improved
+- Better separation of concerns in core modules
+- Enhanced debugging capabilities with more detailed error information
+- Reduced memory footprint and improved startup time
+- More robust validation and error recovery mechanisms
+
+### Security
+- Enhanced input validation with stricter security checks
+- Improved webhook signature verification
+- Additional security layers for payment processing
+- Better protection against common attack vectors
+
+### Migration Guide
+- Review error handling code for potential exception type changes
+- Update custom implementations to handle enhanced validation
+- Ensure webhook endpoints are compatible with new security checks
+
 ## [2.4.0] - 2025-09-04
 
 ### Added

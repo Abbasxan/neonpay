@@ -9,9 +9,11 @@ Welcome to the complete NEONPAY documentation. This guide will help you integrat
 3. [Library Support](#library-support)
 4. [Core Concepts](#core-concepts)
 5. [API Reference](#api-reference)
-6. [Examples](#examples)
+6. [Real-world Examples](#real-world-examples)
 7. [Best Practices](#best-practices)
-8. [Troubleshooting](#troubleshooting)
+8. [Production Deployment](#production-deployment)
+9. [Troubleshooting](#troubleshooting)
+10. [Support](#support)
 
 ## Installation
 
@@ -39,78 +41,164 @@ pip install neonpay pyTelegramBotAPI
 
 ## Quick Start
 
-### 1. Import and Initialize
+### 1. Install Dependencies
 
-\`\`\`python
-from neonpay import create_neonpay, PaymentStage
+\`\`\`bash
+# For Aiogram (Recommended)
+pip install neonpay aiogram
 
-# Automatic adapter detection
-neonpay = create_neonpay(your_bot_instance)
+# For Pyrogram
+pip install neonpay pyrogram
+
+# For pyTelegramBotAPI
+pip install neonpay pyTelegramBotAPI
 \`\`\`
 
-### 2. Create Payment Stage
+### 2. Import and Initialize
+
+\`\`\`python
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
+
+# Automatic adapter detection
+neonpay = create_neonpay(bot_instance=your_bot_instance)
+\`\`\`
+
+### 3. Create Payment Stage
 
 \`\`\`python
 stage = PaymentStage(
     title="Premium Access",
-    description="Unlock premium features",
-    price=100,  # 100 Telegram Stars
-    photo_url="https://example.com/logo.png"
+    description="Unlock premium features for 30 days",
+    price=25,  # 25 Telegram Stars
 )
 
-neonpay.create_payment_stage("premium", stage)
+neonpay.create_payment_stage("premium_access", stage)
 \`\`\`
 
-### 3. Send Payment
+### 4. Send Payment
 
 \`\`\`python
-await neonpay.send_payment(user_id=12345, stage_id="premium")
+await neonpay.send_payment(user_id=12345, stage_id="premium_access")
 \`\`\`
 
-### 4. Handle Payments
+### 5. Handle Payments
 
 \`\`\`python
 @neonpay.on_payment
 async def handle_payment(result):
-    print(f"Received {result.amount} stars from user {result.user_id}")
+    if result.status == PaymentStatus.COMPLETED:
+        print(f"Received {result.amount} stars from user {result.user_id}")
+        # Deliver your product/service here
 \`\`\`
 
 ## Library Support
 
-### Pyrogram Integration
-
-\`\`\`python
-from pyrogram import Client
-from neonpay import create_neonpay
-
-app = Client("my_bot", bot_token="YOUR_TOKEN")
-neonpay = create_neonpay(app)
-
-@app.on_message()
-async def handle_message(client, message):
-    if message.text == "/buy":
-        await neonpay.send_payment(message.from_user.id, "premium")
-
-app.run()
-\`\`\`
-
-### Aiogram Integration
+### Aiogram Integration (Recommended)
 
 \`\`\`python
 from aiogram import Bot, Dispatcher, Router
-from neonpay import create_neonpay
+from aiogram.filters import Command
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
 
 bot = Bot(token="YOUR_TOKEN")
 dp = Dispatcher()
 router = Router()
 
-neonpay = create_neonpay(bot)
+neonpay = create_neonpay(bot_instance=bot, dispatcher=dp)
+
+# Create payment stage
+stage = PaymentStage(
+    title="Premium Access",
+    description="Unlock premium features for 30 days",
+    price=25,
+)
+neonpay.create_payment_stage("premium_access", stage)
+
+# Handle payments
+@neonpay.on_payment
+async def handle_payment(result):
+    if result.status == PaymentStatus.COMPLETED:
+        await bot.send_message(
+            result.user_id, 
+            f"Thank you! Your premium access is now active! 🎉"
+        )
 
 @router.message(Command("buy"))
 async def buy_handler(message: Message):
-    await neonpay.send_payment(message.from_user.id, "premium")
+    await neonpay.send_payment(message.from_user.id, "premium_access")
 
 dp.include_router(router)
+\`\`\`
+
+### Pyrogram Integration
+
+\`\`\`python
+from pyrogram import Client, filters
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
+
+app = Client("my_bot", bot_token="YOUR_TOKEN")
+neonpay = create_neonpay(bot_instance=app)
+
+# Create payment stage
+stage = PaymentStage(
+    title="Premium Access",
+    description="Unlock premium features for 30 days",
+    price=25,
+)
+neonpay.create_payment_stage("premium_access", stage)
+
+# Handle payments
+@neonpay.on_payment
+async def handle_payment(result):
+    if result.status == PaymentStatus.COMPLETED:
+        await app.send_message(
+            result.user_id, 
+            f"Thank you! Your premium access is now active! 🎉"
+        )
+
+@app.on_message(filters.command("buy"))
+async def buy_handler(client, message):
+    await neonpay.send_payment(message.from_user.id, "premium_access")
+
+app.run()
+\`\`\`
+
+### pyTelegramBotAPI Integration
+
+\`\`\`python
+from telebot import TeleBot
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
+
+bot = TeleBot("YOUR_TOKEN")
+neonpay = create_neonpay(bot_instance=bot)
+
+# Create payment stage
+stage = PaymentStage(
+    title="Premium Access",
+    description="Unlock premium features for 30 days",
+    price=25,
+)
+neonpay.create_payment_stage("premium_access", stage)
+
+# Handle payments
+@neonpay.on_payment
+async def handle_payment(result):
+    if result.status == PaymentStatus.COMPLETED:
+        bot.send_message(
+            result.user_id, 
+            f"Thank you! Your premium access is now active! 🎉"
+        )
+
+@bot.message_handler(commands=['buy'])
+def buy_handler(message):
+    import asyncio
+    asyncio.run(neonpay.send_payment(message.from_user.id, "premium_access"))
+
+bot.infinity_polling()
 \`\`\`
 
 ## Core Concepts
@@ -195,62 +283,95 @@ except NeonPayError as e:
 - `transaction_id: str` - Transaction ID (optional)
 - `metadata: dict` - Custom metadata
 
-## Examples
+## Real-world Examples
 
-### E-commerce Bot
+All examples are based on **real working bots** and are production-ready. Check the [examples directory](../../examples/) for complete implementations.
+
+### Donation Bot
 
 \`\`\`python
-from neonpay import create_neonpay, PaymentStage
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
 
-# Product catalog
-products = {
-    "coffee": PaymentStage("Coffee", "Premium coffee beans", 50),
-    "tea": PaymentStage("Tea", "Organic tea leaves", 30),
-    "cake": PaymentStage("Cake", "Delicious chocolate cake", 100)
-}
+# Donation options
+DONATE_OPTIONS = [
+    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
+    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
+    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+]
 
-neonpay = create_neonpay(bot)
+neonpay = create_neonpay(bot_instance=bot)
 
-# Add all products
-for product_id, stage in products.items():
-    neonpay.create_payment_stage(product_id, stage)
+# Create donation stages
+for option in DONATE_OPTIONS:
+    neonpay.create_payment_stage(
+        f"donate_{option['amount']}",
+        PaymentStage(
+            title=f"Support {option['amount']}{option['symbol']}",
+            description=option["desc"],
+            price=option["amount"],
+        ),
+    )
 
-# Handle orders
+# Handle donations
 @neonpay.on_payment
-async def process_order(result):
-    user_id = result.user_id
-    product = result.metadata.get("product")
-    
-    # Process the order
-    await fulfill_order(user_id, product)
-    await bot.send_message(user_id, "Order confirmed! Thank you!")
+async def handle_payment(result):
+    if result.status == PaymentStatus.COMPLETED:
+        if result.stage_id.startswith("donate_"):
+            await bot.send_message(
+                result.user_id,
+                f"Thank you! Your support: {result.amount}⭐ ❤️\n"
+                f"Your contribution helps keep the bot running!"
+            )
 \`\`\`
 
-### Subscription Service
+### Digital Store
 
 \`\`\`python
-subscription_plans = {
-    "monthly": PaymentStage(
-        "Monthly Plan", 
-        "1 month premium access", 
-        100,
-        payload={"duration": 30}
-    ),
-    "yearly": PaymentStage(
-        "Yearly Plan", 
-        "12 months premium access (2 months free!)", 
-        1000,
-        payload={"duration": 365}
-    )
-}
+# Digital products
+DIGITAL_PRODUCTS = [
+    {
+        "id": "premium_access",
+        "title": "Premium Access",
+        "description": "Unlock all premium features for 30 days",
+        "price": 25,
+        "symbol": "👑"
+    },
+    {
+        "id": "custom_theme",
+        "title": "Custom Theme",
+        "description": "Personalized bot theme and colors",
+        "price": 15,
+        "symbol": "🎨"
+    },
+]
 
+# Create product stages
+for product in DIGITAL_PRODUCTS:
+    neonpay.create_payment_stage(
+        product["id"],
+        PaymentStage(
+            title=f"{product['symbol']} {product['title']}",
+            description=product["description"],
+            price=product["price"],
+        ),
+    )
+
+# Handle product purchases
 @neonpay.on_payment
-async def handle_subscription(result):
-    user_id = result.user_id
-    duration = result.metadata.get("duration", 30)
-    
-    # Grant subscription
-    await grant_premium(user_id, days=duration)
+async def handle_payment(result):
+    if result.status == PaymentStatus.COMPLETED:
+        if not result.stage_id.startswith("donate_"):
+            product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+            if product:
+                await bot.send_message(
+                    result.user_id,
+                    f"🎉 Purchase successful!\n\n"
+                    f"Product: {product['symbol']} {product['title']}\n"
+                    f"Price: {product['price']}⭐\n\n"
+                    f"Your digital product has been activated!\n"
+                    f"Thank you for your purchase! 🚀"
+                )
 \`\`\`
 
 ## Best Practices
@@ -313,6 +434,92 @@ async def handle_payment(result):
         logger.error(f"Failed to process payment for user {result.user_id}: {e}")
 \`\`\`
 
+## Production Deployment
+
+### 1. Environment Variables
+
+\`\`\`python
+import os
+
+# Store sensitive data securely
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
+\`\`\`
+
+### 2. Database Integration
+
+\`\`\`python
+# Replace in-memory storage with database
+import asyncpg
+
+async def save_payment(user_id: int, amount: int, stage_id: str):
+    conn = await asyncpg.connect(DATABASE_URL)
+    await conn.execute(
+        "INSERT INTO payments (user_id, amount, stage_id, created_at) VALUES ($1, $2, $3, NOW())",
+        user_id, amount, stage_id
+    )
+    await conn.close()
+\`\`\`
+
+### 3. Error Monitoring
+
+\`\`\`python
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        RotatingFileHandler("bot.log", maxBytes=10*1024*1024, backupCount=5),
+        logging.StreamHandler()
+    ]
+)
+\`\`\`
+
+### 4. Health Checks
+
+\`\`\`python
+@router.message(Command("status"))
+async def status_command(message: Message):
+    """Health check endpoint"""
+    stats = neonpay.get_stats()
+    status_text = (
+        f"📊 **Bot Status**\n\n"
+        f"✅ Status: Online\n"
+        f"💫 Payment system: Active\n"
+        f"🔧 Version: 2.0\n"
+        f"📈 Payment stages: {stats['total_stages']}\n"
+        f"🔄 Callbacks: {stats['registered_callbacks']}\n\n"
+        f"Thank you for using this free bot!"
+    )
+    await message.answer(status_text)
+\`\`\`
+
+### 5. Webhook Setup (for Raw API)
+
+\`\`\`python
+from aiohttp import web
+
+async def webhook_handler(request):
+    """Handle incoming webhook updates"""
+    try:
+        data = await request.json()
+        
+        # Process update
+        await process_update(data)
+        
+        return web.Response(text="OK")
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return web.Response(text="Error", status=500)
+
+app = web.Application()
+app.router.add_post("/webhook", webhook_handler)
+\`\`\`
+
 ## Troubleshooting
 
 ### Common Issues
@@ -358,15 +565,32 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger("neonpay").setLevel(logging.DEBUG)
 \`\`\`
 
+## Support
+
 ### Getting Help
 
 If you need help:
 
-1. Check the [examples](../../examples/) directory
-2. Read the [FAQ](FAQ.md)
-3. Open an issue on [GitHub](https://github.com/Abbasxan/neonpay/issues)
-4. Contact support: [@neonsahib](https://t.me/neonsahib)
+1. 📚 **Documentation**: Check the [examples](../../examples/) directory for complete working examples
+2. 💬 **Community**: Join our [Telegram community](https://t.me/neonpay_community)
+3. 🐛 **Issues**: Open an issue on [GitHub](https://github.com/Abbasxan/neonpay/issues)
+4. 📧 **Email**: Contact support at [support@neonpay.com](mailto:support@neonpay.com)
+5. 💬 **Telegram**: Contact [@neonsahib](https://t.me/neonsahib)
+
+### Resources
+
+- 📖 **Complete Examples**: [examples/](../../examples/) - Production-ready bot examples
+- 🔧 **API Reference**: [API.md](API.md) - Complete API documentation
+- 🔒 **Security**: [SECURITY.md](SECURITY.md) - Security best practices
+- 📝 **Changelog**: [CHANGELOG.md](../../CHANGELOG.md) - Version history
+
+### Quick Links
+
+- 🚀 **Get Started**: [Quick Start Guide](#quick-start)
+- 📚 **Examples**: [Real-world Examples](#real-world-examples)
+- 🏗️ **Deployment**: [Production Deployment](#production-deployment)
+- 🐛 **Troubleshooting**: [Common Issues](#troubleshooting)
 
 ---
 
-[← Back to Main README](../../README.md) | [Russian Documentation →](../ru/README.md)
+[← Back to Main README](../../README.md) | [Russian Documentation →](../ru/README.md) | [Azerbaijani Documentation →](../az/README.md)

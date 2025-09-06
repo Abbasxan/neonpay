@@ -6,6 +6,7 @@ from neonpay.core import PaymentStage, PaymentResult, PaymentStatus
 
 class DummyBot:
     """Fake telegram.Bot for testing"""
+
     def __init__(self):
         self.invoices = []
         self.pre_checkout_answered = False
@@ -25,10 +26,7 @@ async def test_send_invoice():
     adapter = BotAPIAdapter(bot)
 
     stage = PaymentStage(
-        title="Test",
-        description="Test invoice",
-        price=50,
-        label="Test Label"
+        title="Test", description="Test invoice", price=50, label="Test Label"
     )
     result = await adapter.send_invoice(user_id=123, stage=stage)
 

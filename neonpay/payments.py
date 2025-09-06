@@ -12,56 +12,132 @@ Features:
 
 import json
 import random
-from typing import Callable, Optional
-
-# Legacy compatibility - only import if pyrogram is available
-try:
-    from pyrogram.raw.types import (
-        LabeledPrice, Invoice, InputWebDocument,
-        InputMediaInvoice, DataJSON,
-        UpdateBotPrecheckoutQuery, MessageActionPaymentSentMe
-    )
-    from pyrogram.raw.functions.messages import SendMedia, SetBotPrecheckoutResults
-    PYROGRAM_AVAILABLE = True
-except ImportError:
-    PYROGRAM_AVAILABLE = False
+import logging
+import asyncio
+from typing import Any, Callable, Optional
 
 from .errors import StarsPaymentError
 
+# Pyrogram imports will be loaded lazily when needed
+PYROGRAM_AVAILABLE = None
+
+# Initialize Pyrogram types as None - will be loaded when needed
+LabeledPrice: Any = None
+Invoice: Any = None
+InputWebDocument: Any = None
+InputMediaInvoice: Any = None
+DataJSON: Any = None
+UpdateBotPrecheckoutQuery: Any = None
+MessageActionPaymentSentMe: Any = None
+SendMedia: Any = None
+SetBotPrecheckoutResults: Any = None
+
+
+def _load_pyrogram() -> bool:
+    """Lazy load Pyrogram types and functions"""
+    global PYROGRAM_AVAILABLE
+    global LabeledPrice
+    global Invoice
+    global InputWebDocument
+    global InputMediaInvoice
+    global DataJSON
+    global UpdateBotPrecheckoutQuery
+    global MessageActionPaymentSentMe
+    global SendMedia
+    global SetBotPrecheckoutResults
+
+    if PYROGRAM_AVAILABLE is None:
+        try:
+            from pyrogram.raw.types import (
+                LabeledPrice as _LabeledPrice,
+                Invoice as _Invoice,
+                InputWebDocument as _InputWebDocument,
+                InputMediaInvoice as _InputMediaInvoice,
+                DataJSON as _DataJSON,
+                UpdateBotPrecheckoutQuery as _UpdateBotPrecheckoutQuery,
+                MessageActionPaymentSentMe as _MessageActionPaymentSentMe,
+            )
+            from pyrogram.raw.functions.messages import (
+                SendMedia as _SendMedia,
+                SetBotPrecheckoutResults as _SetBotPrecheckoutResults,
+            )
+
+            # Update global variables
+            LabeledPrice = _LabeledPrice
+            Invoice = _Invoice
+            InputWebDocument = _InputWebDocument
+            InputMediaInvoice = _InputMediaInvoice
+            DataJSON = _DataJSON
+            UpdateBotPrecheckoutQuery = _UpdateBotPrecheckoutQuery
+            MessageActionPaymentSentMe = _MessageActionPaymentSentMe
+            SendMedia = _SendMedia
+            SetBotPrecheckoutResults = _SetBotPrecheckoutResults
+
+            PYROGRAM_AVAILABLE = True
+        except ImportError:
+            PYROGRAM_AVAILABLE = False
+    return PYROGRAM_AVAILABLE
+
+
+logger = logging.getLogger(__name__)
+
 
 class NeonStars:
-    def __init__(self, app, thank_you: str = "Спасибо за поддержку!"):
+    def __init__(
+        self, app: Any, thank_you: str = "Thank you for your support!"
+    ) -> None:
         """
-        :param app: pyrogram.Client
-        :param thank_you: сообщение благодарности пользователю
+        :param app: pyrogram.Client instance
+        :param thank_you: message of appreciation to send along with invoices
         """
+        self.logger = logging.getLogger(__name__)
         if not PYROGRAM_AVAILABLE:
             raise ImportError(
                 "Pyrogram is not installed. Install with: pip install pyrogram"
             )
-        
+
         self.app = app
         self.thank_you = thank_you
-        self._payment_callback: Optional[Callable[[int, int], None]] = None
+        self._payment_callback: Optional[Callable[[int, int], Any]] = None
 
-        # Подписка на raw обновления
+        # Subscribe to raw updates
         app.add_handler(self._on_raw_update, group=-1)
 
-    def on_payment(self, callback: Callable[[int, int], None]):
+    def on_payment(self, callback: Callable[[int, int], Any]) -> None:
         """
-        Регистрирует callback, который будет вызван при успешной оплате.
-        callback(user_id: int, amount: int)
+        Register a callback to be called after a successful payment.
+
+        The callback may be:
+        - sync function: callback(user_id: int, amount: int) -> Any
+        - async function: async callback(user_id: int, amount: int) -> Any
+
+        If the callback is synchronous and returns a value, it will be logged.
         """
         self._payment_callback = callback
 
-    async def send_donate(self, user_id: int, amount: int, label: str,
-                          title: str, description: str,
-                          photo_url: str = "https://telegram.org/img/t_logo.png"):
-        """Отправить пользователю инвойс"""
+    async def send_donate(
+        self,
+        user_id: int,
+        amount: int,
+        label: str,
+        title: str,
+        description: str,
+        photo_url: str = "https://telegram.org/img/t_logo.png",
+    ) -> None:
+        """Send an invoice (Telegram Stars donation request) to the user."""
+        if not _load_pyrogram():
+            raise ImportError(
+                "Pyrogram is not installed. Install with: pip install pyrogram"
+            )
+
         try:
             peer = await self.app.resolve_peer(user_id)
         except Exception:
-            raise StarsPaymentError("Пользователь не найден")
+            raise StarsPaymentError("User not found")
+
+        # Ensure Pyrogram types are loaded
+        if Invoice is None or LabeledPrice is None or InputMediaInvoice is None:
+            raise StarsPaymentError("Pyrogram types not loaded")
 
         invoice = Invoice(
             currency="XTR",
@@ -75,30 +151,65 @@ class NeonStars:
             payload=json.dumps({"user_id": user_id, "amount": amount}).encode(),
             provider="",
             provider_data=DataJSON(data="{}"),
-            photo=InputWebDocument(url=photo_url, size=0, mime_type="image/png", attributes=[]),
+            photo=InputWebDocument(
+                url=photo_url, size=0, mime_type="image/png", attributes=[]
+            ),
             start_param="stars_donate",
         )
 
         try:
-            await self.app.invoke(SendMedia(
-                peer=peer,
-                media=media,
-                message=f"{label}\n\n{description}\n\n{self.thank_you}",
-                random_id=random.getrandbits(64),
-            ))
+            await self.app.invoke(
+                SendMedia(
+                    peer=peer,
+                    media=media,
+                    message=f"{label}\n\n{description}\n\n{self.thank_you}",
+                    random_id=random.getrandbits(64),
+                )
+            )
         except Exception as e:
-            raise StarsPaymentError(f"Ошибка отправки счета: {e}")
+            raise StarsPaymentError(f"Failed to send invoice: {e}")
 
-    async def _on_raw_update(self, client, update, users, chats):
-        """Автоматическая обработка pre_checkout и успешной оплаты"""
-        if isinstance(update, UpdateBotPrecheckoutQuery):
-            await client.invoke(SetBotPrecheckoutResults(query_id=update.query_id, success=True))
+    async def _on_raw_update(
+        self, client: Any, update: Any, users: Any, chats: Any
+    ) -> None:
+        """
+        Automatically handle pre-checkout requests and successful payments.
+        """
+        if not _load_pyrogram():
+            return  # Skip processing if Pyrogram is not available
 
-        if hasattr(update, "message") and hasattr(update.message, "action"):
-            action = update.message.action
-            if isinstance(action, MessageActionPaymentSentMe) and action.currency == "XTR":
+        try:
+            # Pre-checkout query
+            if UpdateBotPrecheckoutQuery is not None and isinstance(
+                update, UpdateBotPrecheckoutQuery
+            ):
+                await client.invoke(
+                    SetBotPrecheckoutResults(query_id=update.query_id, success=True)
+                )
+                return
+
+            # Successful payment
+            if (
+                hasattr(update, "message")
+                and MessageActionPaymentSentMe is not None
+                and isinstance(update.message.action, MessageActionPaymentSentMe)
+                and hasattr(update.message, "from_id")
+                and hasattr(update.message.from_id, "user_id")
+            ):
                 user_id = update.message.from_id.user_id
-                amount = action.total_amount
+                amount = update.message.action.total_amount
+
                 if self._payment_callback:
-                    await self._payment_callback(user_id, amount)
-                    
+                    result = self._payment_callback(user_id, amount)
+
+                    if asyncio.iscoroutine(result):
+                        await result
+                    else:
+                        # For sync callbacks we log the return value (if any)
+                        if result is not None:
+                            self.logger.debug(
+                                f"Synchronous payment callback returned: {result}"
+                            )
+
+        except Exception as e:
+            self.logger.error(f"Error in _on_raw_update: {e}")
