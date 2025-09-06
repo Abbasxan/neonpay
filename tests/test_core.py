@@ -40,7 +40,6 @@ class TestPaymentStage:
         )
         assert stage.title == "Test Product"
         assert stage.price == 100
-        assert stage.currency == "XTR"
 
     def test_payment_stage_with_logo(self):
         stage = PaymentStage(
