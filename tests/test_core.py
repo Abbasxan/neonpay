@@ -1,6 +1,5 @@
 import pytest
 from neonpay.core import NeonPayCore, PaymentStage, PaymentResult, PaymentStatus
-from neonpay.errors import PaymentValidationError
 from neonpay.adapters.base import PaymentAdapter
 
 
