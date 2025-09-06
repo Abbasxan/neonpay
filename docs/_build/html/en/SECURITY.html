@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; NEONPAY 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Документация NEONPAY (Русский)" href="../ru/index.html" />
+    <link rel="prev" title=")" href="FAQ.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NEONPAY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Language Selection:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ru/index.html">Документация NEONPAY (Русский)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ru/index.html#id4">Индексы и таблицы</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../az/index.html">NEONPAY Sənədləri (Azərbaycan)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../az/index.html#indekslr-v-cdvllr">İndekslər və Cədvəllər</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html#id98">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Documentation Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NEONPAY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">NEONPAY Documentation (English)</a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/en/SECURITY.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p># Security Guide - NEONPAY</p>
+<p>This document outlines security best practices for using NEONPAY in production environments.</p>
+<p>## Table of Contents</p>
+<ol class="arabic simple">
+<li><p>[Token Security](#token-security)</p></li>
+<li><p>[Payment Validation](#payment-validation)</p></li>
+<li><p>[Data Protection](#data-protection)</p></li>
+<li><p>[Error Handling](#error-handling)</p></li>
+<li><p>[Logging Security](#logging-security)</p></li>
+<li><p>[Production Checklist](#production-checklist)</p></li>
+</ol>
+<p>## Token Security</p>
+<p>### Bot Token Protection</p>
+<p><strong>❌ Never do this:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">#</span> <span class="pre">DON'T:</span> <span class="pre">Hardcode</span> <span class="pre">tokens</span> <span class="pre">in</span> <span class="pre">source</span> <span class="pre">code</span>
+<span class="pre">BOT_TOKEN</span> <span class="pre">=</span> <span class="pre">&quot;1234567890:ABCdefGHIjklMNOpqrsTUVwxyz&quot;</span>
+<span class="pre">`</span></code></p>
+<p><strong>✅ Do this instead:</strong>
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+import os</p>
+<p># DO: Use environment variables
+BOT_TOKEN = os.getenv(“BOT_TOKEN”)
+if not BOT_TOKEN:</p>
+<blockquote>
+<div><p>raise ValueError(“BOT_TOKEN environment variable is required”)</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>### Environment Variables</p>
+<p>Create a <cite>.env</cite> file (never commit to version control):
+<code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">#</span> <span class="pre">.env</span>
+<span class="pre">BOT_TOKEN=your_bot_token_here</span>
+<span class="pre">API_ID=your_api_id_here</span>
+<span class="pre">API_HASH=your_api_hash_here</span>
+<span class="pre">DATABASE_URL=postgresql://user:pass&#64;localhost/db</span>
+<span class="pre">`</span></code></p>
+<p>Load with python-dotenv:
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">from</span> <span class="pre">dotenv</span> <span class="pre">import</span> <span class="pre">load_dotenv</span>
+<span class="pre">load_dotenv()</span>
+<span class="pre">`</span></code></p>
+<p>## Payment Validation</p>
+<p>### Verify Payment Amounts</p>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+&#64;neonpay.on_payment
+async def handle_payment(result):</p>
+<blockquote>
+<div><p># Always verify the payment amount
+expected_amount = get_expected_amount(result.stage_id)</p>
+<dl>
+<dt>if result.amount != expected_amount:</dt><dd><dl class="simple">
+<dt>logger.warning(</dt><dd><p>f”Payment amount mismatch: expected {expected_amount}, ”
+f”got {result.amount} from user {result.user_id}”</p>
+</dd>
+</dl>
+<p>)
+return</p>
+</dd>
+</dl>
+<p># Process payment only after validation
+await process_payment(result)</p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<p>### Validate Stage IDs</p>
+<p><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>python
+async def safe_send_payment(user_id: int, stage_id: str):</p>
+<blockquote>
+<div><p># Validate stage exists
+stage = neonpay.get_payment_stage(stage_id)
+if not stage:</p>
+<blockquote>
+<div><p>logger.error(f”Invalid stage_id: {stage_id}”)
+await bot.send_message(user_id, “Payment option not available.”)
+return</p>
+</div></blockquote>
+<p># Validate user permissions
+if not await user_can_purchase(user_id, stage_id):</p>
+<blockquote>
+<div><p>await bot.send_message(user_id, “You don’t have permission to purchase this item.”)
+return</p>
+</div></blockquote>
+<p># Send payment
+await neonpay.send_payment(user_id, stage_id)</p>
+</div></blockquote>
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>## Data Protection</p>
+<p>### User Data Handling</p>
+<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>python
+import hashlib</p>
+<dl class="simple">
+<dt>def hash_user_id(user_id: int) -&gt; str:</dt><dd><p>“””Hash user ID for logging (one-way)”””
+return hashlib.sha256(str(user_id).encode()).hexdigest()[:8]</p>
+</dd>
+</dl>
+<p>&#64;neonpay.on_payment
+async def handle_payment(result):</p>
+<blockquote>
+<div><p># Log with hashed user ID
+hashed_id = hash_user_id(result.user_id)
+logger.info(f”Payment received from user {hashed_id}: {result.amount} stars”)</p>
+<p># Store in database with proper encryption
+await store_payment_securely(result)</p>
+</div></blockquote>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+<p>### Database Security</p>
+<p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>python
+import asyncpg
+from cryptography.fernet import Fernet</p>
+<dl>
+<dt>class SecurePaymentStorage:</dt><dd><dl>
+<dt>def __init__(self, db_url: str, encryption_key: str):</dt><dd><p>self.db_url = db_url
+self.cipher = Fernet(encryption_key.encode())</p>
+</dd>
+<dt>async def store_payment(self, payment_data: dict):</dt><dd><p># Encrypt sensitive data
+encrypted_data = self.cipher.encrypt(</p>
+<blockquote>
+<div><p>json.dumps(payment_data).encode()</p>
+</div></blockquote>
+<p>)</p>
+<p>conn = await asyncpg.connect(self.db_url)
+await conn.execute(</p>
+<blockquote>
+<div><p>“INSERT INTO payments (encrypted_data, created_at) VALUES ($1, NOW())”,
+encrypted_data</p>
+</div></blockquote>
+<p>)
+await conn.close()</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
+<p>## Error Handling</p>
+<p>### Secure Error Messages</p>
+<p><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>python
+async def handle_payment_error(user_id: int, error: Exception):</p>
+<blockquote>
+<div><p># Log full error details
+logger.error(f”Payment error for user {user_id}: {error}”, exc_info=True)</p>
+<p># Send generic message to user
+await bot.send_message(</p>
+<blockquote>
+<div><p>user_id,
+“Something went wrong with your payment. Please try again later.”</p>
+</div></blockquote>
+<p>)</p>
+<p># Don’t expose internal details
+# ❌ DON’T: await bot.send_message(user_id, f”Error: {str(error)}”)</p>
+</div></blockquote>
+<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
+<p>### Input Validation</p>
+<p><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>python
+def validate_user_input(user_id: int, stage_id: str) -&gt; bool:</p>
+<blockquote>
+<div><p>“””Validate user input before processing”””</p>
+<p># Check user_id is valid
+if not isinstance(user_id, int) or user_id &lt;= 0:</p>
+<blockquote>
+<div><p>return False</p>
+</div></blockquote>
+<p># Check stage_id format
+if not isinstance(stage_id, str) or len(stage_id) &gt; 100:</p>
+<blockquote>
+<div><p>return False</p>
+</div></blockquote>
+<p># Check for suspicious patterns
+if any(char in stage_id for char in [‘&lt;’, ‘&gt;’, ‘&amp;’, ‘”’, “’”]):</p>
+<blockquote>
+<div><p>return False</p>
+</div></blockquote>
+<p>return True</p>
+</div></blockquote>
+<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
+<p>## Logging Security</p>
+<p>### Secure Logging Configuration</p>
+<p><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>python
+import logging
+import logging.handlers
+from datetime import datetime</p>
+<dl>
+<dt>def setup_secure_logging():</dt><dd><p>“””Setup secure logging configuration”””</p>
+<p># Create formatter that excludes sensitive data
+formatter = logging.Formatter(</p>
+<blockquote>
+<div><p>‘%(asctime)s - %(name)s - %(levelname)s - %(message)s’</p>
+</div></blockquote>
+<p>)</p>
+<p># File handler with rotation
+file_handler = logging.handlers.RotatingFileHandler(</p>
+<blockquote>
+<div><p>‘bot.log’,
+maxBytes=10*1024*1024,  # 10MB
+backupCount=5</p>
+</div></blockquote>
+<p>)
+file_handler.setFormatter(formatter)</p>
+<p># Console handler
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)</p>
+<p># Setup logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)</p>
+<p># Disable debug in production</p>
+</dd>
+<dt>if os.getenv(“ENVIRONMENT”) == “production”:</dt><dd><p>logger.setLevel(logging.WARNING)</p>
+</dd>
+</dl>
+<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
+<p>### Sensitive Data Filtering</p>
+<p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>python
+class SensitiveDataFilter(logging.Filter):</p>
+<blockquote>
+<div><p>“””Filter out sensitive data from logs”””</p>
+<dl>
+<dt>def filter(self, record):</dt><dd><p># Remove tokens from log messages
+if hasattr(record, ‘msg’):</p>
+<blockquote>
+<div><p>msg = str(record.msg)
+# Replace token patterns
+import re
+record.msg = re.sub(</p>
+<blockquote>
+<div><p>r’bd{10}:[<a href="#id113"><span class="problematic" id="id114">A-Za-z0-9_</span></a>-]{35}b’,
+‘[TOKEN_REDACTED]’,
+msg</p>
+</div></blockquote>
+<p>)</p>
+</div></blockquote>
+<p>return True</p>
+</dd>
+</dl>
+</div></blockquote>
+<p># Apply filter
+logger.addFilter(SensitiveDataFilter())
+<a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
+<p>## Production Checklist</p>
+<p>### Pre-deployment Security Check</p>
+<ul class="simple">
+<li><p>[ ] <strong>Environment Variables</strong>: All sensitive data in environment variables</p></li>
+<li><p>[ ] <strong>Token Protection</strong>: Bot tokens not in source code</p></li>
+<li><p>[ ] <strong>Database Security</strong>: Encrypted connections and data</p></li>
+<li><p>[ ] <strong>Input Validation</strong>: All user inputs validated</p></li>
+<li><p>[ ] <strong>Error Handling</strong>: Generic error messages for users</p></li>
+<li><p>[ ] <strong>Logging</strong>: Sensitive data filtered from logs</p></li>
+<li><p>[ ] <strong>HTTPS</strong>: All webhooks use HTTPS</p></li>
+<li><p>[ ] <strong>Rate Limiting</strong>: Implement rate limiting for payments</p></li>
+<li><p>[ ] <strong>Monitoring</strong>: Set up payment monitoring and alerts</p></li>
+<li><p>[ ] <strong>Backup</strong>: Regular database backups</p></li>
+</ul>
+<p>### Rate Limiting</p>
+<p><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>python
+from collections import defaultdict
+import time</p>
+<dl>
+<dt>class PaymentRateLimiter:</dt><dd><dl>
+<dt>def __init__(self, max_payments: int = 5, window: int = 3600):</dt><dd><p>self.max_payments = max_payments
+self.window = window
+self.user_payments = defaultdict(list)</p>
+</dd>
+<dt>def can_make_payment(self, user_id: int) -&gt; bool:</dt><dd><p>now = time.time()
+user_payments = self.user_payments[user_id]</p>
+<p># Remove old payments outside window
+user_payments[:] = [t for t in user_payments if now - t &lt; self.window]</p>
+<p># Check if under limit
+return len(user_payments) &lt; self.max_payments</p>
+</dd>
+<dt>def record_payment(self, user_id: int):</dt><dd><p>self.user_payments[user_id].append(time.time())</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p># Usage
+rate_limiter = PaymentRateLimiter()</p>
+<dl>
+<dt>async def safe_send_payment(user_id: int, stage_id: str):</dt><dd><dl>
+<dt>if not rate_limiter.can_make_payment(user_id):</dt><dd><dl class="simple">
+<dt>await bot.send_message(</dt><dd><p>user_id,
+“Too many payment attempts. Please try again later.”</p>
+</dd>
+</dl>
+<p>)
+return</p>
+</dd>
+</dl>
+<p>await neonpay.send_payment(user_id, stage_id)
+rate_limiter.record_payment(user_id)</p>
+</dd>
+</dl>
+<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
+<p>### Monitoring and Alerts</p>
+<p><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>python
+import asyncio
+from datetime import datetime, timedelta</p>
+<dl>
+<dt>class PaymentMonitor:</dt><dd><dl>
+<dt>def __init__(self):</dt><dd><p>self.payment_counts = defaultdict(int)
+self.error_counts = defaultdict(int)</p>
+</dd>
+<dt>async def monitor_payments(self):</dt><dd><p>“””Monitor payment patterns for anomalies”””
+while True:</p>
+<blockquote>
+<div><p>await asyncio.sleep(300)  # Check every 5 minutes</p>
+<p># Check for unusual payment patterns
+recent_payments = self.get_recent_payments()</p>
+<dl class="simple">
+<dt>if len(recent_payments) &gt; 100:  # Threshold</dt><dd><p>await send_alert(f”High payment volume: {len(recent_payments)} payments”)</p>
+</dd>
+</dl>
+<p># Check for errors
+recent_errors = self.get_recent_errors()
+if len(recent_errors) &gt; 10:  # Threshold</p>
+<blockquote>
+<div><p>await send_alert(f”High error rate: {len(recent_errors)} errors”)</p>
+</div></blockquote>
+</div></blockquote>
+</dd>
+<dt>async def send_alert(self, message: str):</dt><dd><p>“””Send security alert”””
+# Send to monitoring system
+logger.critical(f”SECURITY ALERT: {message}”)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+<p>## Common Security Mistakes</p>
+<p>### 1. Exposing Internal Errors</p>
+<p><strong>❌ Wrong:</strong>
+<a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>python
+except Exception as e:</p>
+<blockquote>
+<div><p>await bot.send_message(user_id, f”Error: {str(e)}”)</p>
+</div></blockquote>
+<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
+<p><strong>✅ Correct:</strong>
+<a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>python
+except Exception as e:</p>
+<blockquote>
+<div><p>logger.error(f”Payment error: {e}”)
+await bot.send_message(user_id, “Payment failed. Please try again.”)</p>
+</div></blockquote>
+<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
+<p>### 2. Storing Sensitive Data in Logs</p>
+<p><strong>❌ Wrong:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">logger.info(f&quot;User</span> <span class="pre">{user_id}</span> <span class="pre">paid</span> <span class="pre">with</span> <span class="pre">token</span> <span class="pre">{bot_token}&quot;)</span>
+<span class="pre">`</span></code></p>
+<p><strong>✅ Correct:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">logger.info(f&quot;User</span> <span class="pre">{hash_user_id(user_id)}</span> <span class="pre">completed</span> <span class="pre">payment&quot;)</span>
+<span class="pre">`</span></code></p>
+<p>### 3. No Input Validation</p>
+<p><strong>❌ Wrong:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">await</span> <span class="pre">neonpay.send_payment(user_id,</span> <span class="pre">stage_id)</span>&#160; <span class="pre">#</span> <span class="pre">No</span> <span class="pre">validation</span>
+<span class="pre">`</span></code></p>
+<p><strong>✅ Correct:</strong>
+<a href="#id105"><span class="problematic" id="id106">``</span></a><a href="#id107"><span class="problematic" id="id108">`</span></a>python
+if validate_user_input(user_id, stage_id):</p>
+<blockquote>
+<div><p>await neonpay.send_payment(user_id, stage_id)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>else:</dt><dd><p>await bot.send_message(user_id, “Invalid request.”)</p>
+</dd>
+</dl>
+<p><a href="#id109"><span class="problematic" id="id110">``</span></a><a href="#id111"><span class="problematic" id="id112">`</span></a></p>
+<p>## Incident Response</p>
+<p>### Security Incident Checklist</p>
+<ol class="arabic simple">
+<li><p><strong>Immediate Response</strong>
+- [ ] Disable affected bot if necessary
+- [ ] Review logs for suspicious activity
+- [ ] Change bot token if compromised
+- [ ] Notify users if data breach</p></li>
+<li><p><strong>Investigation</strong>
+- [ ] Analyze attack vector
+- [ ] Identify affected users
+- [ ] Document incident details
+- [ ] Preserve evidence</p></li>
+<li><p><strong>Recovery</strong>
+- [ ] Patch security vulnerabilities
+- [ ] Update security measures
+- [ ] Test system thoroughly
+- [ ] Monitor for continued attacks</p></li>
+<li><p><strong>Post-incident</strong>
+- [ ] Update security documentation
+- [ ] Conduct security review
+- [ ] Implement additional safeguards
+- [ ] Train team on lessons learned</p></li>
+</ol>
+<p>## Resources</p>
+<ul class="simple">
+<li><p>[Telegram Bot Security](<a class="reference external" href="https://core.telegram.org/bots/security">https://core.telegram.org/bots/security</a>)</p></li>
+<li><p>[OWASP Security Guidelines](<a class="reference external" href="https://owasp.org/">https://owasp.org/</a>)</p></li>
+<li><p>[Python Security Best Practices](<a class="reference external" href="https://python-security.readthedocs.io/">https://python-security.readthedocs.io/</a>)</p></li>
+</ul>
+<p>—</p>
+<p><strong>Remember: Security is an ongoing process, not a one-time setup. Regularly review and update your security measures.</strong></p>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="FAQ.html" class="btn btn-neutral float-left" title=")" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../ru/index.html" class="btn btn-neutral float-right" title="Документация NEONPAY (Русский)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NEONPAY Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; NEONPAY 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title=")" href="FAQ.html" />
+    <link rel="prev" title="Документация NEONPAY (Русский)" href="README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NEONPAY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Language Selection:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../en/index.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/index.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Документация NEONPAY (Русский)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#id4">Индексы и таблицы</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../az/index.html">NEONPAY Sənədləri (Azərbaycan)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../az/index.html#indekslr-v-cdvllr">İndekslər və Cədvəllər</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../en/README.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/FAQ.html">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/FAQ.html#id98">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Documentation Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NEONPAY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Документация NEONPAY (Русский)</a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ru/API.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p># NEONPAY API Справочник</p>
+<p>## Обзор</p>
+<p>NEONPAY предоставляет простой и мощный API для интеграции платежей через Telegram Stars в ваши боты. API поддерживает все популярные библиотеки для Telegram ботов.</p>
+<p>## Основные классы</p>
+<p>### NeonPayCore</p>
+<p>Основной класс для управления платежами.</p>
+<p>```python
+from neonpay import NeonPayCore</p>
+<p># Инициализация
+neonpay = NeonPayCore(bot_instance)
+```</p>
+<p>#### Методы</p>
+<p>##### <cite>create_payment_stage(name, price, description=None, logo_url=None)</cite></p>
+<p>Создает этап оплаты с указанными параметрами.</p>
+<p><strong>Параметры:</strong>
+- <cite>name</cite> (str): Название продукта/услуги
+- <cite>price</cite> (int): Цена в Telegram Stars
+- <cite>description</cite> (str, optional): Описание продукта
+- <cite>logo_url</cite> (str, optional): URL логотипа</p>
+<p><strong>Возвращает:</strong> <cite>PaymentStage</cite></p>
+<p><strong>Пример:</strong>
+```python
+stage = neonpay.create_payment_stage(</p>
+<blockquote>
+<div><p>name=”Премиум подписка”,
+price=100,
+description=”Доступ к премиум функциям на месяц”,
+logo_url=”<a class="reference external" href="https://example.com/logo.png">https://example.com/logo.png</a>”</p>
+</div></blockquote>
+<p>)
+```</p>
+<p>##### <cite>send_invoice(chat_id, payment_stage)</cite></p>
+<p>Отправляет инвойс пользователю.</p>
+<p><strong>Параметры:</strong>
+- <cite>chat_id</cite> (int): ID чата пользователя
+- <cite>payment_stage</cite> (PaymentStage): Этап оплаты</p>
+<p><strong>Возвращает:</strong> <cite>PaymentResult</cite></p>
+<p><strong>Пример:</strong>
+```python
+result = await neonpay.send_invoice(user_id, stage)
+if result.success:</p>
+<blockquote>
+<div><p>print(“Инвойс отправлен успешно”)</p>
+</div></blockquote>
+<p>```</p>
+<p>##### <cite>handle_successful_payment(payment_data)</cite></p>
+<p>Обрабатывает успешный платеж.</p>
+<p><strong>Параметры:</strong>
+- <cite>payment_data</cite>: Данные платежа от Telegram</p>
+<p><strong>Возвращает:</strong> <cite>PaymentResult</cite></p>
+<p>##### <cite>refund_payment(payment_id, reason=None)</cite></p>
+<p>Возвращает платеж (если поддерживается).</p>
+<p><strong>Параметры:</strong>
+- <cite>payment_id</cite> (str): ID платежа
+- <cite>reason</cite> (str, optional): Причина возврата</p>
+<p><strong>Возвращает:</strong> <cite>PaymentResult</cite></p>
+<p>### PaymentStage</p>
+<p>Класс для представления этапа оплаты.</p>
+<p><strong>Атрибуты:</strong>
+- <cite>name</cite> (str): Название продукта
+- <cite>price</cite> (int): Цена в Stars
+- <cite>description</cite> (str): Описание
+- <cite>logo_url</cite> (str): URL логотипа
+- <cite>created_at</cite> (datetime): Время создания</p>
+<p>### PaymentResult</p>
+<p>Класс для результата операции платежа.</p>
+<p><strong>Атрибуты:</strong>
+- <cite>success</cite> (bool): Успешность операции
+- <cite>payment_id</cite> (str): ID платежа
+- <cite>message</cite> (str): Сообщение о результате
+- <cite>data</cite> (dict): Дополнительные данные</p>
+<p>## Фабрика адаптеров</p>
+<p>### AdapterFactory</p>
+<p>Автоматически создает подходящий адаптер для вашего бота.</p>
+<p>```python
+from neonpay import AdapterFactory</p>
+<p># Автоматическое определение типа бота
+neonpay = AdapterFactory.create_neonpay(bot_instance)
+```</p>
+<p>#### Поддерживаемые библиотеки</p>
+<ul class="simple">
+<li><p><strong>Aiogram v3</strong>: Автоматически определяется по типу <cite>Bot</cite></p></li>
+<li><p><strong>Pyrogram v2+</strong>: Автоматически определяется по типу <cite>Client</cite></p></li>
+<li><p><strong>python-telegram-bot</strong>: Автоматически определяется по типу <cite>Application</cite></p></li>
+<li><p><strong>pyTelegramBotAPI</strong>: Автоматически определяется по типу <cite>TeleBot</cite></p></li>
+<li><p><strong>Raw API</strong>: Используйте <cite>RawApiAdapter</cite> напрямую</p></li>
+</ul>
+<p>## Обработка ошибок</p>
+<p>### Исключения</p>
+<p>```python
+from neonpay.errors import (</p>
+<blockquote>
+<div><p>NeonPayError,
+PaymentError,
+InvalidPaymentStageError,
+UnsupportedBotTypeError</p>
+</div></blockquote>
+<p>)</p>
+<dl class="simple">
+<dt>try:</dt><dd><p>result = await neonpay.send_invoice(user_id, stage)</p>
+</dd>
+<dt>except PaymentError as e:</dt><dd><p>print(f”Ошибка платежа: {e}”)</p>
+</dd>
+<dt>except NeonPayError as e:</dt><dd><p>print(f”Общая ошибка NEONPAY: {e}”)</p>
+</dd>
+</dl>
+<p>```</p>
+<p>## Утилиты</p>
+<p>### PaymentValidator</p>
+<p>Валидация данных платежей.</p>
+<p>```python
+from neonpay.utils import PaymentValidator</p>
+<p># Валидация цены
+if PaymentValidator.validate_price(100):</p>
+<blockquote>
+<div><p>print(“Цена корректна”)</p>
+</div></blockquote>
+<p># Валидация этапа оплаты
+if PaymentValidator.validate_payment_stage(stage):</p>
+<blockquote>
+<div><p>print(“Этап оплаты корректен”)</p>
+</div></blockquote>
+<p>```</p>
+<p>### NeonPayLogger</p>
+<p>Система логирования.</p>
+<p>```python
+from neonpay.utils import NeonPayLogger</p>
+<p>logger = NeonPayLogger(“MyBot”)
+logger.log_payment_attempt(user_id, stage.name, stage.price)
+logger.log_payment_success(payment_id, user_id)
+```</p>
+<p>### PaymentHelper</p>
+<p>Вспомогательные функции.</p>
+<p>```python
+from neonpay.utils import PaymentHelper</p>
+<p># Форматирование цены
+formatted = PaymentHelper.format_price(100)  # “100 ⭐”</p>
+<p># Генерация ID платежа
+payment_id = PaymentHelper.generate_payment_id()</p>
+<p># Валидация URL
+if PaymentHelper.is_valid_url(”<a class="reference external" href="https://example.com/logo.png">https://example.com/logo.png</a>”):</p>
+<blockquote>
+<div><p>print(“URL корректен”)</p>
+</div></blockquote>
+<p>```</p>
+<p>## Middleware система</p>
+<p>### PaymentMiddleware</p>
+<p>Базовый класс для middleware.</p>
+<p>```python
+from neonpay.middleware import PaymentMiddleware</p>
+<dl class="simple">
+<dt>class LoggingMiddleware(PaymentMiddleware):</dt><dd><dl class="simple">
+<dt>async def before_payment(self, payment_stage, context):</dt><dd><p>print(f”Начинается платеж: {payment_stage.name}”)
+return payment_stage, context</p>
+</dd>
+<dt>async def after_payment(self, result, context):</dt><dd><p>print(f”Платеж завершен: {result.success}”)
+return result</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p># Использование
+neonpay.add_middleware(LoggingMiddleware())
+```</p>
+<p>### Встроенные middleware</p>
+<p>```python
+from neonpay.middleware import (</p>
+<blockquote>
+<div><p>LoggingMiddleware,
+ValidationMiddleware,
+WebhookMiddleware</p>
+</div></blockquote>
+<p>)</p>
+<p># Добавление middleware
+neonpay.add_middleware(LoggingMiddleware())
+neonpay.add_middleware(ValidationMiddleware())
+neonpay.add_middleware(WebhookMiddleware(”<a class="reference external" href="https://mysite.com/webhook">https://mysite.com/webhook</a>”))
+```</p>
+<p>## Webhook интеграция</p>
+<p>### WebhookHandler</p>
+<p>Обработка webhook уведомлений.</p>
+<p>```python
+from neonpay.webhooks import WebhookHandler</p>
+<p>handler = WebhookHandler(secret_key=”your_secret_key”)</p>
+<p># Обработка webhook
+&#64;app.post(“/webhook”)
+async def handle_webhook(request):</p>
+<blockquote>
+<div><dl>
+<dt>if handler.verify_signature(request.headers, request.body):</dt><dd><p>event = handler.parse_event(request.body)
+if event.type == “payment.successful”:</p>
+<blockquote>
+<div><p># Обработка успешного платежа
+print(f”Платеж {event.payment_id} успешен”)</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>return {“status”: “ok”}</p>
+</div></blockquote>
+<p>```</p>
+<p>## Примеры использования</p>
+<p>### Простой пример с Aiogram</p>
+<p>```python
+from aiogram import Bot, Dispatcher, types
+from neonpay import AdapterFactory</p>
+<p>bot = Bot(token=”YOUR_BOT_TOKEN”)
+dp = Dispatcher()
+neonpay = AdapterFactory.create_neonpay(bot)</p>
+<p>&#64;dp.message(commands=[“buy”])
+async def buy_handler(message: types.Message):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>stage = neonpay.create_payment_stage(</dt><dd><p>name=”Премиум доступ”,
+price=50,
+description=”Доступ к премиум функциям”</p>
+</dd>
+</dl>
+<p>)</p>
+<p>result = await neonpay.send_invoice(message.chat.id, stage)
+if not result.success:</p>
+<blockquote>
+<div><p>await message.answer(“Ошибка при создании платежа”)</p>
+</div></blockquote>
+</div></blockquote>
+<p>&#64;dp.pre_checkout_query()
+async def pre_checkout_handler(query: types.PreCheckoutQuery):</p>
+<blockquote>
+<div><p>await query.answer(ok=True)</p>
+</div></blockquote>
+<p>&#64;dp.message(content_types=types.ContentType.SUCCESSFUL_PAYMENT)
+async def successful_payment_handler(message: types.Message):</p>
+<blockquote>
+<div><p>result = await neonpay.handle_successful_payment(message.successful_payment)
+await message.answer(“Спасибо за покупку! 🎉”)</p>
+</div></blockquote>
+<p>```</p>
+<p>### Пример с Pyrogram</p>
+<p>```python
+from pyrogram import Client, filters
+from neonpay import AdapterFactory</p>
+<p>app = Client(“my_bot”, bot_token=”YOUR_BOT_TOKEN”)
+neonpay = AdapterFactory.create_neonpay(app)</p>
+<p>&#64;app.on_message(filters.command(“buy”))
+async def buy_handler(client, message):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>stage = neonpay.create_payment_stage(</dt><dd><p>name=”VIP статус”,
+price=100,
+description=”VIP статус на месяц”</p>
+</dd>
+</dl>
+<p>)</p>
+<p>result = await neonpay.send_invoice(message.chat.id, stage)
+if result.success:</p>
+<blockquote>
+<div><p>await message.reply(“Инвойс отправлен!”)</p>
+</div></blockquote>
+</div></blockquote>
+<p>&#64;app.on_message(filters.successful_payment)
+async def payment_handler(client, message):</p>
+<blockquote>
+<div><p>result = await neonpay.handle_successful_payment(message.successful_payment)
+await message.reply(“Платеж получен! ✅”)</p>
+</div></blockquote>
+<p>```</p>
+<p>## Лучшие практики</p>
+<p>### Безопасность</p>
+<ol class="arabic simple">
+<li><p><strong>Валидация данных</strong>: Всегда валидируйте входные данные</p></li>
+<li><p><strong>Обработка ошибок</strong>: Используйте try-catch блоки</p></li>
+<li><p><strong>Логирование</strong>: Ведите логи всех операций</p></li>
+<li><p><strong>Webhook безопасность</strong>: Проверяйте подписи webhook</p></li>
+</ol>
+<p>### Производительность</p>
+<ol class="arabic simple">
+<li><p><strong>Асинхронность</strong>: Используйте async/await</p></li>
+<li><p><strong>Кэширование</strong>: Кэшируйте этапы оплаты</p></li>
+<li><p><strong>Middleware</strong>: Используйте middleware для общей логики</p></li>
+<li><p><strong>Мониторинг</strong>: Отслеживайте производительность</p></li>
+</ol>
+<p>### Пользовательский опыт</p>
+<ol class="arabic simple">
+<li><p><strong>Понятные описания</strong>: Используйте четкие описания продуктов</p></li>
+<li><p><strong>Логотипы</strong>: Добавляйте логотипы для узнаваемости</p></li>
+<li><p><strong>Обратная связь</strong>: Информируйте пользователей о статусе</p></li>
+<li><p><strong>Обработка ошибок</strong>: Показывайте понятные сообщения об ошибках</p></li>
+</ol>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="README.html" class="btn btn-neutral float-left" title="Документация NEONPAY (Русский)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="FAQ.html" class="btn btn-neutral float-right" title=")" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NEONPAY Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

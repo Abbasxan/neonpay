@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; NEONPAY 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Documentation Changelog" href="../CHANGELOG.html" />
+    <link rel="prev" title=")" href="FAQ.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NEONPAY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Language Selection:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../en/index.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/index.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ru/index.html">Документация NEONPAY (Русский)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ru/index.html#id4">Индексы и таблицы</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">NEONPAY Sənədləri (Azərbaycan)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#indekslr-v-cdvllr">İndekslər və Cədvəllər</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../en/README.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/FAQ.html">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/FAQ.html#id98">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Documentation Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NEONPAY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">NEONPAY Sənədləri (Azərbaycan)</a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/az/SECURITY.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p># Təhlükəsizlik Təlimatı - NEONPAY</p>
+<p>Bu sənəd NEONPAY-ın istehsal mühitlərində istifadəsi üçün təhlükəsizlik ən yaxşı təcrübələrini təsvir edir.</p>
+<p>## Mündəricat</p>
+<ol class="arabic simple">
+<li><p>[Token Təhlükəsizliyi](#token-təhlükəsizliyi)</p></li>
+<li><p>[Ödəniş Doğrulaması](#ödəniş-doğrulaması)</p></li>
+<li><p>[Məlumat Qorunması](#məlumat-qorunması)</p></li>
+<li><p>[Xəta İdarəetməsi](#xəta-idarəetməsi)</p></li>
+<li><p>[Log Təhlükəsizliyi](#log-təhlükəsizliyi)</p></li>
+<li><p>[İstehsal Çeklisti](#istehsal-çeklisti)</p></li>
+</ol>
+<p>## Token Təhlükəsizliyi</p>
+<p>### Bot Token Qorunması</p>
+<p><strong>❌ Heç vaxt belə etməyin:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">#</span> <span class="pre">ETMƏYİN:</span> <span class="pre">Tokenları</span> <span class="pre">mənbə</span> <span class="pre">kodunda</span> <span class="pre">hardcode</span> <span class="pre">edin</span>
+<span class="pre">BOT_TOKEN</span> <span class="pre">=</span> <span class="pre">&quot;1234567890:ABCdefGHIjklMNOpqrsTUVwxyz&quot;</span>
+<span class="pre">`</span></code></p>
+<p><strong>✅ Bunun əvəzinə belə edin:</strong>
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+import os</p>
+<p># EDİN: Mühit dəyişənlərini istifadə edin
+BOT_TOKEN = os.getenv(“BOT_TOKEN”)
+if not BOT_TOKEN:</p>
+<blockquote>
+<div><p>raise ValueError(“BOT_TOKEN mühit dəyişəni tələb olunur”)</p>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>### Mühit Dəyişənləri</p>
+<p><cite>.env</cite> faylı yaradın (heç vaxt versiya nəzarətinə commit etməyin):
+<code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">#</span> <span class="pre">.env</span>
+<span class="pre">BOT_TOKEN=bot_tokenunuz_burada</span>
+<span class="pre">API_ID=api_id_niz_burada</span>
+<span class="pre">API_HASH=api_hash_niz_burada</span>
+<span class="pre">DATABASE_URL=postgresql://user:pass&#64;localhost/db</span>
+<span class="pre">`</span></code></p>
+<p>python-dotenv ilə yükləyin:
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">from</span> <span class="pre">dotenv</span> <span class="pre">import</span> <span class="pre">load_dotenv</span>
+<span class="pre">load_dotenv()</span>
+<span class="pre">`</span></code></p>
+<p>## Ödəniş Doğrulaması</p>
+<p>### Ödəniş Məbləğlərini Yoxlama</p>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+&#64;neonpay.on_payment
+async def handle_payment(result):</p>
+<blockquote>
+<div><p># Həmişə ödəniş məbləğini yoxlayın
+expected_amount = get_expected_amount(result.stage_id)</p>
+<dl>
+<dt>if result.amount != expected_amount:</dt><dd><dl class="simple">
+<dt>logger.warning(</dt><dd><p>f”Ödəniş məbləği uyğunsuzluğu: gözlənilən {expected_amount}, ”
+f”alınan {result.amount} istifadəçidən {result.user_id}”</p>
+</dd>
+</dl>
+<p>)
+return</p>
+</dd>
+</dl>
+<p># Yoxlama sonrası ödənişi emal edin
+await process_payment(result)</p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<p>### Stage ID Doğrulaması</p>
+<p><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>python
+async def safe_send_payment(user_id: int, stage_id: str):</p>
+<blockquote>
+<div><p># Stage-in mövcud olduğunu yoxlayın
+stage = neonpay.get_payment_stage(stage_id)
+if not stage:</p>
+<blockquote>
+<div><p>logger.error(f”Yanlış stage_id: {stage_id}”)
+await bot.send_message(user_id, “Ödəniş seçimi mövcud deyil.”)
+return</p>
+</div></blockquote>
+<p># İstifadəçi icazələrini yoxlayın
+if not await user_can_purchase(user_id, stage_id):</p>
+<blockquote>
+<div><p>await bot.send_message(user_id, “Bu məhsulu almaq üçün icazəniz yoxdur.”)
+return</p>
+</div></blockquote>
+<p># Ödənişi göndərin
+await neonpay.send_payment(user_id, stage_id)</p>
+</div></blockquote>
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>## Məlumat Qorunması</p>
+<p>### İstifadəçi Məlumatlarının İdarəsi</p>
+<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>python
+import hashlib</p>
+<dl class="simple">
+<dt>def hash_user_id(user_id: int) -&gt; str:</dt><dd><p>“””Log üçün istifadəçi ID-ni hash etmək (bir istiqamətli)”””
+return hashlib.sha256(str(user_id).encode()).hexdigest()[:8]</p>
+</dd>
+</dl>
+<p>&#64;neonpay.on_payment
+async def handle_payment(result):</p>
+<blockquote>
+<div><p># Hash edilmiş istifadəçi ID ilə log
+hashed_id = hash_user_id(result.user_id)
+logger.info(f”İstifadəçidən ödəniş alındı {hashed_id}: {result.amount} ulduz”)</p>
+<p># Verilənlər bazasında düzgün şifrələmə ilə saxlayın
+await store_payment_securely(result)</p>
+</div></blockquote>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+<p>### Verilənlər Bazası Təhlükəsizliyi</p>
+<p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a>python
+import asyncpg
+from cryptography.fernet import Fernet</p>
+<dl>
+<dt>class SecurePaymentStorage:</dt><dd><dl>
+<dt>def __init__(self, db_url: str, encryption_key: str):</dt><dd><p>self.db_url = db_url
+self.cipher = Fernet(encryption_key.encode())</p>
+</dd>
+<dt>async def store_payment(self, payment_data: dict):</dt><dd><p># Həssas məlumatları şifrələyin
+encrypted_data = self.cipher.encrypt(</p>
+<blockquote>
+<div><p>json.dumps(payment_data).encode()</p>
+</div></blockquote>
+<p>)</p>
+<p>conn = await asyncpg.connect(self.db_url)
+await conn.execute(</p>
+<blockquote>
+<div><p>“INSERT INTO payments (encrypted_data, created_at) VALUES ($1, NOW())”,
+encrypted_data</p>
+</div></blockquote>
+<p>)
+await conn.close()</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a></p>
+<p>## Xəta İdarəetməsi</p>
+<p>### Təhlükəsiz Xəta Mesajları</p>
+<p><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a>python
+async def handle_payment_error(user_id: int, error: Exception):</p>
+<blockquote>
+<div><p># Tam xəta təfərrüatlarını log edin
+logger.error(f”İstifadəçi üçün ödəniş xətası {user_id}: {error}”, exc_info=True)</p>
+<p># İstifadəçiyə ümumi mesaj göndərin
+await bot.send_message(</p>
+<blockquote>
+<div><p>user_id,
+“Ödənişinizlə bağlı bir problem yarandı. Zəhmət olmasa sonra cəhd edin.”</p>
+</div></blockquote>
+<p>)</p>
+<p># Daxili təfərrüatları açıqlamayın
+# ❌ ETMƏYİN: await bot.send_message(user_id, f”Xəta: {str(error)}”)</p>
+</div></blockquote>
+<p><a href="#id45"><span class="problematic" id="id46">``</span></a><a href="#id47"><span class="problematic" id="id48">`</span></a></p>
+<p>### Giriş Doğrulaması</p>
+<p><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>python
+def validate_user_input(user_id: int, stage_id: str) -&gt; bool:</p>
+<blockquote>
+<div><p>“””Emal etməzdən əvvəl istifadəçi girişini doğrulayın”””</p>
+<p># user_id-nin etibarlı olduğunu yoxlayın
+if not isinstance(user_id, int) or user_id &lt;= 0:</p>
+<blockquote>
+<div><p>return False</p>
+</div></blockquote>
+<p># stage_id formatını yoxlayın
+if not isinstance(stage_id, str) or len(stage_id) &gt; 100:</p>
+<blockquote>
+<div><p>return False</p>
+</div></blockquote>
+<p># Şübhəli nümunələri yoxlayın
+if any(char in stage_id for char in [‘&lt;’, ‘&gt;’, ‘&amp;’, ‘”’, “’”]):</p>
+<blockquote>
+<div><p>return False</p>
+</div></blockquote>
+<p>return True</p>
+</div></blockquote>
+<p><a href="#id53"><span class="problematic" id="id54">``</span></a><a href="#id55"><span class="problematic" id="id56">`</span></a></p>
+<p>## Log Təhlükəsizliyi</p>
+<p>### Təhlükəsiz Log Konfiqurasiyası</p>
+<p><a href="#id57"><span class="problematic" id="id58">``</span></a><a href="#id59"><span class="problematic" id="id60">`</span></a>python
+import logging
+import logging.handlers
+from datetime import datetime</p>
+<dl>
+<dt>def setup_secure_logging():</dt><dd><p>“””Təhlükəsiz log konfiqurasiyasını quraşdırın”””</p>
+<p># Həssas məlumatları istisna edən formatör yaradın
+formatter = logging.Formatter(</p>
+<blockquote>
+<div><p>‘%(asctime)s - %(name)s - %(levelname)s - %(message)s’</p>
+</div></blockquote>
+<p>)</p>
+<p># Fırlanma ilə fayl işləyicisi
+file_handler = logging.handlers.RotatingFileHandler(</p>
+<blockquote>
+<div><p>‘bot.log’,
+maxBytes=10*1024*1024,  # 10MB
+backupCount=5</p>
+</div></blockquote>
+<p>)
+file_handler.setFormatter(formatter)</p>
+<p># Konsol işləyicisi
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)</p>
+<p># Logger quraşdırın
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)</p>
+<p># İstehsalda debug-u söndürün
+if os.getenv(“ENVIRONMENT”) == “production”:</p>
+<blockquote>
+<div><p>logger.setLevel(logging.WARNING)</p>
+</div></blockquote>
+</dd>
+</dl>
+<p><a href="#id61"><span class="problematic" id="id62">``</span></a><a href="#id63"><span class="problematic" id="id64">`</span></a></p>
+<p>### Həssas Məlumat Filtrasiyası</p>
+<p><a href="#id65"><span class="problematic" id="id66">``</span></a><a href="#id67"><span class="problematic" id="id68">`</span></a>python
+class SensitiveDataFilter(logging.Filter):</p>
+<blockquote>
+<div><p>“””Loglardan həssas məlumatları filtrləyin”””</p>
+<dl>
+<dt>def filter(self, record):</dt><dd><p># Log mesajlarından tokenları silin
+if hasattr(record, ‘msg’):</p>
+<blockquote>
+<div><p>msg = str(record.msg)
+# Token nümunələrini əvəz edin
+import re
+record.msg = re.sub(</p>
+<blockquote>
+<div><p>r’bd{10}:[<a href="#id113"><span class="problematic" id="id114">A-Za-z0-9_</span></a>-]{35}b’,
+‘[TOKEN_REDACTED]’,
+msg</p>
+</div></blockquote>
+<p>)</p>
+</div></blockquote>
+<p>return True</p>
+</dd>
+</dl>
+</div></blockquote>
+<p># Filtr tətbiq edin
+logger.addFilter(SensitiveDataFilter())
+<a href="#id69"><span class="problematic" id="id70">``</span></a><a href="#id71"><span class="problematic" id="id72">`</span></a></p>
+<p>## İstehsal Çeklisti</p>
+<p>### Yerləşdirmədən əvvəl Təhlükəsizlik Yoxlaması</p>
+<ul class="simple">
+<li><p>[ ] <strong>Mühit Dəyişənləri</strong>: Bütün həssas məlumatlar mühit dəyişənlərində</p></li>
+<li><p>[ ] <strong>Token Qorunması</strong>: Bot tokenları mənbə kodunda deyil</p></li>
+<li><p>[ ] <strong>Verilənlər Bazası Təhlükəsizliyi</strong>: Şifrələnmiş əlaqələr və məlumatlar</p></li>
+<li><p>[ ] <strong>Giriş Doğrulaması</strong>: Bütün istifadəçi girişləri doğrulanıb</p></li>
+<li><p>[ ] <strong>Xəta İdarəetməsi</strong>: İstifadəçilər üçün ümumi xəta mesajları</p></li>
+<li><p>[ ] <strong>Log</strong>: Həssas məlumatlar loglardan filtrelənib</p></li>
+<li><p>[ ] <strong>HTTPS</strong>: Bütün webhooklar HTTPS istifadə edir</p></li>
+<li><p>[ ] <strong>Sürət Məhdudiyyəti</strong>: Ödənişlər üçün sürət məhdudiyyəti tətbiq edilib</p></li>
+<li><p>[ ] <strong>Monitorinq</strong>: Ödəniş monitorinqi və xəbərdarlıqlar quraşdırılıb</p></li>
+<li><p>[ ] <strong>Yedəkləmə</strong>: Müntəzəm verilənlər bazası yedəkləmələri</p></li>
+</ul>
+<p>### Sürət Məhdudiyyəti</p>
+<p><a href="#id73"><span class="problematic" id="id74">``</span></a><a href="#id75"><span class="problematic" id="id76">`</span></a>python
+from collections import defaultdict
+import time</p>
+<dl>
+<dt>class PaymentRateLimiter:</dt><dd><dl>
+<dt>def __init__(self, max_payments: int = 5, window: int = 3600):</dt><dd><p>self.max_payments = max_payments
+self.window = window
+self.user_payments = defaultdict(list)</p>
+</dd>
+<dt>def can_make_payment(self, user_id: int) -&gt; bool:</dt><dd><p>now = time.time()
+user_payments = self.user_payments[user_id]</p>
+<p># Pəncərədən kənar köhnə ödənişləri silin
+user_payments[:] = [t for t in user_payments if now - t &lt; self.window]</p>
+<p># Limit altında olduğunu yoxlayın
+return len(user_payments) &lt; self.max_payments</p>
+</dd>
+<dt>def record_payment(self, user_id: int):</dt><dd><p>self.user_payments[user_id].append(time.time())</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p># İstifadə
+rate_limiter = PaymentRateLimiter()</p>
+<dl>
+<dt>async def safe_send_payment(user_id: int, stage_id: str):</dt><dd><dl>
+<dt>if not rate_limiter.can_make_payment(user_id):</dt><dd><dl class="simple">
+<dt>await bot.send_message(</dt><dd><p>user_id,
+“Çox çox ödəniş cəhdi. Zəhmət olmasa sonra cəhd edin.”</p>
+</dd>
+</dl>
+<p>)
+return</p>
+</dd>
+</dl>
+<p>await neonpay.send_payment(user_id, stage_id)
+rate_limiter.record_payment(user_id)</p>
+</dd>
+</dl>
+<p><a href="#id77"><span class="problematic" id="id78">``</span></a><a href="#id79"><span class="problematic" id="id80">`</span></a></p>
+<p>### Monitorinq və Xəbərdarlıqlar</p>
+<p><a href="#id81"><span class="problematic" id="id82">``</span></a><a href="#id83"><span class="problematic" id="id84">`</span></a>python
+import asyncio
+from datetime import datetime, timedelta</p>
+<dl>
+<dt>class PaymentMonitor:</dt><dd><dl>
+<dt>def __init__(self):</dt><dd><p>self.payment_counts = defaultdict(int)
+self.error_counts = defaultdict(int)</p>
+</dd>
+<dt>async def monitor_payments(self):</dt><dd><p>“””Anomaliyalar üçün ödəniş nümunələrini monitor edin”””
+while True:</p>
+<blockquote>
+<div><p>await asyncio.sleep(300)  # Hər 5 dəqiqədə yoxlayın</p>
+<p># Qeyri-adi ödəniş nümunələrini yoxlayın
+recent_payments = self.get_recent_payments()</p>
+<dl class="simple">
+<dt>if len(recent_payments) &gt; 100:  # Hədd</dt><dd><p>await send_alert(f”Yüksək ödəniş həcmi: {len(recent_payments)} ödəniş”)</p>
+</dd>
+</dl>
+<p># Xətaları yoxlayın
+recent_errors = self.get_recent_errors()
+if len(recent_errors) &gt; 10:  # Hədd</p>
+<blockquote>
+<div><p>await send_alert(f”Yüksək xəta dərəcəsi: {len(recent_errors)} xəta”)</p>
+</div></blockquote>
+</div></blockquote>
+</dd>
+<dt>async def send_alert(self, message: str):</dt><dd><p>“””Təhlükəsizlik xəbərdarlığı göndərin”””
+# Monitorinq sisteminə göndərin
+logger.critical(f”TƏHLÜKƏSİZLİK XƏBƏRDARLIĞI: {message}”)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p><a href="#id85"><span class="problematic" id="id86">``</span></a><a href="#id87"><span class="problematic" id="id88">`</span></a></p>
+<p>## Ümumi Təhlükəsizlik Səhvləri</p>
+<p>### 1. Daxili Xətaları Açıqlama</p>
+<p><strong>❌ Yanlış:</strong>
+<a href="#id89"><span class="problematic" id="id90">``</span></a><a href="#id91"><span class="problematic" id="id92">`</span></a>python
+except Exception as e:</p>
+<blockquote>
+<div><p>await bot.send_message(user_id, f”Xəta: {str(e)}”)</p>
+</div></blockquote>
+<p><a href="#id93"><span class="problematic" id="id94">``</span></a><a href="#id95"><span class="problematic" id="id96">`</span></a></p>
+<p><strong>✅ Düzgün:</strong>
+<a href="#id97"><span class="problematic" id="id98">``</span></a><a href="#id99"><span class="problematic" id="id100">`</span></a>python
+except Exception as e:</p>
+<blockquote>
+<div><p>logger.error(f”Ödəniş xətası: {e}”)
+await bot.send_message(user_id, “Ödəniş uğursuz oldu. Zəhmət olmasa yenidən cəhd edin.”)</p>
+</div></blockquote>
+<p><a href="#id101"><span class="problematic" id="id102">``</span></a><a href="#id103"><span class="problematic" id="id104">`</span></a></p>
+<p>### 2. Loglarda Həssas Məlumat Saxlama</p>
+<p><strong>❌ Yanlış:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">logger.info(f&quot;İstifadəçi</span> <span class="pre">{user_id}</span> <span class="pre">token</span> <span class="pre">{bot_token}</span> <span class="pre">ilə</span> <span class="pre">ödədi&quot;)</span>
+<span class="pre">`</span></code></p>
+<p><strong>✅ Düzgün:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">logger.info(f&quot;İstifadəçi</span> <span class="pre">{hash_user_id(user_id)}</span> <span class="pre">ödənişi</span> <span class="pre">tamamladı&quot;)</span>
+<span class="pre">`</span></code></p>
+<p>### 3. Giriş Doğrulaması Olmadan</p>
+<p><strong>❌ Yanlış:</strong>
+<code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">await</span> <span class="pre">neonpay.send_payment(user_id,</span> <span class="pre">stage_id)</span>&#160; <span class="pre">#</span> <span class="pre">Doğrulama</span> <span class="pre">yoxdur</span>
+<span class="pre">`</span></code></p>
+<p><strong>✅ Düzgün:</strong>
+<a href="#id105"><span class="problematic" id="id106">``</span></a><a href="#id107"><span class="problematic" id="id108">`</span></a>python
+if validate_user_input(user_id, stage_id):</p>
+<blockquote>
+<div><p>await neonpay.send_payment(user_id, stage_id)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>else:</dt><dd><p>await bot.send_message(user_id, “Yanlış sorğu.”)</p>
+</dd>
+</dl>
+<p><a href="#id109"><span class="problematic" id="id110">``</span></a><a href="#id111"><span class="problematic" id="id112">`</span></a></p>
+<p>## Hadisə Cavabı</p>
+<p>### Təhlükəsizlik Hadisəsi Çeklisti</p>
+<ol class="arabic simple">
+<li><p><strong>Dərhal Cavab</strong>
+- [ ] Lazım olduqda təsirlənən botu söndürün
+- [ ] Şübhəli fəaliyyət üçün logları nəzərdən keçirin
+- [ ] Kompromisə düşdüyü halda bot tokenını dəyişdirin
+- [ ] Məlumat sızması halında istifadəçiləri bildirin</p></li>
+<li><p><strong>Araşdırma</strong>
+- [ ] Hücum vektorunu təhlil edin
+- [ ] Təsirlənən istifadəçiləri müəyyən edin
+- [ ] Hadisə təfərrüatlarını sənədləşdirin
+- [ ] Sübutları qoruyun</p></li>
+<li><p><strong>Bərpa</strong>
+- [ ] Təhlükəsizlik zəifliklərini yamalayın
+- [ ] Təhlükəsizlik tədbirlərini yeniləyin
+- [ ] Sistemi hərtərəfli test edin
+- [ ] Davam edən hücumlar üçün monitor edin</p></li>
+<li><p><strong>Hadisə sonrası</strong>
+- [ ] Təhlükəsizlik sənədlərini yeniləyin
+- [ ] Təhlükəsizlik nəzərdən keçirməsi keçirin
+- [ ] Əlavə qoruyucu tədbirlər tətbiq edin
+- [ ] Komandaya öyrənilən dərslər üzrə təlim verin</p></li>
+</ol>
+<p>## Resurslar</p>
+<ul class="simple">
+<li><p>[Telegram Bot Təhlükəsizliyi](<a class="reference external" href="https://core.telegram.org/bots/security">https://core.telegram.org/bots/security</a>)</p></li>
+<li><p>[OWASP Təhlükəsizlik Təlimatları](<a class="reference external" href="https://owasp.org/">https://owasp.org/</a>)</p></li>
+<li><p>[Python Təhlükəsizlik Ən Yaxşı Təcrübələri](<a class="reference external" href="https://python-security.readthedocs.io/">https://python-security.readthedocs.io/</a>)</p></li>
+</ul>
+<p>—</p>
+<p><strong>Xatırlayın: Təhlükəsizlik davamlı prosesdir, bir dəfəlik quraşdırma deyil. Təhlükəsizlik tədbirlərinizi müntəzəm nəzərdən keçirin və yeniləyin.</strong></p>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="FAQ.html" class="btn btn-neutral float-left" title=")" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../CHANGELOG.html" class="btn btn-neutral float-right" title="Documentation Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NEONPAY Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

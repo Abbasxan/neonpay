@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>) &mdash; NEONPAY 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title=")" href="FAQ.html" />
+    <link rel="prev" title="NEONPAY Sənədləri (Azərbaycan)" href="README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            NEONPAY
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Language Selection:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../en/index.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/index.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ru/index.html">Документация NEONPAY (Русский)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ru/index.html#id4">Индексы и таблицы</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">NEONPAY Sənədləri (Azərbaycan)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="README.html">NEONPAY Sənədləri (Azərbaycan)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html#id98">)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#xususiyytlr">Xüsusiyyətlər</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#surtli-baslangic">Sürətli Başlanğıc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#dstklnn-dillr">Dəstəklənən Dillər</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#indekslr-v-cdvllr">İndekslər və Cədvəllər</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../en/README.html">NEONPAY Documentation (English)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/FAQ.html">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../en/FAQ.html#id98">)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Documentation Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NEONPAY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">NEONPAY Sənədləri (Azərbaycan)</a></li>
+      <li class="breadcrumb-item active">)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/az/API.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p># NEONPAY API Arayışı</p>
+<p>## Ümumi Baxış</p>
+<p>NEONPAY Telegram Stars vasitəsilə ödənişləri botlarınıza inteqrasiya etmək üçün sadə və güclü API təqdim edir. API bütün məşhur Telegram bot kitabxanalarını dəstəkləyir.</p>
+<p>## Əsas Siniflər</p>
+<p>### NeonPayCore</p>
+<p>Ödənişləri idarə etmək üçün əsas sinif.</p>
+<p>python
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">from</span> <span class="pre">neonpay</span> <span class="pre">import</span> <span class="pre">NeonPayCore</span>
+<span class="pre">`</span></code>
+# İnisializasiya
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">neonpay</span> <span class="pre">=</span> <span class="pre">NeonPayCore(bot_instance)</span>
+<span class="pre">`</span></code></p>
+<p>#### Metodlar
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">create_payment_stage(name,</span> <span class="pre">price,</span> <span class="pre">description=None,</span> <span class="pre">logo_url=None)</span>
+<span class="pre">`</span></code>
+Göstərilən parametrlərlə ödəniş mərhələsi yaradır.</p>
+<p><strong>Parametrlər:</strong>
+- <cite>name</cite> (str): Məhsul/xidmətin adı
+- <cite>price</cite> (int): Telegram Stars-da qiymət
+- <cite>description</cite> (str, optional): Məhsulun təsviri
+- <cite>logo_url</cite> (str, optional): Loqo URL-i</p>
+<p><strong>Qaytarır:</strong> <cite>PaymentStage</cite></p>
+<p><strong>Nümunə:</strong>
+python
+<a href="#id1"><span class="problematic" id="id2">``</span></a>`
+stage = neonpay.create_payment_stage(</p>
+<blockquote>
+<div><p>name=”Premium abunəlik”,
+price=100,
+description=”Bir ay premium funksiyalara giriş”,
+logo_url=”<a class="reference external" href="https://example.com/logo.png">https://example.com/logo.png</a>”</p>
+</div></blockquote>
+<section id="id3">
+<h1>)<a class="headerlink" href="#id3" title="Link to this heading"></a></h1>
+<p>send_invoice(chat_id, payment_stage)
+<a href="#id4"><span class="problematic" id="id5">``</span></a><a href="#id6"><span class="problematic" id="id7">`</span></a></p>
+<p>İstifadəçiyə faktura göndərir.</p>
+<p><strong>Parametrlər:</strong>
+- <cite>chat_id</cite> (int): İstifadəçi çat ID-si
+- <cite>payment_stage</cite> (PaymentStage): Ödəniş mərhələsi</p>
+<p><strong>Qaytarır:</strong> <cite>PaymentResult</cite></p>
+<p><strong>Nümunə:</strong>
+python
+<a href="#id8"><span class="problematic" id="id9">``</span></a>`
+result = await neonpay.send_invoice(user_id, stage)
+if result.success:</p>
+<blockquote>
+<div><p>print(“Faktura uğurla göndərildi”)</p>
+</div></blockquote>
+<p><a href="#id10"><span class="problematic" id="id11">``</span></a><a href="#id12"><span class="problematic" id="id13">`</span></a></p>
+<p>handle_successful_payment(payment_data)
+<a href="#id14"><span class="problematic" id="id15">``</span></a><a href="#id16"><span class="problematic" id="id17">`</span></a></p>
+<p>Uğurlu ödənişi işləyir.</p>
+<p><strong>Parametrlər:</strong>
+- <cite>payment_data</cite>: Telegram-dan ödəniş məlumatları</p>
+<p><strong>Qaytarır:</strong> <cite>PaymentResult</cite></p>
+<p>##### <cite>refund_payment(payment_id, reason=None)</cite></p>
+<p>Ödənişi geri qaytarır (dəstəklənərsə).</p>
+<p><strong>Parametrlər:</strong>
+- <cite>payment_id</cite> (str): Ödəniş ID-si
+- <cite>reason</cite> (str, optional): Geri qaytarma səbəbi</p>
+<p><strong>Qaytarır:</strong> <cite>PaymentResult</cite></p>
+<p>### PaymentStage</p>
+<p>Ödəniş mərhələsini təmsil edən sinif.</p>
+<p><strong>Atributlar:</strong>
+- <cite>name</cite> (str): Məhsulun adı
+- <cite>price</cite> (int): Stars-da qiymət
+- <cite>description</cite> (str): Təsvir
+- <cite>logo_url</cite> (str): Loqo URL-i
+- <cite>created_at</cite> (datetime): Yaradılma vaxtı</p>
+<p>### PaymentResult</p>
+<p>Ödəniş əməliyyatının nəticəsi üçün sinif.</p>
+<p><strong>Atributlar:</strong>
+- <cite>success</cite> (bool): Əməliyyatın uğurluluğu
+- <cite>payment_id</cite> (str): Ödəniş ID-si
+- <cite>message</cite> (str): Nəticə mesajı
+- <cite>data</cite> (dict): Əlavə məlumatlar</p>
+<p>## Adapter Fabriki</p>
+<p>### AdapterFactory</p>
+<p>Botunuz üçün uyğun adapteri avtomatik yaradır.</p>
+<p>python
+<a href="#id18"><span class="problematic" id="id19">``</span></a>`
+from neonpay import AdapterFactory</p>
+<p># Bot tipinin avtomatik təyini
+neonpay = AdapterFactory.create_neonpay(bot_instance)
+<a href="#id20"><span class="problematic" id="id21">``</span></a><a href="#id22"><span class="problematic" id="id23">`</span></a></p>
+<p>#### Dəstəklənən Kitabxanalar</p>
+<ul class="simple">
+<li><p><strong>Aiogram v3</strong>: <cite>Bot</cite> tipinə görə avtomatik təyin edilir</p></li>
+<li><p><strong>Pyrogram v2+</strong>: <cite>Client</cite> tipinə görə avtomatik təyin edilir</p></li>
+<li><p><strong>python-telegram-bot</strong>: <cite>Application</cite> tipinə görə avtomatik təyin edilir</p></li>
+<li><p><strong>pyTelegramBotAPI</strong>: <cite>TeleBot</cite> tipinə görə avtomatik təyin edilir</p></li>
+<li><p><strong>Raw API</strong>: <cite>RawApiAdapter</cite>-i birbaşa istifadə edin</p></li>
+</ul>
+<p>## Xəta İşləmə</p>
+<p>### İstisnalar</p>
+<p>python
+<a href="#id24"><span class="problematic" id="id25">``</span></a>`
+from neonpay.errors import (</p>
+<blockquote>
+<div><p>NeonPayError,
+PaymentError,
+InvalidPaymentStageError,
+UnsupportedBotTypeError</p>
+</div></blockquote>
+<p>)</p>
+<dl class="simple">
+<dt>try:</dt><dd><p>result = await neonpay.send_invoice(user_id, stage)</p>
+</dd>
+<dt>except PaymentError as e:</dt><dd><p>print(f”Ödəniş xətası: {e}”)</p>
+</dd>
+<dt>except NeonPayError as e:</dt><dd><p>print(f”Ümumi NEONPAY xətası: {e}”)</p>
+</dd>
+</dl>
+<p><a href="#id26"><span class="problematic" id="id27">``</span></a><a href="#id28"><span class="problematic" id="id29">`</span></a></p>
+<p>## Yardımçı Vasitələr</p>
+<p>### PaymentValidator</p>
+<p>Ödəniş məlumatlarının yoxlanması.</p>
+<p>python
+<a href="#id30"><span class="problematic" id="id31">``</span></a>`
+from neonpay.utils import PaymentValidator</p>
+<p># Qiymətin yoxlanması
+if PaymentValidator.validate_price(100):</p>
+<blockquote>
+<div><p>print(“Qiymət düzgündür”)</p>
+</div></blockquote>
+<p># Ödəniş mərhələsinin yoxlanması
+if PaymentValidator.validate_payment_stage(stage):</p>
+<blockquote>
+<div><p>print(“Ödəniş mərhələsi düzgündür”)</p>
+</div></blockquote>
+<p><a href="#id32"><span class="problematic" id="id33">``</span></a><a href="#id34"><span class="problematic" id="id35">`</span></a></p>
+<p>### NeonPayLogger</p>
+<p>Loqlama sistemi.</p>
+<p>python
+<a href="#id36"><span class="problematic" id="id37">``</span></a>`
+from neonpay.utils import NeonPayLogger</p>
+<p>logger = NeonPayLogger(“MyBot”)
+logger.log_payment_attempt(user_id, stage.name, stage.price)
+logger.log_payment_success(payment_id, user_id)
+<a href="#id38"><span class="problematic" id="id39">``</span></a><a href="#id40"><span class="problematic" id="id41">`</span></a></p>
+<p>### PaymentHelper</p>
+<p>Yardımçı funksiyalar.</p>
+<p>python
+<a href="#id42"><span class="problematic" id="id43">``</span></a>`
+from neonpay.utils import PaymentHelper</p>
+<p># Qiymətin formatlanması
+formatted = PaymentHelper.format_price(100)  # “100 ⭐”</p>
+<p># Ödəniş ID-sinin yaradılması
+payment_id = PaymentHelper.generate_payment_id()</p>
+<p># URL yoxlanması
+if PaymentHelper.is_valid_url(”<a class="reference external" href="https://example.com/logo.png">https://example.com/logo.png</a>”):</p>
+<blockquote>
+<div><p>print(“URL düzgündür”)</p>
+</div></blockquote>
+<p><a href="#id44"><span class="problematic" id="id45">``</span></a><a href="#id46"><span class="problematic" id="id47">`</span></a></p>
+<p>## Middleware Sistemi</p>
+<p>### PaymentMiddleware</p>
+<p>Middleware üçün əsas sinif.</p>
+<p>python
+<a href="#id48"><span class="problematic" id="id49">``</span></a>`
+from neonpay.middleware import PaymentMiddleware</p>
+<dl class="simple">
+<dt>class LoggingMiddleware(PaymentMiddleware):</dt><dd><dl class="simple">
+<dt>async def before_payment(self, payment_stage, context):</dt><dd><p>print(f”Ödəniş başlayır: {payment_stage.name}”)
+return payment_stage, context</p>
+</dd>
+<dt>async def after_payment(self, result, context):</dt><dd><p>print(f”Ödəniş tamamlandı: {result.success}”)
+return result</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p># İstifadə</p>
+<p>neonpay.add_middleware(LoggingMiddleware())
+<a href="#id50"><span class="problematic" id="id51">``</span></a><a href="#id52"><span class="problematic" id="id53">`</span></a></p>
+<p>### Daxili Middleware</p>
+<p>python
+<a href="#id54"><span class="problematic" id="id55">``</span></a>`
+from neonpay.middleware import (</p>
+<blockquote>
+<div><p>LoggingMiddleware,
+ValidationMiddleware,
+WebhookMiddleware</p>
+</div></blockquote>
+<p>)</p>
+<p># Middleware əlavə etmə
+neonpay.add_middleware(LoggingMiddleware())
+neonpay.add_middleware(ValidationMiddleware())
+neonpay.add_middleware(WebhookMiddleware(”<a class="reference external" href="https://mysite.com/webhook">https://mysite.com/webhook</a>”))
+<a href="#id56"><span class="problematic" id="id57">``</span></a><a href="#id58"><span class="problematic" id="id59">`</span></a></p>
+<p>## Webhook İnteqrasiyası</p>
+<p>### WebhookHandler</p>
+<p>Webhook bildirişlərinin işlənməsi.</p>
+<p>python
+<a href="#id60"><span class="problematic" id="id61">``</span></a>`
+from neonpay.webhooks import WebhookHandler</p>
+<p>handler = WebhookHandler(secret_key=”your_secret_key”)</p>
+<p># Webhook işləmə
+&#64;app.post(“/webhook”)
+async def handle_webhook(request):</p>
+<blockquote>
+<div><dl>
+<dt>if handler.verify_signature(request.headers, request.body):</dt><dd><p>event = handler.parse_event(request.body)
+if event.type == “payment.successful”:</p>
+<blockquote>
+<div><p># Uğurlu ödənişin işlənməsi
+print(f”Ödəniş {event.payment_id} uğurludur”)</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>return {“status”: “ok”}</p>
+</div></blockquote>
+<p><a href="#id62"><span class="problematic" id="id63">``</span></a><a href="#id64"><span class="problematic" id="id65">`</span></a></p>
+<p>## İstifadə Nümunələri</p>
+<p>### Aiogram ilə Sadə Nümunə</p>
+<p>python
+<a href="#id66"><span class="problematic" id="id67">``</span></a>`
+from aiogram import Bot, Dispatcher, types
+from neonpay import AdapterFactory</p>
+<p>bot = Bot(token=”YOUR_BOT_TOKEN”)
+dp = Dispatcher()
+neonpay = AdapterFactory.create_neonpay(bot)</p>
+<p>&#64;dp.message(commands=[“buy”])
+async def buy_handler(message: types.Message):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>stage = neonpay.create_payment_stage(</dt><dd><p>name=”Premium giriş”,
+price=50,
+description=”Premium funksiyalara giriş”</p>
+</dd>
+</dl>
+<p>)</p>
+<p>result = await neonpay.send_invoice(message.chat.id, stage)
+if not result.success:</p>
+<blockquote>
+<div><p>await message.answer(“Ödəniş yaradılmasında xəta”)</p>
+</div></blockquote>
+</div></blockquote>
+<p>&#64;dp.pre_checkout_query()
+async def pre_checkout_handler(query: types.PreCheckoutQuery):</p>
+<blockquote>
+<div><p>await query.answer(ok=True)</p>
+</div></blockquote>
+<p>&#64;dp.message(content_types=types.ContentType.SUCCESSFUL_PAYMENT)
+async def successful_payment_handler(message: types.Message):</p>
+<blockquote>
+<div><p>result = await neonpay.handle_successful_payment(message.successful_payment)
+await message.answer(“Alış üçün təşəkkürlər! 🎉”)</p>
+</div></blockquote>
+<p><a href="#id68"><span class="problematic" id="id69">``</span></a><a href="#id70"><span class="problematic" id="id71">`</span></a></p>
+<p>### Pyrogram ilə Nümunə
+python
+<a href="#id72"><span class="problematic" id="id73">``</span></a>`
+from pyrogram import Client, filters
+from neonpay import AdapterFactory</p>
+<p>app = Client(“my_bot”, bot_token=”YOUR_BOT_TOKEN”)
+neonpay = AdapterFactory.create_neonpay(app)</p>
+<p>&#64;app.on_message(filters.command(“buy”))
+async def buy_handler(client, message):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>stage = neonpay.create_payment_stage(</dt><dd><p>name=”VIP status”,
+price=100,
+description=”Bir ay VIP status”</p>
+</dd>
+</dl>
+<p>)</p>
+<p>result = await neonpay.send_invoice(message.chat.id, stage)
+if result.success:</p>
+<blockquote>
+<div><p>await message.reply(“Faktura göndərildi!”)</p>
+</div></blockquote>
+</div></blockquote>
+<p>&#64;app.on_message(filters.successful_payment)
+async def payment_handler(client, message):</p>
+<blockquote>
+<div><p>result = await neonpay.handle_successful_payment(message.successful_payment)
+await message.reply(“Ödəniş alındı! ✅”)</p>
+</div></blockquote>
+<p><a href="#id74"><span class="problematic" id="id75">``</span></a><a href="#id76"><span class="problematic" id="id77">`</span></a></p>
+<p>## Ən Yaxşı Təcrübələr</p>
+<p>### Təhlükəsizlik</p>
+<ol class="arabic simple">
+<li><p><strong>Məlumat yoxlanması</strong>: Həmişə giriş məlumatlarını yoxlayın</p></li>
+<li><p><strong>Xəta işləmə</strong>: try-catch blokları istifadə edin</p></li>
+<li><p><strong>Loqlama</strong>: Bütün əməliyyatların loqlarını aparın</p></li>
+<li><p><strong>Webhook təhlükəsizliyi</strong>: Webhook imzalarını yoxlayın</p></li>
+</ol>
+<p>### Performans</p>
+<ol class="arabic simple">
+<li><p><strong>Asinxronluq</strong>: async/await istifadə edin</p></li>
+<li><p><strong>Keşləmə</strong>: Ödəniş mərhələlərini keşləyin</p></li>
+<li><p><strong>Middleware</strong>: Ümumi məntiq üçün middleware istifadə edin</p></li>
+<li><p><strong>Monitorinq</strong>: Performansı izləyin</p></li>
+</ol>
+<p>### İstifadəçi Təcrübəsi</p>
+<ol class="arabic simple">
+<li><p><strong>Aydın təsvirlər</strong>: Məhsulların aydın təsvirlərini istifadə edin</p></li>
+<li><p><strong>Loqolar</strong>: Tanınma üçün loqolar əlavə edin</p></li>
+<li><p><strong>Geri əlaqə</strong>: İstifadəçiləri status haqqında məlumatlandırın</p></li>
+<li><p><strong>Xəta işləmə</strong>: Xətalar haqqında aydın mesajlar göstərin</p></li>
+</ol>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="README.html" class="btn btn-neutral float-left" title="NEONPAY Sənədləri (Azərbaycan)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="FAQ.html" class="btn btn-neutral float-right" title=")" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, NEONPAY Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
