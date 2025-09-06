@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 from neonpay.adapters.pyrogram_adapter import PyrogramAdapter
 from neonpay.adapters.aiogram_adapter import AiogramAdapter
 from neonpay.core import PaymentStage
@@ -11,7 +11,6 @@ class TestPyrogramAdapter:
         client = AsyncMock()
         # Mock InputPeerUser object
         mock_peer = AsyncMock()
-        mock_peer.__class__.__name__ = "InputPeerUser"
         client.resolve_peer = AsyncMock(return_value=mock_peer)
         client.invoke = AsyncMock()
         return client
@@ -29,7 +28,11 @@ class TestPyrogramAdapter:
         )
 
     @pytest.mark.asyncio
-    async def test_send_invoice_success(self, adapter, mock_client, payment_stage):
+    @patch('neonpay.adapters.pyrogram_adapter.isinstance')
+    async def test_send_invoice_success(self, mock_isinstance, adapter, mock_client, payment_stage):
+        # Mock isinstance to return True for InputPeerUser check
+        mock_isinstance.return_value = True
+        
         result = await adapter.send_invoice(12345, payment_stage)
 
         assert result is True
@@ -37,7 +40,11 @@ class TestPyrogramAdapter:
         mock_client.invoke.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_send_invoice_with_logo(self, adapter, mock_client):
+    @patch('neonpay.adapters.pyrogram_adapter.isinstance')
+    async def test_send_invoice_with_logo(self, mock_isinstance, adapter, mock_client):
+        # Mock isinstance to return True for InputPeerUser check
+        mock_isinstance.return_value = True
+        
         stage = PaymentStage(
             title="Test Product",
             description="Test Description",
