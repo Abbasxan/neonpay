@@ -45,8 +45,8 @@ extensions = [
 
 # Source file extensions - support both RST and Markdown
 source_suffix = {
-    '.rst': None,
-    '.md': 'myst_parser',
+    ".rst": None,
+    ".md": "myst_parser",
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,7 +82,7 @@ gettext_compact = False
 # Supported languages
 languages = {
     "en": "English",
-    "ru": "Русский", 
+    "ru": "Русский",
     "az": "Azərbaycan",
 }
 
