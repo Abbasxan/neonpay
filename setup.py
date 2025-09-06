@@ -4,7 +4,6 @@ Setup script for NEONPAY - Modern Python library for Telegram Stars payments int
 
 import sys
 from pathlib import Path
-
 from setuptools import find_packages, setup
 
 # Minimum Python version check
@@ -23,17 +22,7 @@ else:
 
 # Read README for long description
 readme_file = Path(__file__).parent / "README.md"
-long_description = ""
-if readme_file.exists():
-    with open(readme_file, "r", encoding="utf-8") as f:
-        long_description = f.read()
-
-# Read LICENSE
-license_file = Path(__file__).parent / "LICENSE"
-license_text = ""
-if license_file.exists():
-    with open(license_file, "r", encoding="utf-8") as f:
-        license_text = f.read()
+long_description = readme_file.read_text(encoding="utf-8") if readme_file.exists() else ""
 
 # Core dependencies
 install_requires = [
@@ -124,5 +113,6 @@ setup(
         "Framework :: AsyncIO",
     ],
     license="MIT",
+    license_files=["LICENSE"],
     zip_safe=False,
 )
