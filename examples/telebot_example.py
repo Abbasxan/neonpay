@@ -5,7 +5,6 @@ Based on real production usage patterns
 """
 
 import logging
-import time
 from datetime import datetime
 from telebot import TeleBot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
