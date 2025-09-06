@@ -1,0 +1,102 @@
+name: 🔄 Dependencies Management
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly dependency updates on Mondays at 6 AM UTC
+  workflow_dispatch: {}
+
+jobs:
+  update-dependencies:
+    name: 📦 Update Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install dependency management tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-tools pip-audit
+
+      - name: 🔍 Check for outdated packages
+        run: |
+          pip list --outdated --format=json > outdated-packages.json
+          echo "Outdated packages found:"
+          cat outdated-packages.json
+
+      - name: 🛡️ Security audit
+        run: |
+          pip-audit --format=json --output=security-audit.json || true
+          pip-audit
+
+      - name: 📊 Create dependency report
+        run: |
+          echo "# 📦 Dependency Update Report" > dependency-report.md
+          echo "" >> dependency-report.md
+          echo "## 🔍 Outdated Packages" >> dependency-report.md
+          echo "" >> dependency-report.md
+          echo "\`\`\`json" >> dependency-report.md
+          cat outdated-packages.json >> dependency-report.md
+          echo "\`\`\`" >> dependency-report.md
+          echo "" >> dependency-report.md
+          echo "## 🛡️ Security Audit" >> dependency-report.md
+          echo "" >> dependency-report.md
+          echo "\`\`\`json" >> dependency-report.md
+          cat security-audit.json >> dependency-report.md
+          echo "\`\`\`" >> dependency-report.md
+
+      - name: 📈 Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-reports
+          path: |
+            outdated-packages.json
+            security-audit.json
+            dependency-report.md
+
+      - name: 💬 Create issue if vulnerabilities found
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const securityAudit = JSON.parse(fs.readFileSync('security-audit.json', 'utf8'));
+            
+            if (securityAudit.vulnerabilities && securityAudit.vulnerabilities.length > 0) {
+              const issueBody = `# 🚨 Security Vulnerabilities Detected
+              
+              ## Summary
+              Found ${securityAudit.vulnerabilities.length} security vulnerabilities in dependencies.
+              
+              ## Vulnerabilities
+              ${securityAudit.vulnerabilities.map(v => 
+                `- **${v.package}**: ${v.vulnerability} (Severity: ${v.severity})`
+              ).join('\n')}
+              
+              ## Action Required
+              Please review and update the affected packages.
+              
+              ---
+              *This issue was automatically created by the dependency management workflow.*`;
+              
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Security vulnerabilities detected in dependencies',
+                body: issueBody,
+                labels: ['security', 'dependencies', 'automated']
+              });
+            }
