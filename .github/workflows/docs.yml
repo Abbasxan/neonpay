@@ -56,9 +56,6 @@ jobs:
           make html
           make linkcheck || echo "Link check failed, continuing..."
 
-      - name: 📂 Verify built docs
-        run: ls -R docs/_build/html/
-
       - name: 📊 Upload docs as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -75,6 +72,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: 🚀 Deploy to GitHub Pages
         id: deployment
