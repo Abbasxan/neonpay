@@ -5,6 +5,7 @@ Supports Pyrogram v2.0+ with Telegram Stars payments
 """
 
 import json
+import random
 import logging
 from typing import Dict, Callable, Optional, TYPE_CHECKING, Any
 import asyncio
@@ -32,34 +33,58 @@ class PyrogramAdapter(PaymentAdapter):
         self._payment_callback: Optional[Callable[[PaymentResult], Any]] = None
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
-        """Send payment invoice using Pyrogram"""
+        """Send payment invoice using Pyrogram raw API"""
         try:
-            photo = stage.photo_url if stage.photo_url else None
+            from pyrogram.raw.types import (
+                LabeledPrice,
+                Invoice,
+                InputWebDocument,
+                DataJSON,
+            )
+            from pyrogram.raw.functions.messages import SendMedia
+            from pyrogram.raw.types import InputMediaInvoice
 
-            payload: str = json.dumps(
-                {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
+            invoice = Invoice(
+                currency="XTR",
+                prices=[LabeledPrice(label=stage.label, amount=stage.price)],
             )
 
-            prices: list[dict[str, Any]] = [
-                {"label": stage.label, "amount": stage.price}
-            ]
+            payload = json.dumps(
+                {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
+            ).encode()
 
-            # Note: Pyrogram Client doesn't have send_invoice method
-            # This would need to be implemented using raw API calls
-            raise NeonPayError("Pyrogram send_invoice not implemented - use raw API calls")
-                chat_id=user_id,
-                title=stage.title,
-                description=stage.description,
-                payload=payload,
-                provider_token="",  # Empty for Telegram Stars
-                currency="XTR",
-                prices=prices,
-                photo_url=photo,
-                start_parameter=stage.start_parameter,
+            peer = await self.client.resolve_peer(user_id)
+
+            await self.client.invoke(
+                SendMedia(
+                    peer=peer,
+                    media=InputMediaInvoice(
+                        title=stage.title,
+                        description=stage.description,
+                        invoice=invoice,
+                        payload=payload,
+                        provider="",  # Telegram Stars → пусто
+                        provider_data=DataJSON(data=r"{}"),
+                        photo=(
+                            InputWebDocument(
+                                url=stage.photo_url,
+                                size=0,
+                                mime_type="image/png",
+                                attributes=[],
+                            )
+                            if stage.photo_url
+                            else None
+                        ),
+                        start_param=stage.start_parameter or "neonpay_invoice",
+                    ),
+                    message=f"{stage.title}\n{stage.description}",
+                    random_id=random.randint(100000, 999999),
+                )
             )
             return True
+
         except Exception as e:
-            raise NeonPayError(f"Telegram API error: {e}")
+            raise NeonPayError(f"Telegram API error: {e}") from e
 
     async def setup_handlers(
         self, payment_callback: Callable[[PaymentResult], Any]
