@@ -163,6 +163,7 @@ class MiddlewareManager:
 
     def __init__(self) -> None:
         self.middlewares: List[PaymentMiddleware] = []
+        self.logger: logging.Logger = logging.getLogger(__name__)
 
     def add_middleware(self, middleware: PaymentMiddleware) -> None:
         """Add middleware to the pipeline."""
@@ -221,7 +222,12 @@ class MiddlewareManager:
                 should_continue = await middleware.on_error(error, context)
                 if not should_continue:
                     return False
-            except Exception:
-                continue
+            except Exception as middleware_error:
+                # Log middleware error but continue processing other middlewares
+                self.logger.warning(
+                    f"Middleware {middleware.__class__.__name__} failed to handle error: {middleware_error}"
+                )
+                # Continue to next middleware instead of using continue statement
+                pass
 
         return True

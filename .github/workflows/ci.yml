@@ -53,7 +53,10 @@ jobs:
         run: isort .
 
       - name: 🔍 Run Ruff auto-fix
-        run: ruff check --fix .
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+          ruff check --fix .
 
       - name: 🧹 Cleanup cache files
         run: |
@@ -121,13 +124,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[all,dev]
-          pip install pytest-cov coverage[toml] bandit[toml] safety
+          pip install pytest-cov coverage[toml] bandit[toml] safety ruff
 
       - name: 🔍 Check syntax (py_compile)
         run: python -m compileall -q .
 
       - name: 🧹 Run Ruff linting
-        run: ruff check . --output-format=github
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+          ruff check . --output-format=github
 
       - name: 🎨 Check Black formatting
         run: black --check --diff .
@@ -250,6 +256,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[all,dev]
+          pip install ruff  # на всякий случай, если понадобится
 
       - name: 🧪 Run platform-specific tests
         run: pytest --tb=short -v

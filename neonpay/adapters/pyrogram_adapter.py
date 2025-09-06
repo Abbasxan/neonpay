@@ -7,7 +7,7 @@ Supports Pyrogram v2.0+ with Telegram Stars payments
 import asyncio
 import json
 import logging
-import random
+import secrets
 import threading
 import traceback
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
@@ -83,7 +83,7 @@ class PyrogramAdapter(PaymentAdapter):
                         start_param=stage.start_parameter or "neonpay_invoice",
                     ),
                     message=f"{stage.title}\n{stage.description}",
-                    random_id=random.getrandbits(64),
+                    random_id=secrets.randbits(64),
                 )
             )
             return True

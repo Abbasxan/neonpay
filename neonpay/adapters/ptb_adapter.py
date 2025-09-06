@@ -50,7 +50,7 @@ class PythonTelegramBotAdapter(PaymentAdapter):
                 title=stage.title,
                 description=stage.description,
                 payload=payload,
-                provider_token="",  # Empty for Telegram Stars
+                provider_token="",  # Empty for Telegram Stars  # nosec B106
                 currency="XTR",
                 prices=prices,
                 photo_url=stage.photo_url,

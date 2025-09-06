@@ -50,7 +50,7 @@ class TelebotAdapter(PaymentAdapter):
                 title=stage.title,
                 description=stage.description,
                 invoice_payload=payload,
-                provider_token="",  # Empty for Telegram Stars
+                provider_token="",  # Empty for Telegram Stars  # nosec B106
                 currency="XTR",
                 prices=prices,
                 photo_url=stage.photo_url or "",
