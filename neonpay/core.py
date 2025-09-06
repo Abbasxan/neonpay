@@ -72,10 +72,9 @@ def validate_json_payload(payload: Dict[str, Any]) -> bool:
     try:
         # Попытка сериализации payload
         serialized = json.dumps(payload).encode("utf-8")
+        return len(serialized) <= 1024
     except (TypeError, ValueError):
         return False
-
-    return len(serialized) <= 1024
 
 
 @dataclass
