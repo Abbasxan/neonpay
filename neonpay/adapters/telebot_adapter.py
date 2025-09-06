@@ -29,7 +29,9 @@ class TelebotAdapter(PaymentAdapter):
             bot: Telebot instance
         """
         self.bot = bot
-        self._payment_callback: Optional[Callable[[PaymentResult], Union[None, asyncio.Future]]] = None
+        self._payment_callback: Optional[
+            Callable[[PaymentResult], Union[None, asyncio.Future]]
+        ] = None
         self._handlers_setup = False
 
     async def send_invoice(self, user_id: int, stage: PaymentStage) -> bool:
