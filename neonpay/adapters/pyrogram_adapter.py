@@ -62,17 +62,11 @@ class PyrogramAdapter(PaymentAdapter):
             # Всегда передаём InputWebDocument, даже если картинки нет
             if stage.photo_url:
                 photo_doc = InputWebDocument(
-                    url=stage.photo_url,
-                    size=0,
-                    mime_type="image/png",
-                    attributes=[]
+                    url=stage.photo_url, size=0, mime_type="image/png", attributes=[]
                 )
             else:
                 photo_doc = InputWebDocument(
-                    url="",
-                    size=0,
-                    mime_type="application/octet-stream",
-                    attributes=[]
+                    url="", size=0, mime_type="application/octet-stream", attributes=[]
                 )
 
             await self.client.invoke(
