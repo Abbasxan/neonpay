@@ -1,9 +1,8 @@
 """Base adapter for bot library integration."""
 
 from abc import ABC, abstractmethod
-from typing import Callable, Dict
-
-from ..core import PaymentResult, PaymentStage
+from typing import Dict, Callable
+from ..core import PaymentStage, PaymentResult
 
 
 class PaymentAdapter(ABC):

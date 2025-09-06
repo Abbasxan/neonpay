@@ -1,7 +1,6 @@
-import logging
 import re
-from typing import Any, Dict, Optional
-
+import logging
+from typing import Optional, Dict, Any
 from .errors import PaymentValidationError
 
 

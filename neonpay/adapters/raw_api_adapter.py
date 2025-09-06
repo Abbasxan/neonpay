@@ -6,8 +6,7 @@ Direct API integration without external bot libraries
 import asyncio
 import json
 import logging
-from typing import Any, Awaitable, Callable, Dict, Optional, Union
-
+from typing import Dict, Any, Optional, Callable, Awaitable, Union
 import aiohttp
 
 from ..core import PaymentAdapter, PaymentStage

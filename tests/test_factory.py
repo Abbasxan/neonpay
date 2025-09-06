@@ -1,14 +1,12 @@
-from unittest.mock import MagicMock, patch
-
 import pytest
-
+from unittest.mock import MagicMock, patch
+from neonpay.factory import create_adapter
+from neonpay.errors import ConfigurationError
+from neonpay.adapters.pyrogram_adapter import PyrogramAdapter
 from neonpay.adapters.aiogram_adapter import AiogramAdapter
 from neonpay.adapters.ptb_adapter import PythonTelegramBotAdapter
-from neonpay.adapters.pyrogram_adapter import PyrogramAdapter
-from neonpay.adapters.raw_api_adapter import RawAPIAdapter
 from neonpay.adapters.telebot_adapter import TelebotAdapter
-from neonpay.errors import ConfigurationError
-from neonpay.factory import create_adapter
+from neonpay.adapters.raw_api_adapter import RawAPIAdapter
 
 
 class TestAdapterFactory:

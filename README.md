@@ -1,8 +1,13 @@
 # NEONPAY - Modern Telegram Stars Payment Library
 
-[![PyPI version](https://badge.fury.io/py/neonpay.svg)](https://badge.fury.io/py/neonpay)
+[![PyPI version](https://img.shields.io/pypi/v/neonpay.svg)](https://pypi.org/project/neonpay/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/neonpay.svg)](https://pypi.org/project/neonpay/)
 [![Python Support](https://img.shields.io/pypi/pyversions/neonpay.svg)](https://pypi.org/project/neonpay/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/Abbasxan/neonpay/workflows/CI/badge.svg)](https://github.com/Abbasxan/neonpay/actions)
+[![Code Quality](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+**Current Version: [2.5.0](https://pypi.org/project/neonpay/2.5.0/) - Published on PyPI** 🚀
 
 **NEONPAY** is a modern, universal payment processing library for Telegram bots that makes integrating Telegram Stars payments incredibly simple. With support for all major bot libraries and a clean, intuitive API, you can add payments to your bot in just a few lines of code.
 
@@ -21,8 +26,19 @@
 ### Installation
 
 ```bash
+# Install latest version from PyPI
 pip install neonpay
+
+# Or install specific version
+pip install neonpay==2.5.0
+
+# Install with optional dependencies
+pip install neonpay[all]  # All bot libraries
+pip install neonpay[ptb]   # python-telegram-bot only
+pip install neonpay[aiogram]  # Aiogram only
 ```
+
+**📦 Available on PyPI:** [neonpay 2.5.0](https://pypi.org/project/neonpay/2.5.0/)
 
 ### Basic Usage
 
@@ -202,6 +218,14 @@ Check out the [examples](examples/) directory for complete working examples:
 - [python-telegram-bot Example](examples/ptb_example.py)
 - [pyTelegramBotAPI Example](examples/telebot_example.py)
 - [Raw API Example](examples/raw_api_example.py)
+
+## 🛠️ Development Tools
+
+The project includes automated scripts in `.github/scripts/`:
+
+- **Cleanup**: `python .github/scripts/cleanup.py` - Remove cache files
+- **Version Update**: `python .github/scripts/update_readme_version.py` - Update README version
+- **PyPI Check**: `python .github/scripts/check_pypi_version.py` - Check PyPI version
 
 ## 🛠️ Requirements
 

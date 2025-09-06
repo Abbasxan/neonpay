@@ -3,13 +3,13 @@ Official Telegram Bot API adapter for NEONPAY
 Supports sync and async usage with Telegram Bot API.
 """
 
-import asyncio
+from typing import Dict, Callable, Optional, Any, Awaitable, Union
 import json
 import logging
+import asyncio
 import threading
-from typing import Any, Awaitable, Callable, Dict, Optional, Union
 
-from ..core import PaymentAdapter, PaymentResult, PaymentStage, PaymentStatus
+from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
 
 logger = logging.getLogger(__name__)

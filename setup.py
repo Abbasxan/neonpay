@@ -4,8 +4,7 @@ Setup script for NEONPAY - Modern Python library for Telegram Stars payments int
 
 import sys
 from pathlib import Path
-
-from setuptools import find_packages, setup
+from setuptools import setup, find_packages
 
 # Minimum Python version check
 if sys.version_info < (3, 9):

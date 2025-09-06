@@ -15,9 +15,8 @@
 
 from aiogram import Router, types
 from aiogram.filters import Command
-from config import LOG_ID, bot, update_user_balance, update_user_verification_status
-
 from neonpay import NeonPay
+from config import bot, update_user_balance, update_user_verification_status, LOG_ID
 
 # Инициализация NEONPAY (1 строка!)
 neonpay = NeonPay.create_for_aiogram(bot)

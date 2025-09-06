@@ -3,21 +3,21 @@ Factory functions for creating NEONPAY adapters and instances
 Automatic detection and creation of appropriate bot library adapters
 """
 
-import importlib
 import logging
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import Union, Optional, TYPE_CHECKING, Any
+import importlib
 
-from .core import NeonPayCore, PaymentAdapter
+from .core import PaymentAdapter, NeonPayCore
 from .errors import ConfigurationError
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    import telebot
     from aiogram import Bot, Dispatcher
     from pyrogram import Client
     from telegram import Bot as PTBBot
     from telegram.ext import Application
+    import telebot
 
 
 # Dynamic runtime imports

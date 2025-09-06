@@ -1,9 +1,7 @@
-import asyncio
-
 import pytest
-
+import asyncio
 from neonpay.adapters.botapi_adapter import BotAPIAdapter
-from neonpay.core import PaymentResult, PaymentStage, PaymentStatus
+from neonpay.core import PaymentStage, PaymentResult, PaymentStatus
 
 
 class DummyBot:

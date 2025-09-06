@@ -5,9 +5,9 @@ Supports python-telegram-bot v20.0+ with Telegram Stars payments
 
 import json
 import logging
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, Optional
+from typing import Dict, Callable, Optional, TYPE_CHECKING, Any, Awaitable
 
-from ..core import PaymentAdapter, PaymentResult, PaymentStage, PaymentStatus
+from ..core import PaymentAdapter, PaymentStage, PaymentResult, PaymentStatus
 from ..errors import NeonPayError
 
 if TYPE_CHECKING:
@@ -76,7 +76,7 @@ class PythonTelegramBotAdapter(PaymentAdapter):
 
         self._payment_callback = async_cb
 
-        from telegram.ext import MessageHandler, PreCheckoutQueryHandler, filters
+        from telegram.ext import PreCheckoutQueryHandler, MessageHandler, filters
 
         # Pre-checkout handler
         self.application.add_handler(

@@ -1,7 +1,6 @@
 import pytest
-
+from neonpay.core import NeonPayCore, PaymentStage, PaymentResult, PaymentStatus
 from neonpay.adapters.base import PaymentAdapter
-from neonpay.core import NeonPayCore, PaymentResult, PaymentStage, PaymentStatus
 
 
 class MockAdapter(PaymentAdapter):
