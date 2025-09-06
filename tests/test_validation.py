@@ -163,7 +163,7 @@ class TestNeonPayCoreValidation:
         core.create_payment_stage("test_id", stage)
         # Valid parameters
         result = await core.send_payment(12345, "test_id")
-        assert result is False  # Will be False because adapter is not set up
+        assert result is True  # Will be True because adapter is mocked
         # Invalid user ID
         with pytest.raises(ValueError, match="User ID must be a positive integer"):
             await core.send_payment(0, "test_id")
