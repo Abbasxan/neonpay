@@ -63,7 +63,7 @@ jobs:
       - name: 📊 Upload documentation artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: documentation
+          name: github-pages
           path: docs/_build/html/
 
   deploy-docs:
@@ -87,15 +87,12 @@ jobs:
       - name: 📦 Download documentation artifacts
         uses: actions/download-artifact@v4
         with:
-          name: documentation
+          name: github-pages
           path: docs/_build/html/
 
       - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          path: docs/_build/html
 
   docs-quality:
     name: 📋 Documentation Quality
