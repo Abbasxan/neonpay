@@ -10,10 +10,10 @@ Features:
 - Process successful payments with callback registration
 """
 
-import json
-import random
-import logging
 import asyncio
+import json
+import logging
+import random
 from typing import Any, Callable, Optional
 
 from .errors import StarsPaymentError
@@ -48,18 +48,20 @@ def _load_pyrogram() -> bool:
 
     if PYROGRAM_AVAILABLE is None:
         try:
+            from pyrogram.raw.functions.messages import SendMedia as _SendMedia
+            from pyrogram.raw.functions.messages import (
+                SetBotPrecheckoutResults as _SetBotPrecheckoutResults,
+            )
+            from pyrogram.raw.types import DataJSON as _DataJSON
+            from pyrogram.raw.types import InputMediaInvoice as _InputMediaInvoice
+            from pyrogram.raw.types import InputWebDocument as _InputWebDocument
+            from pyrogram.raw.types import Invoice as _Invoice
+            from pyrogram.raw.types import LabeledPrice as _LabeledPrice
             from pyrogram.raw.types import (
-                LabeledPrice as _LabeledPrice,
-                Invoice as _Invoice,
-                InputWebDocument as _InputWebDocument,
-                InputMediaInvoice as _InputMediaInvoice,
-                DataJSON as _DataJSON,
-                UpdateBotPrecheckoutQuery as _UpdateBotPrecheckoutQuery,
                 MessageActionPaymentSentMe as _MessageActionPaymentSentMe,
             )
-            from pyrogram.raw.functions.messages import (
-                SendMedia as _SendMedia,
-                SetBotPrecheckoutResults as _SetBotPrecheckoutResults,
+            from pyrogram.raw.types import (
+                UpdateBotPrecheckoutQuery as _UpdateBotPrecheckoutQuery,
             )
 
             # Update global variables
@@ -213,4 +215,3 @@ class NeonStars:
 
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
-

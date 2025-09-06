@@ -4,13 +4,14 @@ Demonstrates how to use middleware for payment processing.
 """
 
 import logging
+
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from neonpay import NeonPay
 from neonpay.middleware import (
-    MiddlewareManager,
     LoggingMiddleware,
+    MiddlewareManager,
     ValidationMiddleware,
 )
 

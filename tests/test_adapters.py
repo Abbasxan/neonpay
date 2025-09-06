@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import AsyncMock, patch
-from neonpay.adapters.pyrogram_adapter import PyrogramAdapter
+
+import pytest
+
 from neonpay.adapters.aiogram_adapter import AiogramAdapter
+from neonpay.adapters.pyrogram_adapter import PyrogramAdapter
 from neonpay.core import PaymentStage
 
 

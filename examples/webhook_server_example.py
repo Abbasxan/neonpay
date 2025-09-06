@@ -3,9 +3,10 @@ NEONPAY Webhook Server Example
 Simple webhook server to handle NEONPAY notifications.
 """
 
-from fastapi import FastAPI, Request, HTTPException, Header
 from typing import Optional
+
 import uvicorn
+from fastapi import FastAPI, Header, HTTPException, Request
 
 from neonpay.webhooks import WebhookHandler
 

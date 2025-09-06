@@ -6,17 +6,23 @@ Based on real production usage patterns
 
 import logging
 from datetime import datetime
+
 try:
-    from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-    from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+    from telegram.ext import (
+        Application,
+        CallbackQueryHandler,
+        CommandHandler,
+        ContextTypes,
+    )
 except ImportError:
     raise ImportError(
         "python-telegram-bot is required for this example. "
         "Install it with: pip install python-telegram-bot>=20.0"
     )
 
-from neonpay.factory import create_neonpay
 from neonpay.core import PaymentStage, PaymentStatus
+from neonpay.factory import create_neonpay
 
 # Configure logging
 logging.basicConfig(
