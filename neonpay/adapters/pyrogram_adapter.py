@@ -53,18 +53,26 @@ class PyrogramAdapter(PaymentAdapter):
 
             payload = json.dumps(
                 {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
-            ).encode(
-                "utf-8"
-            )  # bytes
+            ).encode("utf-8")
 
             peer = await self.client.resolve_peer(user_id)
             if not isinstance(peer, InputPeerUser):
                 raise NeonPayError(f"Cannot resolve user_id {user_id} to InputPeerUser")
 
-            photo_doc = None
+            # Всегда передаём InputWebDocument, даже если картинки нет
             if stage.photo_url:
                 photo_doc = InputWebDocument(
-                    url=stage.photo_url, size=0, mime_type="image/png", attributes=[]
+                    url=stage.photo_url,
+                    size=0,
+                    mime_type="image/png",
+                    attributes=[]
+                )
+            else:
+                photo_doc = InputWebDocument(
+                    url="",
+                    size=0,
+                    mime_type="application/octet-stream",
+                    attributes=[]
                 )
 
             await self.client.invoke(
@@ -74,9 +82,9 @@ class PyrogramAdapter(PaymentAdapter):
                         title=stage.title,
                         description=stage.description,
                         invoice=invoice,
-                        payload=payload,
+                        payload=payload,  # bytes
                         provider="",  # Telegram Stars
-                        provider_data=DataJSON(data=b"{}"),
+                        provider_data=DataJSON(data="{}"),  # строка
                         photo=photo_doc,
                         start_param=stage.start_parameter or "neonpay_invoice",
                     ),
