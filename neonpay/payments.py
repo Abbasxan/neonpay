@@ -16,41 +16,64 @@ import logging
 import asyncio
 from typing import Any, Callable, Optional
 
+from .errors import StarsPaymentError
+
 # Pyrogram imports will be loaded lazily when needed
 PYROGRAM_AVAILABLE = None
 
-from .errors import StarsPaymentError
+# Initialize Pyrogram types as None - will be loaded when needed
+LabeledPrice = None
+Invoice = None
+InputWebDocument = None
+InputMediaInvoice = None
+DataJSON = None
+UpdateBotPrecheckoutQuery = None
+MessageActionPaymentSentMe = None
+SendMedia = None
+SetBotPrecheckoutResults = None
 
 
 def _load_pyrogram():
     """Lazy load Pyrogram types and functions"""
-    global PYROGRAM_AVAILABLE
+    global (
+        PYROGRAM_AVAILABLE,
+        LabeledPrice,
+        Invoice,
+        InputWebDocument,
+        InputMediaInvoice,
+        DataJSON,
+        UpdateBotPrecheckoutQuery,
+        MessageActionPaymentSentMe,
+        SendMedia,
+        SetBotPrecheckoutResults,
+    )
+    
     if PYROGRAM_AVAILABLE is None:
         try:
             from pyrogram.raw.types import (
-                LabeledPrice,
-                Invoice,
-                InputWebDocument,
-                InputMediaInvoice,
-                DataJSON,
-                UpdateBotPrecheckoutQuery,
-                MessageActionPaymentSentMe,
+                LabeledPrice as _LabeledPrice,
+                Invoice as _Invoice,
+                InputWebDocument as _InputWebDocument,
+                InputMediaInvoice as _InputMediaInvoice,
+                DataJSON as _DataJSON,
+                UpdateBotPrecheckoutQuery as _UpdateBotPrecheckoutQuery,
+                MessageActionPaymentSentMe as _MessageActionPaymentSentMe,
             )
             from pyrogram.raw.functions.messages import (
-                SendMedia,
-                SetBotPrecheckoutResults,
+                SendMedia as _SendMedia,
+                SetBotPrecheckoutResults as _SetBotPrecheckoutResults,
             )
 
-            # Store the imports in globals for this module
-            globals()["LabeledPrice"] = LabeledPrice
-            globals()["Invoice"] = Invoice
-            globals()["InputWebDocument"] = InputWebDocument
-            globals()["InputMediaInvoice"] = InputMediaInvoice
-            globals()["DataJSON"] = DataJSON
-            globals()["UpdateBotPrecheckoutQuery"] = UpdateBotPrecheckoutQuery
-            globals()["MessageActionPaymentSentMe"] = MessageActionPaymentSentMe
-            globals()["SendMedia"] = SendMedia
-            globals()["SetBotPrecheckoutResults"] = SetBotPrecheckoutResults
+            # Update global variables
+            LabeledPrice = _LabeledPrice
+            Invoice = _Invoice
+            InputWebDocument = _InputWebDocument
+            InputMediaInvoice = _InputMediaInvoice
+            DataJSON = _DataJSON
+            UpdateBotPrecheckoutQuery = _UpdateBotPrecheckoutQuery
+            MessageActionPaymentSentMe = _MessageActionPaymentSentMe
+            SendMedia = _SendMedia
+            SetBotPrecheckoutResults = _SetBotPrecheckoutResults
 
             PYROGRAM_AVAILABLE = True
         except ImportError:
