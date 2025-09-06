@@ -9,7 +9,10 @@ class TestPyrogramAdapter:
     @pytest.fixture
     def mock_client(self):
         client = AsyncMock()
-        client.resolve_peer = AsyncMock(return_value="peer_123")
+        # Mock InputPeerUser object
+        mock_peer = AsyncMock()
+        mock_peer.__class__.__name__ = "InputPeerUser"
+        client.resolve_peer = AsyncMock(return_value=mock_peer)
         client.invoke = AsyncMock()
         return client
 
@@ -47,7 +50,7 @@ class TestPyrogramAdapter:
 
     def test_get_library_info(self, adapter):
         info = adapter.get_library_info()
-        assert "name" in info
+        assert "library" in info
         assert "version" in info
 
 
@@ -83,5 +86,5 @@ class TestAiogramAdapter:
 
     def test_get_library_info(self, adapter):
         info = adapter.get_library_info()
-        assert "name" in info
+        assert "library" in info
         assert "version" in info
