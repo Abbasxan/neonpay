@@ -29,9 +29,21 @@ neonpay = None
 
 # Donation options: amount and description before payment
 DONATE_OPTIONS = [
-    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
-    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
-    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+    {
+        "amount": 1,
+        "symbol": "⭐",
+        "desc": "1⭐ support: Will be used for bot server costs",
+    },
+    {
+        "amount": 10,
+        "symbol": "⭐",
+        "desc": "10⭐ support: Will be spent on developing new features",
+    },
+    {
+        "amount": 50,
+        "symbol": "🌟",
+        "desc": "50⭐ big support: Will be used for bot development and promotion",
+    },
 ]
 
 # Digital products store
@@ -41,21 +53,21 @@ DIGITAL_PRODUCTS = [
         "title": "Premium Access",
         "description": "Unlock all premium features for 30 days",
         "price": 25,
-        "symbol": "👑"
+        "symbol": "👑",
     },
     {
         "id": "custom_theme",
         "title": "Custom Theme",
         "description": "Personalized bot theme and colors",
         "price": 15,
-        "symbol": "🎨"
+        "symbol": "🎨",
     },
     {
         "id": "priority_support",
         "title": "Priority Support",
         "description": "24/7 priority customer support",
         "price": 30,
-        "symbol": "⚡"
+        "symbol": "⚡",
     },
 ]
 
@@ -85,10 +97,11 @@ async def setup_neonpay():
             product["id"],
             PaymentStage(
                 title=f"{product['symbol']} {product['title']}",
-            description=product["description"],
-            price=product["price"],
+                description=product["description"],
+                price=product["price"],
             ),
         )
+
 
 @neonpay.on_payment
 async def handle_payment(result):
@@ -99,11 +112,13 @@ async def handle_payment(result):
                 await send_message(
                     result.user_id,
                     f"Thank you! Your support: {result.amount}⭐ ❤️\n"
-                    f"Your contribution helps keep the bot running!"
+                    f"Your contribution helps keep the bot running!",
                 )
             else:
                 # Handle digital product delivery
-                product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+                product = next(
+                    (p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None
+                )
                 if product:
                     await send_message(
                         result.user_id,
@@ -111,10 +126,12 @@ async def handle_payment(result):
                         f"Product: {product['symbol']} {product['title']}\n"
                         f"Price: {product['price']}⭐\n\n"
                         f"Your digital product has been activated!\n"
-                        f"Thank you for your purchase! 🚀"
+                        f"Thank you for your purchase! 🚀",
                     )
 
-            logger.info(f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}")
+            logger.info(
+                f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}"
+            )
 
         except Exception as e:
             logger.exception(f"Failed to send post-payment message: {e}")
@@ -126,11 +143,7 @@ async def handle_payment(result):
 async def send_message(user_id: int, text: str, reply_markup: dict = None):
     """Send message via Telegram Bot API"""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    data = {
-        "chat_id": user_id,
-        "text": text,
-        "parse_mode": "Markdown"
-    }
+    data = {"chat_id": user_id, "text": text, "parse_mode": "Markdown"}
     if reply_markup:
         data["reply_markup"] = json.dumps(reply_markup)
 
@@ -175,7 +188,12 @@ async def handle_donate_command(user_id: int):
     logging.info(f"/donate command received: user={user_id}")
 
     keyboard = [
-        [{"text": f"{opt['symbol']} {opt['amount']}", "callback_data": f"donate:{opt['amount']}"}]
+        [
+            {
+                "text": f"{opt['symbol']} {opt['amount']}",
+                "callback_data": f"donate:{opt['amount']}",
+            }
+        ]
         for opt in DONATE_OPTIONS
     ]
 
@@ -189,7 +207,12 @@ async def handle_store_command(user_id: int):
     logging.info(f"/store command received: user={user_id}")
 
     keyboard = [
-        [{"text": f"{product['symbol']} {product['title']} - {product['price']}⭐", "callback_data": f"buy:{product['id']}"}]
+        [
+            {
+                "text": f"{product['symbol']} {product['title']} - {product['price']}⭐",
+                "callback_data": f"buy:{product['id']}",
+            }
+        ]
         for product in DIGITAL_PRODUCTS
     ]
 
@@ -270,7 +293,9 @@ async def handle_callback_query(user_id: int, data: str):
 
             # Send payment using NeonPay
             await neonpay.send_payment(user_id=user_id, stage_id=product_id)
-            logger.info(f"Product purchase started: user={user_id}, product={product_id}")
+            logger.info(
+                f"Product purchase started: user={user_id}, product={product_id}"
+            )
             await send_message(user_id, "✅ Payment message sent")
 
     except Exception as e:
@@ -319,7 +344,7 @@ async def init_app():
     """Initialize web application"""
     app = web.Application()
     app.router.add_post(WEBHOOK_PATH, webhook_handler)
-    
+
     # Setup NEONPAY
     await setup_neonpay()
 

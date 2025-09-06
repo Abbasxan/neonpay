@@ -31,9 +31,21 @@ neonpay = None
 
 # Donation options: amount and description before payment
 DONATE_OPTIONS = [
-    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
-    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
-    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+    {
+        "amount": 1,
+        "symbol": "⭐",
+        "desc": "1⭐ support: Will be used for bot server costs",
+    },
+    {
+        "amount": 10,
+        "symbol": "⭐",
+        "desc": "10⭐ support: Will be spent on developing new features",
+    },
+    {
+        "amount": 50,
+        "symbol": "🌟",
+        "desc": "50⭐ big support: Will be used for bot development and promotion",
+    },
 ]
 
 # Digital products store
@@ -43,21 +55,21 @@ DIGITAL_PRODUCTS = [
         "title": "Premium Access",
         "description": "Unlock all premium features for 30 days",
         "price": 25,
-        "symbol": "👑"
+        "symbol": "👑",
     },
     {
         "id": "custom_theme",
         "title": "Custom Theme",
         "description": "Personalized bot theme and colors",
         "price": 15,
-        "symbol": "🎨"
+        "symbol": "🎨",
     },
     {
         "id": "priority_support",
         "title": "Priority Support",
         "description": "24/7 priority customer support",
         "price": 30,
-        "symbol": "⚡"
+        "symbol": "⚡",
     },
 ]
 
@@ -92,6 +104,7 @@ async def setup_neonpay():
             ),
         )
 
+
 @neonpay.on_payment
 async def handle_payment(result):
     if result.status == PaymentStatus.COMPLETED:
@@ -101,11 +114,13 @@ async def handle_payment(result):
                 await app.send_message(
                     result.user_id,
                     f"Thank you! Your support: {result.amount}⭐ ❤️\n"
-                    f"Your contribution helps keep the bot running!"
+                    f"Your contribution helps keep the bot running!",
                 )
             else:
                 # Handle digital product delivery
-                product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+                product = next(
+                    (p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None
+                )
                 if product:
                     await app.send_message(
                         result.user_id,
@@ -113,10 +128,12 @@ async def handle_payment(result):
                         f"Product: {product['symbol']} {product['title']}\n"
                         f"Price: {product['price']}⭐\n\n"
                         f"Your digital product has been activated!\n"
-                        f"Thank you for your purchase! 🚀"
+                        f"Thank you for your purchase! 🚀",
                     )
 
-            logger.info(f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}")
+            logger.info(
+                f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}"
+            )
 
         except Exception as e:
             logger.exception(f"Failed to send post-payment message: {e}")
@@ -161,10 +178,12 @@ async def donate_command(client, message):
 
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton(
-                text=f"{opt['symbol']} {opt['amount']}",
-                callback_data=f"donate:{opt['amount']}",
-            )]
+            [
+                InlineKeyboardButton(
+                    text=f"{opt['symbol']} {opt['amount']}",
+                    callback_data=f"donate:{opt['amount']}",
+                )
+            ]
             for opt in DONATE_OPTIONS
         ]
     )
@@ -181,10 +200,12 @@ async def store_command(client, message):
 
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton(
-                text=f"{product['symbol']} {product['title']} - {product['price']}⭐",
-                callback_data=f"buy:{product['id']}",
-            )]
+            [
+                InlineKeyboardButton(
+                    text=f"{product['symbol']} {product['title']} - {product['price']}⭐",
+                    callback_data=f"buy:{product['id']}",
+                )
+            ]
             for product in DIGITAL_PRODUCTS
         ]
     )
@@ -258,7 +279,9 @@ async def handle_callback(client, callback_query):
             option = next((o for o in DONATE_OPTIONS if o["amount"] == amount), None)
 
             if not option:
-                await callback_query.answer("Error: Selected amount not found", show_alert=True)
+                await callback_query.answer(
+                    "Error: Selected amount not found", show_alert=True
+                )
                 return
 
             # Send payment using NeonPay
@@ -276,7 +299,9 @@ async def handle_callback(client, callback_query):
 
             # Send payment using NeonPay
             await neonpay.send_payment(user_id=user_id, stage_id=product_id)
-            logger.info(f"Product purchase started: user={user_id}, product={product_id}")
+            logger.info(
+                f"Product purchase started: user={user_id}, product={product_id}"
+            )
             await callback_query.answer("✅ Payment message sent")
 
     except Exception as e:

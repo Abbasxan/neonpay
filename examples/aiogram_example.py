@@ -37,9 +37,21 @@ neonpay = None
 
 # Donation options: amount and description before payment
 DONATE_OPTIONS = [
-    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
-    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
-    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+    {
+        "amount": 1,
+        "symbol": "⭐",
+        "desc": "1⭐ support: Will be used for bot server costs",
+    },
+    {
+        "amount": 10,
+        "symbol": "⭐",
+        "desc": "10⭐ support: Will be spent on developing new features",
+    },
+    {
+        "amount": 50,
+        "symbol": "🌟",
+        "desc": "50⭐ big support: Will be used for bot development and promotion",
+    },
 ]
 
 # Digital products store
@@ -49,21 +61,21 @@ DIGITAL_PRODUCTS = [
         "title": "Premium Access",
         "description": "Unlock all premium features for 30 days",
         "price": 25,
-        "symbol": "👑"
+        "symbol": "👑",
     },
     {
         "id": "custom_theme",
         "title": "Custom Theme",
         "description": "Personalized bot theme and colors",
         "price": 15,
-        "symbol": "🎨"
+        "symbol": "🎨",
     },
     {
         "id": "priority_support",
         "title": "Priority Support",
         "description": "24/7 priority customer support",
         "price": 30,
-        "symbol": "⚡"
+        "symbol": "⚡",
     },
 ]
 
@@ -107,11 +119,14 @@ async def setup_neonpay():
                     await bot.send_message(
                         result.user_id,
                         f"Thank you! Your support: {result.amount}⭐ ❤️\n"
-                        f"Your contribution helps keep the bot running!"
+                        f"Your contribution helps keep the bot running!",
                     )
                 else:
                     # Handle digital product delivery
-                    product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+                    product = next(
+                        (p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id),
+                        None,
+                    )
                     if product:
                         await bot.send_message(
                             result.user_id,
@@ -119,7 +134,7 @@ async def setup_neonpay():
                             f"Product: {product['symbol']} {product['title']}\n"
                             f"Price: {product['price']}⭐\n\n"
                             f"Your digital product has been activated!\n"
-                            f"Thank you for your purchase! 🚀"
+                            f"Thank you for your purchase! 🚀",
                         )
 
                 # Remove buttons after successful payment
@@ -131,7 +146,9 @@ async def setup_neonpay():
                         message_id=message_id,
                         reply_markup=None,
                     )
-                logger.info(f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}")
+                logger.info(
+                    f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}"
+                )
 
             except Exception as e:
                 logger.exception(f"Failed to send post-payment message: {e}")
@@ -319,15 +336,15 @@ async def buy_product(callback: CallbackQuery):
 
     try:
         # Send payment using NeonPay
-        await neonpay.send_payment(
-            user_id=callback.from_user.id, stage_id=product_id
-        )
+        await neonpay.send_payment(user_id=callback.from_user.id, stage_id=product_id)
 
         # Store chat and message ID for handle_payment
         callback.message._neonpay_chat_id = callback.message.chat.id
         callback.message._neonpay_message_id = callback.message.message_id
 
-        logger.info(f"Product purchase started: user={callback.from_user.id}, product={product_id}")
+        logger.info(
+            f"Product purchase started: user={callback.from_user.id}, product={product_id}"
+        )
         await callback.answer("✅ Payment message sent")
 
     except Exception as e:

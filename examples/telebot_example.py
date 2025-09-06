@@ -29,9 +29,21 @@ neonpay = None
 
 # Donation options: amount and description before payment
 DONATE_OPTIONS = [
-    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
-    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
-    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+    {
+        "amount": 1,
+        "symbol": "⭐",
+        "desc": "1⭐ support: Will be used for bot server costs",
+    },
+    {
+        "amount": 10,
+        "symbol": "⭐",
+        "desc": "10⭐ support: Will be spent on developing new features",
+    },
+    {
+        "amount": 50,
+        "symbol": "🌟",
+        "desc": "50⭐ big support: Will be used for bot development and promotion",
+    },
 ]
 
 # Digital products store
@@ -41,23 +53,24 @@ DIGITAL_PRODUCTS = [
         "title": "Premium Access",
         "description": "Unlock all premium features for 30 days",
         "price": 25,
-        "symbol": "👑"
+        "symbol": "👑",
     },
     {
         "id": "custom_theme",
         "title": "Custom Theme",
         "description": "Personalized bot theme and colors",
         "price": 15,
-        "symbol": "🎨"
+        "symbol": "🎨",
     },
     {
         "id": "priority_support",
         "title": "Priority Support",
         "description": "24/7 priority customer support",
         "price": 30,
-        "symbol": "⚡"
+        "symbol": "⚡",
     },
 ]
+
 
 def setup_neonpay():
     """Initialize NEONPAY with real-world configuration"""
@@ -89,6 +102,7 @@ def setup_neonpay():
             ),
         )
 
+
 @neonpay.on_payment
 async def handle_payment(result):
     if result.status == PaymentStatus.COMPLETED:
@@ -98,11 +112,13 @@ async def handle_payment(result):
                 bot.send_message(
                     result.user_id,
                     f"Thank you! Your support: {result.amount}⭐ ❤️\n"
-                    f"Your contribution helps keep the bot running!"
+                    f"Your contribution helps keep the bot running!",
                 )
             else:
                 # Handle digital product delivery
-                product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+                product = next(
+                    (p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None
+                )
                 if product:
                     bot.send_message(
                         result.user_id,
@@ -110,10 +126,12 @@ async def handle_payment(result):
                         f"Product: {product['symbol']} {product['title']}\n"
                         f"Price: {product['price']}⭐\n\n"
                         f"Your digital product has been activated!\n"
-                        f"Thank you for your purchase! 🚀"
+                        f"Thank you for your purchase! 🚀",
                     )
 
-            logger.info(f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}")
+            logger.info(
+                f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}"
+            )
 
         except Exception as e:
             logger.exception(f"Failed to send post-payment message: {e}")
@@ -254,12 +272,17 @@ def callback_handler(call):
             option = next((o for o in DONATE_OPTIONS if o["amount"] == amount), None)
 
             if not option:
-                bot.answer_callback_query(call.id, "Error: Selected amount not found", show_alert=True)
+                bot.answer_callback_query(
+                    call.id, "Error: Selected amount not found", show_alert=True
+                )
                 return
 
             # Send payment using NeonPay
             import asyncio
-            asyncio.run(neonpay.send_payment(user_id=user_id, stage_id=f"donate_{amount}"))
+
+            asyncio.run(
+                neonpay.send_payment(user_id=user_id, stage_id=f"donate_{amount}")
+            )
             logger.info(f"Support started: user={user_id}, amount={amount}")
             bot.answer_callback_query(call.id, "✅ Payment message sent")
 
@@ -268,17 +291,23 @@ def callback_handler(call):
             product = next((p for p in DIGITAL_PRODUCTS if p["id"] == product_id), None)
 
             if not product:
-                bot.answer_callback_query(call.id, "Error: Product not found", show_alert=True)
+                bot.answer_callback_query(
+                    call.id, "Error: Product not found", show_alert=True
+                )
                 return
 
             # Send payment using NeonPay
             asyncio.run(neonpay.send_payment(user_id=user_id, stage_id=product_id))
-            logger.info(f"Product purchase started: user={user_id}, product={product_id}")
+            logger.info(
+                f"Product purchase started: user={user_id}, product={product_id}"
+            )
             bot.answer_callback_query(call.id, "✅ Payment message sent")
 
     except Exception as e:
         logger.exception(f"Failed to handle callback: {e}")
-        bot.answer_callback_query(call.id, "💥 Error occurred during payment", show_alert=True)
+        bot.answer_callback_query(
+            call.id, "💥 Error occurred during payment", show_alert=True
+        )
 
 
 # Initialize and run
