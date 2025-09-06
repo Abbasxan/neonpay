@@ -47,7 +47,7 @@ class TelebotAdapter(PaymentAdapter):
             prices = [LabeledPrice(label=stage.label, amount=stage.price)]
 
             self.bot.send_invoice(
-                user_id=user_id,
+                chat_id=user_id,
                 title=stage.title,
                 description=stage.description,
                 invoice_payload=payload,
@@ -130,7 +130,6 @@ class TelebotAdapter(PaymentAdapter):
                 else:
                     loop.run_until_complete(coro)
         except RuntimeError:
-            # No running loop, run in separate thread
             def run() -> None:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
