@@ -13,7 +13,7 @@ Features:
 import asyncio
 import json
 import logging
-import random
+import secrets
 from typing import Any, Callable, Optional
 
 from .errors import StarsPaymentError
@@ -165,7 +165,7 @@ class NeonStars:
                     peer=peer,
                     media=media,
                     message=f"{label}\n\n{description}\n\n{self.thank_you}",
-                    random_id=random.getrandbits(64),
+                    random_id=secrets.randbits(64),
                 )
             )
         except Exception as e:
