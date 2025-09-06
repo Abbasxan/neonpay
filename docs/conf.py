@@ -8,8 +8,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "NEONPAY"
-copyright = "2024, NEONPAY Team"
-author = "NEONPAY Team"
+copyright = "2024, Neon Group LLC"
+author = "Abbasxan"
 release = "1.0.0"
 
 # -- General configuration ---------------------------------------------------
@@ -52,3 +52,4 @@ myst_enable_extensions = [
 
 # Optionally, allow markdown math
 myst_update_mathjax = True
+
