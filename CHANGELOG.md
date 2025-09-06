@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📚 Updated documentation and improved examples
 - 🛡️ Strengthened webhook security mechanisms
 - 🔧 Better error messages and enhanced debugging support
+- ⚡ Added TgCrypto as core dependency for faster Pyrogram operations
 
 ### Changed
 - Improved async/sync compatibility across all adapters

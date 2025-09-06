@@ -16,24 +16,47 @@ import logging
 import asyncio
 from typing import Any, Callable, Optional
 
-# Optional import for Pyrogram
-try:
-    from pyrogram.raw.types import (
-        LabeledPrice,
-        Invoice,
-        InputWebDocument,
-        InputMediaInvoice,
-        DataJSON,
-        UpdateBotPrecheckoutQuery,
-        MessageActionPaymentSentMe,
-    )
-    from pyrogram.raw.functions.messages import SendMedia, SetBotPrecheckoutResults
-
-    PYROGRAM_AVAILABLE = True
-except ImportError:
-    PYROGRAM_AVAILABLE = False
+# Pyrogram imports will be loaded lazily when needed
+PYROGRAM_AVAILABLE = None
 
 from .errors import StarsPaymentError
+
+
+def _load_pyrogram():
+    """Lazy load Pyrogram types and functions"""
+    global PYROGRAM_AVAILABLE
+    if PYROGRAM_AVAILABLE is None:
+        try:
+            from pyrogram.raw.types import (
+                LabeledPrice,
+                Invoice,
+                InputWebDocument,
+                InputMediaInvoice,
+                DataJSON,
+                UpdateBotPrecheckoutQuery,
+                MessageActionPaymentSentMe,
+            )
+            from pyrogram.raw.functions.messages import (
+                SendMedia,
+                SetBotPrecheckoutResults,
+            )
+
+            # Store the imports in globals for this module
+            globals()["LabeledPrice"] = LabeledPrice
+            globals()["Invoice"] = Invoice
+            globals()["InputWebDocument"] = InputWebDocument
+            globals()["InputMediaInvoice"] = InputMediaInvoice
+            globals()["DataJSON"] = DataJSON
+            globals()["UpdateBotPrecheckoutQuery"] = UpdateBotPrecheckoutQuery
+            globals()["MessageActionPaymentSentMe"] = MessageActionPaymentSentMe
+            globals()["SendMedia"] = SendMedia
+            globals()["SetBotPrecheckoutResults"] = SetBotPrecheckoutResults
+
+            PYROGRAM_AVAILABLE = True
+        except ImportError:
+            PYROGRAM_AVAILABLE = False
+    return PYROGRAM_AVAILABLE
+
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +104,11 @@ class NeonStars:
         photo_url: str = "https://telegram.org/img/t_logo.png",
     ) -> None:
         """Send an invoice (Telegram Stars donation request) to the user."""
+        if not _load_pyrogram():
+            raise ImportError(
+                "Pyrogram is not installed. Install with: pip install pyrogram"
+            )
+
         try:
             peer = await self.app.resolve_peer(user_id)
         except Exception:
@@ -122,6 +150,9 @@ class NeonStars:
         """
         Automatically handle pre-checkout requests and successful payments.
         """
+        if not _load_pyrogram():
+            return  # Skip processing if Pyrogram is not available
+
         try:
             # Pre-checkout query
             if isinstance(update, UpdateBotPrecheckoutQuery):

@@ -38,6 +38,7 @@ if license_file.exists():
 install_requires = [
     "aiohttp>=3.8.0",
     "typing-extensions>=4.0.0; python_version<'3.10'",
+    "tgcrypto>=1.2.0",
 ]
 
 # Optional dependencies
