@@ -1,13 +1,16 @@
 """
-NEONPAY python-telegram-bot Example
-Complete example showing how to use NEONPAY with python-telegram-bot v20.0+
+NEONPAY python-telegram-bot Example - Real-world Bot Implementation
+Complete ready-to-use bot with donation system and digital store
+Based on real production usage patterns
 """
 
 import logging
+from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-from neonpay import create_neonpay, PaymentStage, PaymentResult
+from neonpay.factory import create_neonpay
+from neonpay.core import PaymentStage, PaymentStatus
 
 # Configure logging
 logging.basicConfig(
@@ -18,247 +21,212 @@ logger = logging.getLogger(__name__)
 # Bot token
 BOT_TOKEN = "YOUR_BOT_TOKEN"  # Replace with your bot token
 
-# Service catalog
-SERVICES = {
-    "web_design": {
-        "name": "🎨 Web Design",
-        "description": "Professional website design service",
-        "price": 1000,
-        "delivery_time": "5-7 days",
+neonpay = None
+
+# Donation options: amount and description before payment
+DONATE_OPTIONS = [
+    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
+    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
+    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+]
+
+# Digital products store
+DIGITAL_PRODUCTS = [
+    {
+        "id": "premium_access",
+        "title": "Premium Access",
+        "description": "Unlock all premium features for 30 days",
+        "price": 25,
+        "symbol": "👑"
     },
-    "logo_design": {
-        "name": "🎯 Logo Design",
-        "description": "Custom logo design with revisions",
-        "price": 300,
-        "delivery_time": "2-3 days",
+    {
+        "id": "custom_theme",
+        "title": "Custom Theme",
+        "description": "Personalized bot theme and colors",
+        "price": 15,
+        "symbol": "🎨"
     },
-    "seo_audit": {
-        "name": "📈 SEO Audit",
-        "description": "Complete SEO analysis and recommendations",
-        "price": 150,
-        "delivery_time": "1-2 days",
+    {
+        "id": "priority_support",
+        "title": "Priority Support",
+        "description": "24/7 priority customer support",
+        "price": 30,
+        "symbol": "⚡"
     },
-    "content_writing": {
-        "name": "✍️ Content Writing",
-        "description": "Professional content writing service",
-        "price": 200,
-        "delivery_time": "3-4 days",
-    },
-}
+]
 
 
 async def setup_neonpay(application: Application) -> None:
-    """Initialize NEONPAY with payment stages"""
+    """Initialize NEONPAY with real-world configuration"""
     global neonpay
+    if neonpay:
+        return neonpay
 
-    # Create NEONPAY instance
-    neonpay = create_neonpay(application, "Thank you for choosing our services! 🚀")
+    neonpay = create_neonpay(bot_instance=application.bot)
 
-    # Create payment stages for all services
-    for service_id, service in SERVICES.items():
-        stage = PaymentStage(
-            title=service["name"],
-            description=f"{service['description']} (Delivery: {service['delivery_time']})",
-            price=service["price"],
-            label=f"Order for {service['price']} ⭐",
-            photo_url=f"https://via.placeholder.com/400x300/FF5722/white?text={service['name'].split()[1]}",
-            payload={
-                "service_id": service_id,
-                "service_name": service["name"],
-                "delivery_time": service["delivery_time"],
-                "category": "professional_service",
-            },
-        )
-        neonpay.create_payment_stage(service_id, stage)
-
-    logger.info("✅ NEONPAY initialized with payment stages")
-
-
-# Payment completion handler
-async def handle_payment(result: PaymentResult) -> None:
-    """Process successful service orders"""
-    user_id = result.user_id
-    amount = result.amount
-    service_id = result.metadata.get("service_id")
-    service_name = result.metadata.get("service_name", "Unknown Service")
-    delivery_time = result.metadata.get("delivery_time", "Unknown")
-
-    logger.info(f"💼 Service ordered: {service_name} by user {user_id} for {amount} ⭐")
-
-    # Send order confirmation
-    confirmation_text = (
-        f"✅ **Order Confirmed!**\n\n"
-        f"🛍️ Service: {service_name}\n"
-        f"💰 Amount: {amount} ⭐\n"
-        f"⏰ Delivery: {delivery_time}\n"
-        f"📋 Order ID: #{result.transaction_id or 'NEON' + str(user_id)[-4:]}\n\n"
-        f"📞 We'll contact you within 24 hours to discuss project details.\n"
-        f"📧 Check your messages for further instructions!"
-    )
-
-    # Create action buttons
-    keyboard = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    "📋 Project Brief", callback_data=f"brief_{service_id}"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "💬 Contact Manager", callback_data="contact_manager"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "📊 Order Status", callback_data=f"status_{service_id}"
-                )
-            ],
-        ]
-    )
-
-    try:
-        # Get application instance to send message
-        app = neonpay.adapter.application
-        await app.bot.send_message(
-            user_id, confirmation_text, reply_markup=keyboard, parse_mode="Markdown"
+    # Create payment stages for donations
+    for option in DONATE_OPTIONS:
+        neonpay.create_payment_stage(
+            f"donate_{option['amount']}",
+            PaymentStage(
+                title=f"Support {option['amount']}{option['symbol']}",
+                description=option["desc"],
+                price=option["amount"],
+            ),
         )
 
-        # Start project workflow
-        await initiate_project(user_id, service_id, result.transaction_id)
+    # Create payment stages for digital products
+    for product in DIGITAL_PRODUCTS:
+        neonpay.create_payment_stage(
+            product["id"],
+            PaymentStage(
+                title=f"{product['symbol']} {product['title']}",
+                description=product["description"],
+                price=product["price"],
+            ),
+        )
+
+    @neonpay.on_payment
+    async def handle_payment(result):
+        if result.status == PaymentStatus.COMPLETED:
+            try:
+                # Determine if it's a donation or product purchase
+                if result.stage_id.startswith("donate_"):
+                    await application.bot.send_message(
+                        result.user_id,
+                        f"Thank you! Your support: {result.amount}⭐ ❤️\n"
+                        f"Your contribution helps keep the bot running!"
+                    )
+                else:
+                    # Handle digital product delivery
+                    product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+                    if product:
+                        await application.bot.send_message(
+                            result.user_id,
+                            f"🎉 Purchase successful!\n\n"
+                            f"Product: {product['symbol']} {product['title']}\n"
+                            f"Price: {product['price']}⭐\n\n"
+                            f"Your digital product has been activated!\n"
+                            f"Thank you for your purchase! 🚀"
+                        )
+
+                logger.info(f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}")
 
     except Exception as e:
-        logger.error(f"Failed to send confirmation to user {user_id}: {e}")
+                logger.exception(f"Failed to send post-payment message: {e}")
+
+    logger.info("✅ NEONPAY payment system initialized")
+    return neonpay
 
 
-async def initiate_project(user_id: int, service_id: str, transaction_id: str) -> None:
-    """Start project workflow after payment"""
-    # In a real application, you would:
-    # 1. Create project in database
-    # 2. Assign project manager
-    # 3. Send project brief form
-    # 4. Schedule initial consultation
+# Bot commands
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Welcome new users"""
+    user_name = update.effective_user.first_name or "Friend"
 
-    logger.info(f"🚀 Project initiated for user {user_id}, service {service_id}")
-
-
-# Command handlers
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send welcome message"""
     welcome_text = (
-        "🏢 **Welcome to Professional Services Bot!**\n\n"
-        "We offer high-quality digital services:\n"
-        "• Web Design & Development\n"
-        "• Logo & Brand Design\n"
-        "• SEO & Marketing\n"
-        "• Content Creation\n\n"
-        "💫 All payments processed securely with Telegram Stars!\n\n"
-        "Use /services to browse our offerings."
+        f"👋 Hello {user_name}!\n\n"
+        f"🤖 I'm a free bot created with love by an independent developer.\n\n"
+        f"📱 **Available Commands:**\n"
+        f"• /help - Show all commands\n"
+        f"• /donate - Support the developer\n"
+        f"• /store - Digital products store\n"
+        f"• /status - Bot statistics\n\n"
+        f"💡 This bot is completely free to use!\n"
+        f"If you find it helpful, consider supporting development."
     )
 
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("🛍️ View Services", callback_data="show_services")],
-            [InlineKeyboardButton("📞 Contact Us", callback_data="contact_info")],
+            [InlineKeyboardButton("❤️ Support Developer", callback_data="show_donate")],
+            [InlineKeyboardButton("🛒 Digital Store", callback_data="show_store")],
+            [InlineKeyboardButton("📋 Help", callback_data="show_help")],
         ]
     )
 
-    await update.message.reply_text(
-        welcome_text, reply_markup=keyboard, parse_mode="Markdown"
-    )
+    await update.message.reply_text(welcome_text, reply_markup=keyboard)
 
 
-async def services(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show available services"""
-    await show_services_catalog(update.effective_user.id, context)
-
-
-async def portfolio(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show portfolio examples"""
-    portfolio_text = (
-        "🎨 **Our Portfolio**\n\n"
-        "Recent projects:\n"
-        "• E-commerce website for TechStore\n"
-        "• Brand identity for StartupCo\n"
-        "• SEO campaign for LocalBiz\n"
-        "• Content strategy for BlogSite\n\n"
-        "🏆 100+ satisfied clients\n"
-        "⭐ 4.9/5 average rating\n"
-        "🚀 2-week average delivery"
-    )
+async def donate_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show donation options"""
+    logging.info(f"/donate command received: user={update.effective_user.id}")
 
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("🛍️ Order Service", callback_data="show_services")],
-            [InlineKeyboardButton("💬 Get Quote", callback_data="get_quote")],
+            [InlineKeyboardButton(
+                text=f"{opt['symbol']} {opt['amount']}",
+                callback_data=f"donate:{opt['amount']}",
+            )]
+            for opt in DONATE_OPTIONS
         ]
     )
 
     await update.message.reply_text(
-        portfolio_text, reply_markup=keyboard, parse_mode="Markdown"
+        "Please choose an amount to support the developer:", reply_markup=keyboard
     )
+
+
+async def store_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show digital products store"""
+    logging.info(f"/store command received: user={update.effective_user.id}")
+
+    keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton(
+                text=f"{product['symbol']} {product['title']} - {product['price']}⭐",
+                callback_data=f"buy:{product['id']}",
+            )]
+            for product in DIGITAL_PRODUCTS
+        ]
+    )
+
+    store_text = (
+        "🛒 **Digital Products Store**\n\n"
+        "Choose a product to purchase:\n\n"
+        "💡 All products are delivered instantly after payment!"
+    )
+
+    await update.message.reply_text(store_text, reply_markup=keyboard)
+
+
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show bot status and statistics"""
+    uptime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    status_text = (
+        "📊 **Bot Status**\n\n"
+        f"✅ Status: Online\n"
+        f"⏰ Last restart: {uptime}\n"
+        f"💫 Payment system: Active\n"
+        f"🔧 Version: 2.0\n\n"
+        f"Thank you for using this free bot!"
+    )
+
+    await update.message.reply_text(status_text)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Show help information"""
     help_text = (
-        "🆘 **Help & Support**\n\n"
-        "**Available Commands:**\n"
+        "📋 **Bot Help**\n\n"
+        "🆓 **This bot is completely free!**\n\n"
+        "**Commands:**\n"
         "• /start - Welcome message\n"
-        "• /services - Browse services\n"
-        "• /portfolio - View our work\n"
-        "• /contact - Contact information\n"
+        "• /donate - Support development\n"
+        "• /store - Digital products store\n"
+        "• /status - Bot statistics\n"
         "• /help - This help message\n\n"
-        "**How to Order:**\n"
-        "1. Browse services with /services\n"
-        "2. Select a service you need\n"
-        "3. Pay with Telegram Stars\n"
-        "4. Fill out project brief\n"
-        "5. Get your project delivered!\n\n"
-        "**Payment Info:**\n"
-        "• We accept Telegram Stars (⭐)\n"
-        "• Payments are instant and secure\n"
-        "• Refunds available within 24h\n\n"
-        "Need help? Contact @support"
+        "**About:**\n"
+        "This bot was created by an independent developer.\n"
+        "All features are free, donations help keep it running!\n\n"
+        "🐛 Found a bug? Contact @your_username"
     )
 
-    await update.message.reply_text(help_text, parse_mode="Markdown")
-
-
-async def show_services_catalog(
-    user_id: int, context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    """Display services catalog"""
-    catalog_text = "🛍️ **Professional Services**\n\nChoose a service to order:"
-
-    # Create service buttons
-    keyboard_buttons = []
-    for service_id, service in SERVICES.items():
-        button_text = f"{service['name']} - {service['price']} ⭐"
-        keyboard_buttons.append(
-            [
-                InlineKeyboardButton(
-                    text=button_text, callback_data=f"service_{service_id}"
-                )
-            ]
-        )
-
-    keyboard_buttons.append(
-        [InlineKeyboardButton("💬 Custom Quote", callback_data="custom_quote")]
-    )
-
-    keyboard = InlineKeyboardMarkup(keyboard_buttons)
-
-    try:
-        await context.bot.send_message(
-            user_id, catalog_text, reply_markup=keyboard, parse_mode="Markdown"
-        )
-    except Exception as e:
-        logger.error(f"Failed to send catalog to user {user_id}: {e}")
+    await update.message.reply_text(help_text)
 
 
 # Callback query handlers
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle inline button presses"""
     query = update.callback_query
     await query.answer()
@@ -266,187 +234,82 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     data = query.data
     user_id = query.from_user.id
 
-    if data == "show_services":
-        await show_services_catalog(user_id, context)
+    try:
+        if data == "show_donate":
+            await donate_command(update, context)
+        elif data == "show_store":
+            await store_command(update, context)
+        elif data == "show_help":
+            await help_command(update, context)
+        elif data.startswith("donate:"):
+            amount = int(data.split(":")[1])
+            option = next((o for o in DONATE_OPTIONS if o["amount"] == amount), None)
 
-    elif data.startswith("service_"):
-        service_id = data.split("_")[1]
-        await show_service_details(query, service_id, context)
+            if not option:
+                await query.answer("Error: Selected amount not found", show_alert=True)
+                return
 
-    elif data.startswith("order_"):
-        service_id = data.split("_")[1]
-        await process_order(query, service_id, context)
+            # Send payment using NeonPay
+            await neonpay.send_payment(user_id=user_id, stage_id=f"donate_{amount}")
+            logger.info(f"Support started: user={user_id}, amount={amount}")
+            await query.answer("✅ Payment message sent")
 
-    elif data.startswith("brief_"):
-        service_id = data.split("_")[1]
-        await send_project_brief(query, service_id, context)
+        elif data.startswith("buy:"):
+            product_id = data.split(":")[1]
+            product = next((p for p in DIGITAL_PRODUCTS if p["id"] == product_id), None)
 
-    elif data == "contact_manager":
-        await show_contact_info(query, context)
-
-    elif data == "contact_info":
-        await show_contact_info(query, context)
-
-    elif data == "custom_quote":
-        await request_custom_quote(query, context)
-
-
-async def show_service_details(
-    query, service_id: str, context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    """Show detailed service information"""
-    service = SERVICES.get(service_id)
-    if not service:
-        await query.edit_message_text("❌ Service not found")
+            if not product:
+                await query.answer("Error: Product not found", show_alert=True)
         return
 
-    details_text = (
-        f"{service['name']}\n\n"
-        f"📝 **Description:**\n{service['description']}\n\n"
-        f"💰 **Price:** {service['price']} ⭐\n"
-        f"⏰ **Delivery:** {service['delivery_time']}\n\n"
-        f"**What's Included:**\n"
-        f"• Professional consultation\n"
-        f"• Custom design/development\n"
-        f"• Unlimited revisions\n"
-        f"• Final files delivery\n"
-        f"• 30-day support\n\n"
-        f"Ready to order?"
-    )
+            # Send payment using NeonPay
+            await neonpay.send_payment(user_id=user_id, stage_id=product_id)
+            logger.info(f"Product purchase started: user={user_id}, product={product_id}")
+            await query.answer("✅ Payment message sent")
 
-    keyboard = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    f"💳 Order Now ({service['price']} ⭐)",
-                    callback_data=f"order_{service_id}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "🔙 Back to Services", callback_data="show_services"
-                )
-            ],
-        ]
-    )
-
-    await query.edit_message_text(
-        details_text, reply_markup=keyboard, parse_mode="Markdown"
-    )
-
-
-async def process_order(
-    query, service_id: str, context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    """Process service order"""
-    user_id = query.from_user.id
-
-    try:
-        success = await neonpay.send_payment(user_id, service_id)
-        if success:
-            await query.edit_message_text(
-                "💫 **Payment Invoice Sent!**\n\n"
-                "Please check your messages and complete the payment.\n"
-                "We'll start working on your project immediately after payment confirmation."
-            )
-        else:
-            await query.edit_message_text(
-                "❌ Failed to create payment. Please try again."
-            )
     except Exception as e:
-        logger.error(f"Order error for user {user_id}: {e}")
-        await query.edit_message_text(f"❌ Error: {e}")
+        logger.exception(f"Failed to handle callback: {e}")
+        await query.answer("💥 Error occurred during payment", show_alert=True)
 
 
-async def send_project_brief(
-    query, service_id: str, context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    """Send project brief form"""
-    service = SERVICES.get(service_id)
-    brief_text = (
-        f"📋 **Project Brief - {service['name']}**\n\n"
-        f"Please provide the following information:\n\n"
-        f"1. **Project Goals:** What do you want to achieve?\n"
-        f"2. **Target Audience:** Who is your audience?\n"
-        f"3. **Style Preferences:** Any specific style/design preferences?\n"
-        f"4. **Timeline:** Any specific deadlines?\n"
-        f"5. **Additional Notes:** Anything else we should know?\n\n"
-        f"📧 Send your brief to: projects@example.com\n"
-        f"💬 Or reply to this message with your details."
-    )
+# Main function
+async def main() -> None:
+    """Initialize and run the bot"""
+    logger.info("🚀 Starting NEONPAY PTB Bot...")
 
-    await query.edit_message_text(brief_text, parse_mode="Markdown")
-
-
-async def show_contact_info(query, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show contact information"""
-    contact_text = (
-        "📞 **Contact Information**\n\n"
-        "**Project Manager:**\n"
-        "👤 Sarah Johnson\n"
-        "📧 sarah@example.com\n"
-        "💬 @sarah_pm\n\n"
-        "**Support Team:**\n"
-        "📧 support@example.com\n"
-        "💬 @support_bot\n"
-        "📞 +1 (555) 123-4567\n\n"
-        "**Business Hours:**\n"
-        "🕘 Monday-Friday: 9 AM - 6 PM UTC\n"
-        "🕘 Saturday: 10 AM - 4 PM UTC\n"
-        "🕘 Sunday: Closed\n\n"
-        "⚡ Average response time: 2 hours"
-    )
-
-    await query.edit_message_text(contact_text, parse_mode="Markdown")
-
-
-async def request_custom_quote(query, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle custom quote request"""
-    quote_text = (
-        "💼 **Custom Quote Request**\n\n"
-        "Need something specific? We'd love to help!\n\n"
-        "Please describe your project:\n"
-        "• What service do you need?\n"
-        "• What's your budget range?\n"
-        "• What's your timeline?\n"
-        "• Any special requirements?\n\n"
-        "📧 Send details to: quotes@example.com\n"
-        "💬 Or contact our sales team: @sales_team\n\n"
-        "We'll get back to you within 24 hours with a custom quote!"
-    )
-
-    await query.edit_message_text(quote_text, parse_mode="Markdown")
-
-
-def main() -> None:
-    """Run the bot"""
     # Create application
     application = Application.builder().token(BOT_TOKEN).build()
 
+    try:
     # Setup NEONPAY
-    import asyncio
+        await setup_neonpay(application)
 
-    asyncio.create_task(setup_neonpay(application))
-
-    # Register payment handler
-    neonpay.on_payment(handle_payment)
-
-    # Add command handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("services", services))
-    application.add_handler(CommandHandler("portfolio", portfolio))
+        # Add handlers
+        application.add_handler(CommandHandler("start", start_command))
+        application.add_handler(CommandHandler("donate", donate_command))
+        application.add_handler(CommandHandler("store", store_command))
+        application.add_handler(CommandHandler("status", status_command))
     application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CallbackQueryHandler(callback_handler))
 
-    # Add callback handler
-    application.add_handler(CallbackQueryHandler(button_handler))
+        logger.info("✅ Bot initialized successfully!")
+        logger.info("💰 Donation system ready!")
+        logger.info("🛒 Digital store ready!")
+        logger.info("🔄 Starting polling...")
 
-    # Log startup
-    logger.info("🚀 Starting NEONPAY python-telegram-bot Demo...")
-    logger.info("💫 NEONPAY is ready to process payments!")
+        # Start polling
+        await application.run_polling()
 
-    # Run the bot
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    except Exception as e:
+        logger.error(f"Failed to start bot: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        import asyncio
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("👋 Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Critical error: {e}")

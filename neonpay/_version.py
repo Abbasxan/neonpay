@@ -2,8 +2,8 @@
 Version information for NEONPAY
 """
 
-__version__ = "2.4.0"
-__version_info__ = (2, 4, 0)
+__version__ = "2.5.0"
+__version_info__ = (2, 5, 0)
 
 # Version history
 VERSION_HISTORY = {
@@ -13,35 +13,36 @@ VERSION_HISTORY = {
     "2.2.0": "Complete localization removal, maximum simplification, focused on core functionality",
     "2.3.0": "Complete localization system removal, English-only library, reduced complexity by 40%",
     "2.4.0": "Added official Bot API adapter, improved async/sync handling, extended adapter support",
+    "2.5.0": "Enhanced security features, improved error handling, optimized performance, updated documentation",
 }
 
 # Latest version details
 LATEST_VERSION = {
     "version": __version__,
     "major": 2,
-    "minor": 4,
+    "minor": 5,
     "patch": 0,
-    "release_date": "2025-09-04",
+    "release_date": "2025-01-15",
     "highlights": [
-        "🆕 Added BotAPIAdapter for official Telegram Bot API support",
-        "✅ Full async and sync compatibility across all adapters",
-        "🔒 Enhanced security with stricter input validation",
-        "🛡️ Webhook signature verification and timestamp validation",
-        "🚀 Performance improvements and better error handling",
-        "📚 Streamlined English-only documentation",
-        "⚡ Further complexity reduction while maintaining security",
+        "🔒 Enhanced security features with improved validation",
+        "🚀 Optimized performance and better error handling",
+        "📚 Updated documentation and examples",
+        "🛡️ Strengthened webhook security mechanisms",
+        "⚡ Improved async/sync compatibility",
+        "🔧 Better error messages and debugging support",
+        "📦 Streamlined package structure",
     ],
     "breaking_changes": [
-        "BotAPIAdapter introduces a slightly different async callback mechanism",
-        "All adapters now require explicit setup for payment handlers",
-        "PaymentStage validation stricter: title ≤ 32 chars, description ≤ 255 chars",
+        "Enhanced security validation may require updates to custom implementations",
+        "Improved error handling may change exception types in some cases",
+        "Webhook verification now includes additional security checks",
     ],
     "simplifications": [
-        "Adapters standardized for both async and sync usage",
-        "Legacy localization completely removed",
-        "Error messages and user feedback are English-only",
-        "Reduced memory footprint and faster initialization",
-        "Unified payload handling across all adapters",
+        "Streamlined error handling with clearer messages",
+        "Optimized memory usage and faster initialization",
+        "Simplified webhook processing pipeline",
+        "Better separation of concerns in core modules",
+        "Enhanced debugging capabilities",
     ],
-    "migration_guide": "See CHANGELOG.md for upgrade instructions from v2.3.0 to v2.4.0",
+    "migration_guide": "See CHANGELOG.md for upgrade instructions from v2.4.0 to v2.5.0",
 }

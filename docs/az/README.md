@@ -9,9 +9,11 @@ NEONPAY-ın tam sənədlərinə xoş gəlmisiniz. Bu bələdçi sizə Telegram S
 3. [Kitabxana dəstəyi](#kitabxana-dəstəyi)
 4. [Əsas konsepsiyalar](#əsas-konsepsiyalar)
 5. [API arayışı](#api-arayışı)
-6. [Nümunələr](#nümunələr)
+6. [Həqiqi nümunələr](#həqiqi-nümunələr)
 7. [Ən yaxşı təcrübələr](#ən-yaxşı-təcrübələr)
-8. [Problem həlli](#problem-həlli)
+8. [İstehsal yerləşdirilməsi](#istehsal-yerləşdirilməsi)
+9. [Problem həlli](#problem-həlli)
+10. [Dəstək](#dəstək)
 
 ## Quraşdırma
 
