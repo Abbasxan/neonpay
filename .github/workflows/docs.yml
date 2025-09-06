@@ -50,10 +50,6 @@ jobs:
           pip install -e .[dev]
           pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints myst-parser
 
-      - name: 🔍 Check documentation syntax
-        run: |
-          python -c "import neonpay; print('✅ neonpay imports successfully')"
-
       - name: 📚 Build documentation
         run: |
           cd docs
@@ -63,11 +59,10 @@ jobs:
       - name: 📂 Verify built docs
         run: ls -R docs/_build/html/
 
-      - name: 📊 Upload documentation artifacts
-        uses: actions/upload-artifact@v4
+      - name: 📊 Upload docs as Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: docs/_build/html/
+          path: docs/_build/html
 
   deploy-docs:
     name: 🚀 Deploy Documentation
@@ -75,24 +70,17 @@ jobs:
     needs: build-docs
     if: github.ref == 'refs/heads/main'
     permissions:
-      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: 📥 Download documentation artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: ./docs/_build/html
-
       - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
         with:
           token: ${{ secrets.MY_GITHUB_TOKEN }}
-          artifact_name: github-pages
 
   docs-quality:
     name: 📋 Documentation Quality
