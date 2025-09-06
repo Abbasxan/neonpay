@@ -8,9 +8,6 @@ Welcome to NEONPAY documentation! NEONPAY is a comprehensive payment processing 
    :caption: Contents:
 
    en/README
-   en/API
-   en/FAQ
-   en/SECURITY
    CHANGELOG
 
 Features
