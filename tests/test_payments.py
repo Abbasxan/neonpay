@@ -1,7 +1,9 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
+
 from neonpay.errors import StarsPaymentError
 from neonpay.payments import NeonStars
-from unittest.mock import AsyncMock, patch
 
 
 # Тестируем класс ошибки

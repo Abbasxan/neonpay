@@ -1,50 +1,65 @@
-name: Publish to PyPI / TestPyPI
+name: 📦 Legacy PyPI Publish (Deprecated)
+
+# ⚠️ This workflow is deprecated. Use release.yml instead for better release management.
+# This file is kept for backward compatibility only.
 
 on:
   push:
     tags:
-      - "v*"       # v2.3.0 → publish to PyPI
-      - "test/*"   # test/2.3.0 → publish to TestPyPI
+      - "legacy-v*"  # Only legacy tags
   workflow_dispatch: {}
 
 jobs:
-  build-n-publish:
+  legacy-publish:
+    name: 📦 Legacy PyPI Publish
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+    if: startsWith(github.ref, 'refs/tags/legacy-')
 
     steps:
-      - name: Checkout source
+      - name: ⚠️ Deprecation Warning
+        run: |
+          echo "⚠️  This workflow is deprecated!"
+          echo "🚀 Please use the new release.yml workflow for releases."
+          echo "📝 Create tags with format 'v*.*.*' instead of 'legacy-v*'"
+
+      - name: 📥 Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.11"
 
-      - name: Install build tools
+      - name: 💾 Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-legacy-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-legacy-
+            ${{ runner.os }}-pip-
+
+      - name: 📦 Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          pip install build twine
 
-      - name: Build package
+      - name: 🏗️ Build package
         run: python -m build
 
-      - name: Determine repository and token
-        id: vars
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/test/* ]]; then
-            echo "REPO_URL=https://test.pypi.org/legacy/" >> $GITHUB_ENV
-            echo "PYPI_TOKEN=${{ secrets.TEST_PYPI_API_TOKEN }}" >> $GITHUB_ENV
-          else
-            echo "REPO_URL=https://upload.pypi.org/legacy/" >> $GITHUB_ENV
-            echo "PYPI_TOKEN=${{ secrets.PYPI_API_TOKEN }}" >> $GITHUB_ENV
-          fi
+      - name: 🔍 Check package
+        run: twine check dist/*
 
-      - name: Publish package
+      - name: 📊 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-dist-${{ github.ref_name }}
+          path: dist/
+
+      - name: 🚀 Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ env.PYPI_TOKEN }}
-          repository-url: ${{ env.REPO_URL }}
+          password: ${{ secrets.PYPI_API_TOKEN }}

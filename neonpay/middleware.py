@@ -3,12 +3,12 @@ NEONPAY Middleware System
 Provides flexible payment processing pipeline with hooks and filters.
 """
 
-from typing import Any, Dict, List, Optional
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from .core import PaymentStage, PaymentResult
+from .core import PaymentResult, PaymentStage
 
 
 class PaymentMiddleware(ABC):
@@ -132,9 +132,10 @@ class WebhookMiddleware(PaymentMiddleware):
 
     async def _send_webhook(self, event_type: str, data: Dict[str, Any]) -> None:
         """Send webhook notification."""
-        import aiohttp
         import hashlib
         import hmac
+
+        import aiohttp
 
         payload = {"event": event_type, "data": data}
 

@@ -6,27 +6,29 @@ Based on python-telegram-bot (official Bot API library)
 import asyncio
 import logging
 from datetime import datetime
+
 from telegram import (
     Bot,
-    Update,
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Update,
 )
 from telegram.ext import (
     Application,
-    CommandHandler,
     CallbackQueryHandler,
-    PreCheckoutQueryHandler,
-    MessageHandler,
+    CommandHandler,
     ContextTypes,
+    MessageHandler,
+    PreCheckoutQueryHandler,
     filters,
 )
+
 from neonpay import (
+    BotAPIAdapter,
     NeonPayCore,
+    PaymentResult,
     PaymentStage,
     PaymentStatus,
-    BotAPIAdapter,
-    PaymentResult,
 )
 
 # Configure logging

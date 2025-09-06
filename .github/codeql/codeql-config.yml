@@ -1,0 +1,27 @@
+name: "NEONPAY CodeQL Configuration"
+
+# CodeQL configuration for NEONPAY security analysis
+# This configuration enables comprehensive security scanning
+
+paths:
+  - "neonpay/"
+  - "tests/"
+  - "examples/"
+
+paths-ignore:
+  - "**/__pycache__/"
+  - "**/.*"
+  - "**/node_modules/"
+  - "**/venv/"
+  - "**/.venv/"
+  - "**/.pytest_cache/"
+  - "**/.mypy_cache/"
+
+# Use security and quality packs for comprehensive analysis
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+  - uses: security-experimental
+
+# Disable default queries to avoid duplicates
+disable-default-queries: true
