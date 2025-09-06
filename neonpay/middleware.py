@@ -205,8 +205,6 @@ class MiddlewareManager:
                 processed_result = await middleware.after_payment(
                     current_result, context
                 )
-                if processed_result is None:
-                    return None
                 current_result = processed_result
             except Exception as e:
                 should_continue = await middleware.on_error(e, context)
