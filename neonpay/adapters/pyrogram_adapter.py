@@ -53,7 +53,9 @@ class PyrogramAdapter(PaymentAdapter):
 
             payload = json.dumps(
                 {"user_id": user_id, "amount": stage.price, **(stage.payload or {})}
-            ).encode("utf-8")  # bytes
+            ).encode(
+                "utf-8"
+            )  # bytes
 
             peer = await self.client.resolve_peer(user_id)
             if not isinstance(peer, InputPeerUser):
@@ -62,10 +64,7 @@ class PyrogramAdapter(PaymentAdapter):
             photo_doc = None
             if stage.photo_url:
                 photo_doc = InputWebDocument(
-                    url=stage.photo_url,
-                    size=0,
-                    mime_type="image/png",
-                    attributes=[]
+                    url=stage.photo_url, size=0, mime_type="image/png", attributes=[]
                 )
 
             await self.client.invoke(
