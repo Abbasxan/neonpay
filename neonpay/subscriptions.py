@@ -150,19 +150,20 @@ class Subscription:
         return max(0, int(days))
 
     def calculate_next_billing_date(self) -> float:
-        """Calculate next billing date based on period"""
-        current_time = time.time()
+    current_time = time.time()
 
-        if self.plan.period == SubscriptionPeriod.DAILY:
-            return current_time + (24 * 60 * 60)
-        elif self.plan.period == SubscriptionPeriod.WEEKLY:
-            return current_time + (7 * 24 * 60 * 60)
-        elif self.plan.period == SubscriptionPeriod.MONTHLY:
-            return current_time + (30 * 24 * 60 * 60)  # Approximate month
-        elif self.plan.period == SubscriptionPeriod.YEARLY:
-            return current_time + (365 * 24 * 60 * 60)  # Approximate year
-        else:
-            return current_time
+    if self.plan.period == SubscriptionPeriod.DAILY:
+        return current_time + (24 * 60 * 60)
+    if self.plan.period == SubscriptionPeriod.WEEKLY:
+        return current_time + (7 * 24 * 60 * 60)
+    if self.plan.period == SubscriptionPeriod.MONTHLY:
+        return current_time + (30 * 24 * 60 * 60)  # Approximate month
+    if self.plan.period == SubscriptionPeriod.YEARLY:
+        return current_time + (365 * 24 * 60 * 60)  # Approximate year
+
+    # Defensive fallback (should never happen if enum is exhaustive)
+    raise ValueError(f"Unsupported subscription period: {self.plan.period}")
+
 
 
 class SubscriptionManager:
