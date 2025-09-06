@@ -25,9 +25,21 @@ neonpay = None
 
 # Donation options: amount and description before payment
 DONATE_OPTIONS = [
-    {"amount": 1, "symbol": "⭐", "desc": "1⭐ support: Will be used for bot server costs"},
-    {"amount": 10, "symbol": "⭐", "desc": "10⭐ support: Will be spent on developing new features"},
-    {"amount": 50, "symbol": "🌟", "desc": "50⭐ big support: Will be used for bot development and promotion"},
+    {
+        "amount": 1,
+        "symbol": "⭐",
+        "desc": "1⭐ support: Will be used for bot server costs",
+    },
+    {
+        "amount": 10,
+        "symbol": "⭐",
+        "desc": "10⭐ support: Will be spent on developing new features",
+    },
+    {
+        "amount": 50,
+        "symbol": "🌟",
+        "desc": "50⭐ big support: Will be used for bot development and promotion",
+    },
 ]
 
 # Digital products store
@@ -37,21 +49,21 @@ DIGITAL_PRODUCTS = [
         "title": "Premium Access",
         "description": "Unlock all premium features for 30 days",
         "price": 25,
-        "symbol": "👑"
+        "symbol": "👑",
     },
     {
         "id": "custom_theme",
         "title": "Custom Theme",
         "description": "Personalized bot theme and colors",
         "price": 15,
-        "symbol": "🎨"
+        "symbol": "🎨",
     },
     {
         "id": "priority_support",
         "title": "Priority Support",
         "description": "24/7 priority customer support",
         "price": 30,
-        "symbol": "⚡"
+        "symbol": "⚡",
     },
 ]
 
@@ -95,11 +107,14 @@ async def setup_neonpay(application: Application) -> None:
                     await application.bot.send_message(
                         result.user_id,
                         f"Thank you! Your support: {result.amount}⭐ ❤️\n"
-                        f"Your contribution helps keep the bot running!"
+                        f"Your contribution helps keep the bot running!",
                     )
                 else:
                     # Handle digital product delivery
-                    product = next((p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id), None)
+                    product = next(
+                        (p for p in DIGITAL_PRODUCTS if p["id"] == result.stage_id),
+                        None,
+                    )
                     if product:
                         await application.bot.send_message(
                             result.user_id,
@@ -107,12 +122,14 @@ async def setup_neonpay(application: Application) -> None:
                             f"Product: {product['symbol']} {product['title']}\n"
                             f"Price: {product['price']}⭐\n\n"
                             f"Your digital product has been activated!\n"
-                            f"Thank you for your purchase! 🚀"
+                            f"Thank you for your purchase! 🚀",
                         )
 
-                logger.info(f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}")
+                logger.info(
+                    f"Payment completed: user={result.user_id}, amount={result.amount}, stage={result.stage_id}"
+                )
 
-    except Exception as e:
+            except Exception as e:
                 logger.exception(f"Failed to send post-payment message: {e}")
 
     logger.info("✅ NEONPAY payment system initialized")
@@ -153,10 +170,12 @@ async def donate_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton(
-                text=f"{opt['symbol']} {opt['amount']}",
-                callback_data=f"donate:{opt['amount']}",
-            )]
+            [
+                InlineKeyboardButton(
+                    text=f"{opt['symbol']} {opt['amount']}",
+                    callback_data=f"donate:{opt['amount']}",
+                )
+            ]
             for opt in DONATE_OPTIONS
         ]
     )
@@ -172,10 +191,12 @@ async def store_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     keyboard = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton(
-                text=f"{product['symbol']} {product['title']} - {product['price']}⭐",
-                callback_data=f"buy:{product['id']}",
-            )]
+            [
+                InlineKeyboardButton(
+                    text=f"{product['symbol']} {product['title']} - {product['price']}⭐",
+                    callback_data=f"buy:{product['id']}",
+                )
+            ]
             for product in DIGITAL_PRODUCTS
         ]
     )
@@ -260,11 +281,13 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
             if not product:
                 await query.answer("Error: Product not found", show_alert=True)
-        return
+                return
 
             # Send payment using NeonPay
             await neonpay.send_payment(user_id=user_id, stage_id=product_id)
-            logger.info(f"Product purchase started: user={user_id}, product={product_id}")
+            logger.info(
+                f"Product purchase started: user={user_id}, product={product_id}"
+            )
             await query.answer("✅ Payment message sent")
 
     except Exception as e:
@@ -281,7 +304,7 @@ async def main() -> None:
     application = Application.builder().token(BOT_TOKEN).build()
 
     try:
-    # Setup NEONPAY
+        # Setup NEONPAY
         await setup_neonpay(application)
 
         # Add handlers
@@ -289,7 +312,7 @@ async def main() -> None:
         application.add_handler(CommandHandler("donate", donate_command))
         application.add_handler(CommandHandler("store", store_command))
         application.add_handler(CommandHandler("status", status_command))
-    application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("help", help_command))
         application.add_handler(CallbackQueryHandler(callback_handler))
 
         logger.info("✅ Bot initialized successfully!")
@@ -308,6 +331,7 @@ async def main() -> None:
 if __name__ == "__main__":
     try:
         import asyncio
+
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("👋 Bot stopped by user")
