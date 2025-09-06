@@ -75,7 +75,6 @@ def validate_json_payload(payload: Dict[str, Any]) -> bool:
     return len(serialized) <= 1024
 
 
-
 @dataclass
 class PaymentStage:
     """
@@ -540,4 +539,3 @@ class NeonPayCore:
     def security(self) -> Optional[SecurityManager]:
         """Access to security system"""
         return self._security_manager
-
