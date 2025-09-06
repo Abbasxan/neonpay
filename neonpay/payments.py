@@ -22,18 +22,18 @@ from .errors import StarsPaymentError
 PYROGRAM_AVAILABLE = None
 
 # Initialize Pyrogram types as None - will be loaded when needed
-LabeledPrice = None
-Invoice = None
-InputWebDocument = None
-InputMediaInvoice = None
-DataJSON = None
-UpdateBotPrecheckoutQuery = None
-MessageActionPaymentSentMe = None
-SendMedia = None
-SetBotPrecheckoutResults = None
+LabeledPrice: Any = None
+Invoice: Any = None
+InputWebDocument: Any = None
+InputMediaInvoice: Any = None
+DataJSON: Any = None
+UpdateBotPrecheckoutQuery: Any = None
+MessageActionPaymentSentMe: Any = None
+SendMedia: Any = None
+SetBotPrecheckoutResults: Any = None
 
 
-def _load_pyrogram():
+def _load_pyrogram() -> bool:
     """Lazy load Pyrogram types and functions"""
     global PYROGRAM_AVAILABLE
     global LabeledPrice
@@ -44,15 +44,34 @@ def _load_pyrogram():
     global UpdateBotPrecheckoutQuery
     global MessageActionPaymentSentMe
     global SendMedia
-    global SetBotPrecheckoutResults  
-lobals()["Invoice"] = Invoice
-            globals()["InputWebDocument"] = InputWebDocument
-            globals()["InputMediaInvoice"] = InputMediaInvoice
-            globals()["DataJSON"] = DataJSON
-            globals()["UpdateBotPrecheckoutQuery"] = UpdateBotPrecheckoutQuery
-            globals()["MessageActionPaymentSentMe"] = MessageActionPaymentSentMe
-            globals()["SendMedia"] = SendMedia
-            globals()["SetBotPrecheckoutResults"] = SetBotPrecheckoutResults
+    global SetBotPrecheckoutResults
+
+    if PYROGRAM_AVAILABLE is None:
+        try:
+            from pyrogram.raw.types import (
+                LabeledPrice as _LabeledPrice,
+                Invoice as _Invoice,
+                InputWebDocument as _InputWebDocument,
+                InputMediaInvoice as _InputMediaInvoice,
+                DataJSON as _DataJSON,
+                UpdateBotPrecheckoutQuery as _UpdateBotPrecheckoutQuery,
+                MessageActionPaymentSentMe as _MessageActionPaymentSentMe,
+            )
+            from pyrogram.raw.functions.messages import (
+                SendMedia as _SendMedia,
+                SetBotPrecheckoutResults as _SetBotPrecheckoutResults,
+            )
+
+            # Update global variables
+            LabeledPrice = _LabeledPrice
+            Invoice = _Invoice
+            InputWebDocument = _InputWebDocument
+            InputMediaInvoice = _InputMediaInvoice
+            DataJSON = _DataJSON
+            UpdateBotPrecheckoutQuery = _UpdateBotPrecheckoutQuery
+            MessageActionPaymentSentMe = _MessageActionPaymentSentMe
+            SendMedia = _SendMedia
+            SetBotPrecheckoutResults = _SetBotPrecheckoutResults
 
             PYROGRAM_AVAILABLE = True
         except ImportError:
@@ -116,6 +135,10 @@ class NeonStars:
         except Exception:
             raise StarsPaymentError("User not found")
 
+        # Ensure Pyrogram types are loaded
+        if Invoice is None or LabeledPrice is None or InputMediaInvoice is None:
+            raise StarsPaymentError("Pyrogram types not loaded")
+
         invoice = Invoice(
             currency="XTR",
             prices=[LabeledPrice(label=label, amount=amount)],
@@ -155,34 +178,20 @@ class NeonStars:
         if not _load_pyrogram():
             return  # Skip processing if Pyrogram is not available
 
-                   media=media,
-                    message=f"{label}\n\n{description}\n\n{self.thank_you}",
-                    random_id=random.getrandbits(64),
-                )
-            )
-        except Exception as e:
-            raise StarsPaymentError(f"Failed to send invoice: {e}")
-
-    async def _on_raw_update(
-        self, client: Any, update: Any, users: Any, chats: Any
-    ) -> None:
-        """
-        Automatically handle pre-checkout requests and successful payments.
-        """
-        if not _load_pyrogram():
-            return  # Skip processing if Pyrogram is not available
-
         try:
             # Pre-checkout query
-            if isinstance(update, UpdateBotPrecheckoutQuery):
-            # Pre-checkout query
-            if isinstance(update, UpdateBotPrecheckoutQuery):
+            if UpdateBotPrecheckoutQuery is not None and isinstance(
+                update, UpdateBotPrecheckoutQuery
+            ):
+                await client.invoke(
+                    SetBotPrecheckoutResults(query_id=update.query_id, success=True)
                 )
                 return
 
             # Successful payment
             if (
                 hasattr(update, "message")
+                and MessageActionPaymentSentMe is not None
                 and isinstance(update.message.action, MessageActionPaymentSentMe)
                 and hasattr(update.message, "from_id")
                 and hasattr(update.message.from_id, "user_id")
@@ -204,3 +213,4 @@ class NeonStars:
 
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
+
