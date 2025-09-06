@@ -24,6 +24,18 @@ html:
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+# Multi-language documentation
+html-multilang:
+	@echo "Building English documentation..."
+	@$(SPHINXBUILD) -b html -D language=en "$(SOURCEDIR)" "$(BUILDDIR)/html/en" $(SPHINXOPTS) $(O)
+	@echo "Building Russian documentation..."
+	@$(SPHINXBUILD) -b html -D language=ru "$(SOURCEDIR)" "$(BUILDDIR)/html/ru" $(SPHINXOPTS) $(O)
+	@echo "Building Azerbaijani documentation..."
+	@$(SPHINXBUILD) -b html -D language=az "$(SOURCEDIR)" "$(BUILDDIR)/html/az" $(SPHINXOPTS) $(O)
+	@echo "Building main documentation..."
+	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
+	@echo "Multi-language build finished. The HTML pages are in $(BUILDDIR)/html."
+
 linkcheck:
 	@$(SPHINXBUILD) -b linkcheck "$(SOURCEDIR)" "$(BUILDDIR)/linkcheck" $(SPHINXOPTS) $(O)
 	@echo "Link check finished. Check $(BUILDDIR)/linkcheck/output.txt for any issues."
