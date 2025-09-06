@@ -13,6 +13,7 @@ Features:
 import json
 import random
 import logging
+import asyncio
 from typing import Any, Callable, Optional
 
 # Legacy compatibility - only import if pyrogram is available
@@ -136,3 +137,4 @@ class NeonStars:
 
         except Exception as e:
             self.logger.error(f"Error in _on_raw_update: {e}")
+
