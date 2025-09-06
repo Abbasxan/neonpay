@@ -22,18 +22,18 @@ from .errors import StarsPaymentError
 PYROGRAM_AVAILABLE = None
 
 # Initialize Pyrogram types as None - will be loaded when needed
-LabeledPrice = None
-Invoice = None
-InputWebDocument = None
-InputMediaInvoice = None
-DataJSON = None
-UpdateBotPrecheckoutQuery = None
-MessageActionPaymentSentMe = None
-SendMedia = None
-SetBotPrecheckoutResults = None
+LabeledPrice: Any = None
+Invoice: Any = None
+InputWebDocument: Any = None
+InputMediaInvoice: Any = None
+DataJSON: Any = None
+UpdateBotPrecheckoutQuery: Any = None
+MessageActionPaymentSentMe: Any = None
+SendMedia: Any = None
+SetBotPrecheckoutResults: Any = None
 
 
-def _load_pyrogram():
+def _load_pyrogram() -> bool:
     """Lazy load Pyrogram types and functions"""
     global PYROGRAM_AVAILABLE
     global LabeledPrice
@@ -135,6 +135,10 @@ class NeonStars:
         except Exception:
             raise StarsPaymentError("User not found")
 
+        # Ensure Pyrogram types are loaded
+        if Invoice is None or LabeledPrice is None or InputMediaInvoice is None:
+            raise StarsPaymentError("Pyrogram types not loaded")
+
         invoice = Invoice(
             currency="XTR",
             prices=[LabeledPrice(label=label, amount=amount)],
@@ -176,7 +180,9 @@ class NeonStars:
 
         try:
             # Pre-checkout query
-            if isinstance(update, UpdateBotPrecheckoutQuery):
+            if UpdateBotPrecheckoutQuery is not None and isinstance(
+                update, UpdateBotPrecheckoutQuery
+            ):
                 await client.invoke(
                     SetBotPrecheckoutResults(query_id=update.query_id, success=True)
                 )
@@ -185,6 +191,7 @@ class NeonStars:
             # Successful payment
             if (
                 hasattr(update, "message")
+                and MessageActionPaymentSentMe is not None
                 and isinstance(update.message.action, MessageActionPaymentSentMe)
                 and hasattr(update.message, "from_id")
                 and hasattr(update.message.from_id, "user_id")
