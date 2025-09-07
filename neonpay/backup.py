@@ -487,8 +487,8 @@ class SyncManager:
         """Synchronize data with another bot"""
         try:
             logger.info(f"Starting sync with bot: {target_bot_token[:10]}...")
-            # Create target bot instance (simplified)
-            target_neonpay = None  # TODO: implement real target instance
+            # Placeholder - в реальности нужно создать bot instance
+            target_neonpay: Optional[Any] = None  
 
             sync_results: Dict[str, Any] = {
                 "payment_stages": 0,
@@ -542,6 +542,7 @@ class SyncManager:
         except Exception as e:
             logger.error(f"Sync failed: {e}")
             return {"errors": [str(e)]}
+
 
 
     async def export_data(self, format_type: str = "json") -> str:
@@ -633,4 +634,5 @@ class BackupScheduler:
             except Exception as e:
                 logger.error(f"Scheduler error: {e}")
                 await asyncio.sleep(300)  # Wait 5 minutes before retrying
+
 
