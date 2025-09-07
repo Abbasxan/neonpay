@@ -375,7 +375,7 @@ def create_sync_app(
 
 async def run_sync_server(
     neonpay_instance: Any,
-    host: str = "0.0.0.0",
+    host: str = "localhost",
     port: int = 8080,
     webhook_secret: Optional[str] = None,
 ) -> None:
@@ -399,3 +399,4 @@ async def run_sync_server(
         logger.info("Sync server stopped by user")
     finally:
         await runner.cleanup()
+
