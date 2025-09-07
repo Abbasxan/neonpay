@@ -394,7 +394,7 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PUSH, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             success = await self.connector.send_data(
                 self.config.webhook_url + "/sync/payment_stages",
                 {"action": "sync", "data": local_data},
@@ -407,13 +407,13 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PULL, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             target_data = await self.connector.receive_data(
                 self.config.webhook_url + "/sync/payment_stages"
             )
 
         # Process conflicts and apply changes
-        conflicts = []
+        conflicts: List[Dict[str, Any]] = []
         synced_count = 0
 
         if target_data:
@@ -486,7 +486,7 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PUSH, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             success = await self.connector.send_data(
                 self.config.webhook_url + "/sync/promo_codes",
                 {"action": "sync", "data": local_data},
@@ -499,13 +499,13 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PULL, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             target_data = await self.connector.receive_data(
                 self.config.webhook_url + "/sync/promo_codes"
             )
 
         # Process conflicts and apply changes
-        conflicts = []
+        conflicts: List[Dict[str, Any]] = []
         synced_count = 0
 
         if (
@@ -515,7 +515,7 @@ class SyncManager:
         ):
             promo_system = self.neonpay.promotions
 
-            for promo_data in target_data:
+            for promo_data in target_data:  # type: ignore
                 if not isinstance(promo_data, dict):
                     logger.warning(f"Invalid promo data format: {promo_data}")
                     continue
@@ -611,7 +611,7 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PUSH, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             success = await self.connector.send_data(
                 self.config.webhook_url + "/sync/templates",
                 {"action": "sync", "data": local_templates},
@@ -624,13 +624,13 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PULL, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             target_data = await self.connector.receive_data(
                 self.config.webhook_url + "/sync/templates"
             )
 
         # Process conflicts and apply changes
-        conflicts = []
+        conflicts: List[Dict[str, Any]] = []
         synced_count = 0
 
         if (
@@ -690,7 +690,7 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PUSH, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             success = await self.connector.send_data(
                 self.config.webhook_url + "/sync/settings",
                 {"action": "sync", "data": local_settings},
@@ -703,14 +703,14 @@ class SyncManager:
         if self.config.direction in [SyncDirection.PULL, SyncDirection.BIDIRECTIONAL]:
             if self.config.webhook_url is None:
                 logger.error("Webhook URL is required for sync")
-                return
+                return {"error": "Webhook URL is required for sync", "synced_count": 0}
             target_data = await self.connector.receive_data(
                 self.config.webhook_url + "/sync/settings"
             )
 
         # Apply target settings
         synced_count = 0
-        conflicts = []
+        conflicts: List[Dict[str, Any]] = []
 
         if target_data:
             for key, value in target_data.items():
