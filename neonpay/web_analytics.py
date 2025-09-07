@@ -9,7 +9,7 @@ import logging
 import time
 from typing import Any, Dict, List, Optional
 
-from aiohttp import web, web_request
+from aiohttp import web
 from aiohttp.web import Request, Response
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ class AnalyticsWebHandler:
         try:
             query_params = request.query
             bot_id = query_params.get("bot_id")
-            period = query_params.get("period", "day")
+            # period = query_params.get("period", "day")  # Not used
             days = int(query_params.get("days", "30"))
             
             if not self.multi_bot_analytics:
@@ -197,7 +197,7 @@ class AnalyticsWebHandler:
         try:
             query_params = request.query
             format_type = query_params.get("format", "json")
-            period = query_params.get("period", "day")
+            # period = query_params.get("period", "day")  # Not used
             days = int(query_params.get("days", "30"))
             
             if not self.multi_bot_analytics:
@@ -310,7 +310,7 @@ async def run_analytics_server(multi_bot_analytics: Any,
     site = web.TCPSite(runner, host, port)
     await site.start()
     
-    logger.info(f"Analytics server started successfully")
+    logger.info("Analytics server started successfully")
     
     # Keep running
     try:
