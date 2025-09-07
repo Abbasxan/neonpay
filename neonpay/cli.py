@@ -443,7 +443,7 @@ Examples:
         # This would need a real NEONPAY instance
         # For demo purposes, we'll create a mock one
         class MockNeonPay:
-            def list_payment_stages(self):
+            def list_payment_stages(self) -> Dict[str, Any]:
                 return {}
 
         mock_neonpay = MockNeonPay()
@@ -508,7 +508,7 @@ Examples:
                 print()
 
         elif args.template_action == "generate":
-            template = template_manager.get_template(args.template_name)
+            template: Optional[TemplateConfig] = template_manager.get_template(args.template_name)
             if not template:
                 print(f"❌ Template not found: {args.template_name}")
                 return
@@ -588,12 +588,12 @@ Examples:
 
     async def handle_sync(self, args: Any) -> None:
         """Handle sync commands"""
-        from .sync import BotSyncConfig, MultiBotSyncManager, SyncDirection
+        from .sync import SyncConfig, MultiBotSyncManager, SyncDirection
 
         # This would need a real NEONPAY instance
         # For demo purposes, we'll create a mock one
         class MockNeonPay:
-            def list_payment_stages(self):
+            def list_payment_stages(self) -> Dict[str, Any]:
                 return {}
 
         mock_neonpay = MockNeonPay()
@@ -688,16 +688,16 @@ Examples:
         # This would need a real NEONPAY instance
         # For demo purposes, we'll create a mock one
         class MockMultiBotAnalytics:
-            def get_network_analytics(self, period, days):
+            def get_network_analytics(self, period: str, days: int) -> Optional[Dict[str, Any]]:
                 return None
 
-            def get_bot_analytics(self, bot_id, period, days):
+            def get_bot_analytics(self, bot_id: str, period: str, days: int) -> Optional[Dict[str, Any]]:
                 return None
 
-            def export_network_analytics(self, format_type, period, days):
+            def export_network_analytics(self, format_type: str, period: str, days: int) -> Optional[str]:
                 return None
 
-            def get_stats(self):
+            def get_stats(self) -> Dict[str, Any]:
                 return {"enabled": True, "registered_bots": 3}
 
         analytics = MockMultiBotAnalytics()
