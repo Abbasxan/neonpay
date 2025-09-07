@@ -488,11 +488,7 @@ class SyncManager:
         try:
             logger.info(f"Starting sync with bot: {target_bot_token[:10]}...")
             # Create target bot instance (simplified)
-            # Note: This is a placeholder - in real implementation,
-            # you would need to provide actual bot instance
-            target_neonpay = None
-            # TODO: Implement actual bot instance creation
-            # For now, we'll simulate the sync without actual target
+            target_neonpay = None  # TODO: implement real target instance
 
             sync_results: Dict[str, Any] = {
                 "payment_stages": 0,
@@ -503,23 +499,24 @@ class SyncManager:
 
             # Sync payment stages
             if self.config.sync_payment_stages:
-                if target_neonpay is not None:
-                    try:
+                try:
+                    if target_neonpay is not None:
                         stages = self.neonpay.list_payment_stages()
                         for stage_id, stage in stages.items():
                             target_neonpay.create_payment_stage(stage_id, stage)
                             sync_results["payment_stages"] += 1
-                    except Exception as e:
-                        sync_results["errors"].append(f"Payment stages sync failed: {e}")
-                else:
-                    # Simulate sync without actual target
-                    logger.info("Simulating payment stages sync (no target bot)")
-                    sync_results["errors"].append("Target bot instance not available - sync simulated")
-            
+                    else:
+                        logger.info("Simulating payment stages sync (no target bot)")
+                        sync_results["errors"].append(
+                            "Target bot instance not available - sync simulated"
+                        )
+                except Exception as e:
+                    sync_results["errors"].append(f"Payment stages sync failed: {e}")
+
             # Sync promo codes
             if self.config.sync_templates and hasattr(self.neonpay, "promotions"):
-                if target_neonpay is not None:
-                    try:
+                try:
+                    if target_neonpay is not None:
                         promo_system = self.neonpay.promotions
                         if promo_system:
                             promo_codes = promo_system.list_promo_codes(active_only=False)
@@ -531,17 +528,21 @@ class SyncManager:
                                     **promo.__dict__,
                                 )
                                 sync_results["promo_codes"] += 1
-                    except Exception as e:
-                        sync_results["errors"].append(f"Promo codes sync failed: {e}")
-                else:
-                    # Simulate sync without actual target
-                    logger.info("Simulating promo codes sync (no target bot)")
-                    sync_results["errors"].append("Target bot instance not available - sync simulated")
+                    else:
+                        logger.info("Simulating promo codes sync (no target bot)")
+                        sync_results["errors"].append(
+                            "Target bot instance not available - sync simulated"
+                        )
+                except Exception as e:
+                    sync_results["errors"].append(f"Promo codes sync failed: {e}")
+
             logger.info(f"Sync completed: {sync_results}")
             return sync_results
+
         except Exception as e:
             logger.error(f"Sync failed: {e}")
             return {"errors": [str(e)]}
+
 
     async def export_data(self, format_type: str = "json") -> str:
         """Export data for external sync"""
@@ -632,3 +633,4 @@ class BackupScheduler:
             except Exception as e:
                 logger.error(f"Scheduler error: {e}")
                 await asyncio.sleep(300)  # Wait 5 minutes before retrying
+
