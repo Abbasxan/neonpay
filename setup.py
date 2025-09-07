@@ -5,7 +5,14 @@ Setup script for NEONPAY - Modern Python library for Telegram Stars payments int
 import sys
 from pathlib import Path
 
-from setuptools import find_packages, setup
+try:
+    from setuptools import find_packages, setup
+except ImportError:
+    print("Error: setuptools is required but not installed.")
+    print("Please install setuptools using: pip install setuptools")
+    print("Or install the package in development mode: pip install -e .")
+    print("Alternatively, use: pip install --upgrade pip setuptools wheel")
+    sys.exit(1)
 
 # Minimum Python version check
 if sys.version_info < (3, 9):
