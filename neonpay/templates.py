@@ -7,7 +7,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from .core import PaymentStage
 
@@ -569,7 +569,7 @@ async def help_command(message: Message):
 async def store_command(message: Message):
     """Show store/products"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="{product.name} - {product.price}⭐", callback_data=f"buy:{product.id}")]
+        [InlineKeyboardButton(text="{{product.name}} - {{product.price}}⭐", callback_data="buy:{{product.id}}")]
         for category in template.categories for product in category.products
     ])
     
@@ -654,7 +654,7 @@ async def help_command(client, message):
 async def store_command(client, message):
     """Show store/products"""
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("{product.name} - {product.price}⭐", callback_data=f"buy:{product.id}")]
+        [InlineKeyboardButton("{{product.name}} - {{product.price}}⭐", callback_data="buy:{{product.id}}")]
         for category in template.categories for product in category.products
     ])
     
