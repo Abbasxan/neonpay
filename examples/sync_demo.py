@@ -6,7 +6,6 @@ Shows how to synchronize payment stages across multiple bots
 
 import asyncio
 import logging
-from typing import Dict, List
 
 # Import NEONPAY sync functionality
 from neonpay import create_neonpay, PaymentStage
@@ -44,12 +43,12 @@ async def demo_multi_bot_sync():
     # Create mock bots
     main_bot = MockBot("Main Bot", "main_bot_token")
     backup_bot = MockBot("Backup Bot", "backup_bot_token")
-    analytics_bot = MockBot("Analytics Bot", "analytics_bot_token")
+    # analytics_bot = MockBot("Analytics Bot", "analytics_bot_token")  # Not used in this demo
     
     # Create NEONPAY instances
     main_neonpay = create_neonpay(main_bot)
     backup_neonpay = create_neonpay(backup_bot)
-    analytics_neonpay = create_neonpay(analytics_bot)
+    # analytics_neonpay = create_neonpay(analytics_bot)  # Not used in this demo
     
     # Create multi-bot sync manager
     multi_sync = MultiBotSyncManager(main_neonpay)
