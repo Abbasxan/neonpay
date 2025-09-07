@@ -4,7 +4,6 @@ Supports email, Telegram, SMS, and webhook notifications
 """
 
 import asyncio
-import json
 import logging
 import smtplib
 import time
@@ -12,7 +11,7 @@ from dataclasses import dataclass, field
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 
