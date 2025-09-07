@@ -521,7 +521,8 @@ class NotificationManager:
                 else:
                     logger.error("Discord notifier does not have send_discord method")
                     return False
-            # All NotificationType values are handled above, but keeping this for safety
+            # This should never be reached as all NotificationType values are handled above
+            # But keeping for type safety in case new types are added
             logger.error(f"Unsupported notification type: {message.notification_type}")
             return False
 
