@@ -491,6 +491,8 @@ class SyncManager:
             # Note: This is a placeholder - in real implementation,
             # you would need to provide actual bot instance
             target_neonpay = None
+            # TODO: Implement actual bot instance creation
+            # For now, we'll simulate the sync without actual target
 
             sync_results: Dict[str, Any] = {
                 "payment_stages": 0,
@@ -501,28 +503,26 @@ class SyncManager:
 
             # Sync payment stages
             if self.config.sync_payment_stages:
-                if target_neonpay:
+                if target_neonpay is not None:
                     try:
                         stages = self.neonpay.list_payment_stages()
                         for stage_id, stage in stages.items():
                             target_neonpay.create_payment_stage(stage_id, stage)
                             sync_results["payment_stages"] += 1
                     except Exception as e:
-                        sync_results["errors"].append(
-                            f"Payment stages sync failed: {e}"
-                        )
+                        sync_results["errors"].append(f"Payment stages sync failed: {e}")
                 else:
-                    sync_results["errors"].append("Target bot instance not available")
-
+                    # Simulate sync without actual target
+                    logger.info("Simulating payment stages sync (no target bot)")
+                    sync_results["errors"].append("Target bot instance not available - sync simulated")
+            
             # Sync promo codes
             if self.config.sync_templates and hasattr(self.neonpay, "promotions"):
-                if target_neonpay:
+                if target_neonpay is not None:
                     try:
                         promo_system = self.neonpay.promotions
                         if promo_system:
-                            promo_codes = promo_system.list_promo_codes(
-                                active_only=False
-                            )
+                            promo_codes = promo_system.list_promo_codes(active_only=False)
                             for promo in promo_codes:
                                 target_neonpay.create_promo_code(
                                     code=promo.code,
@@ -534,7 +534,9 @@ class SyncManager:
                     except Exception as e:
                         sync_results["errors"].append(f"Promo codes sync failed: {e}")
                 else:
-                    sync_results["errors"].append("Target bot instance not available")
+                    # Simulate sync without actual target
+                    logger.info("Simulating promo codes sync (no target bot)")
+                    sync_results["errors"].append("Target bot instance not available - sync simulated")
             logger.info(f"Sync completed: {sync_results}")
             return sync_results
         except Exception as e:
