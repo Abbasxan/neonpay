@@ -12,11 +12,10 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 
 from neonpay import (
-    create_neonpay, PaymentStage, PaymentStatus,
+    create_neonpay, PaymentStatus,
     AnalyticsManager, AnalyticsPeriod,
-    NotificationManager, NotificationType, NotificationPriority, NotificationConfig,
-    TemplateManager, TemplateType, ThemeColor,
-    BackupManager, BackupConfig, BackupType
+    NotificationManager, NotificationType, NotificationPriority, NotificationConfig, NotificationMessage,
+    TemplateManager, BackupManager, BackupConfig, BackupType
 )
 
 # Configure logging
@@ -173,19 +172,19 @@ async def analytics_command(message: Message):
     analytics_text = "📊 **Analytics Dashboard**\n\n"
     
     if revenue_data:
-        analytics_text += f"💰 **Revenue (30 days)**\n"
+        analytics_text += "💰 **Revenue (30 days)**\n"
         analytics_text += f"Total: {revenue_data.total_revenue} stars\n"
         analytics_text += f"Transactions: {revenue_data.total_transactions}\n"
         analytics_text += f"Average: {revenue_data.average_transaction:.1f} stars\n\n"
     
     if conversion_data:
-        analytics_text += f"📈 **Conversion**\n"
+        analytics_text += "📈 **Conversion**\n"
         analytics_text += f"Rate: {conversion_data.conversion_rate:.1f}%\n"
         analytics_text += f"Visitors: {conversion_data.total_visitors}\n"
         analytics_text += f"Purchases: {conversion_data.total_purchases}\n\n"
     
     if product_data:
-        analytics_text += f"🏆 **Top Products**\n"
+        analytics_text += "🏆 **Top Products**\n"
         for i, product in enumerate(product_data[:3], 1):
             analytics_text += f"{i}. {product.product_name}: {product.total_revenue} stars\n"
     
