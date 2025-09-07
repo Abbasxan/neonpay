@@ -1,322 +1,247 @@
-# NEONPAY Sənədləri (Azərbaycan)
+# NEONPAY - Modern Telegram Stars Payment Library
 
-NEONPAY-ın tam sənədlərinə xoş gəlmisiniz. Bu bələdçi sizə Telegram Stars ödənişlərini botunuza tez və səmərəli şəkildə inteqrasiya etməyə kömək edəcək.
+[![PyPI version](https://img.shields.io/pypi/v/neonpay.svg)](https://pypi.org/project/neonpay/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/neonpay.svg)](https://pypi.org/project/neonpay/)
+[![Python Support](https://img.shields.io/pypi/pyversions/neonpay.svg)](https://pypi.org/project/neonpay/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Mündəricat
+**NEONPAY** Telegram botları üçün müasir, universal ödəniş emalı kitabxanasıdır ki, Telegram Stars ödənişlərini inteqrasiya etməyi inanılmaz dərəcədə sadə edir. Bütün əsas bot kitabxanalarına dəstək və təmiz, intuitiv API ilə ödənişləri botunuza yalnız bir neçə sətir kodla əlavə edə bilərsiniz.
 
-1. [Quraşdırma](#quraşdırma)
-2. [Sürətli başlanğıc](#sürətli-başlanğıc)
-3. [Kitabxana dəstəyi](#kitabxana-dəstəyi)
-4. [Əsas konsepsiyalar](#əsas-konsepsiyalar)
-5. [API arayışı](#api-arayışı)
-6. [Həqiqi nümunələr](#həqiqi-nümunələr)
-7. [Ən yaxşı təcrübələr](#ən-yaxşı-təcrübələr)
-8. [İstehsal yerləşdirilməsi](#istehsal-yerləşdirilməsi)
-9. [Problem həlli](#problem-həlli)
-10. [Dəstək](#dəstək)
+## ✨ Xüsusiyyətlər
 
-## Quraşdırma
+- 🚀 **Universal Dəstək** - Pyrogram, Aiogram, python-telegram-bot, pyTelegramBotAPI və raw Bot API ilə işləyir
+- 💫 **Telegram Stars İnteqrasiyası** - Telegram-ın XTR valyutasına native dəstək
+- 🎨 **Fərdi Ödəniş Mərhələləri** - Fərdi logolar və təsvirlərlə brend ödəniş təcrübələri yaradın
+- 🔧 **Sadə Quraşdırma** - Yalnız 2-3 sətir kodla başlayın
+- 📱 **Müasir Arxitektura** - async/await və type hints ilə qurulmuş
+- 🛡️ **Xəta İdarəetməsi** - Hərtərəfli xəta idarəetməsi və validasiya
+- 📦 **Sıfır Asılılıqlar** - Yalnız seçdiyiniz bot kitabxanasını tələb edir
 
-NEONPAY-ı pip ilə quraşdırın:
+## 🚀 Sürətli Başlanğıc
 
-\`\`\`bash
+### Quraşdırma
+
+```bash
+# PyPI-dən ən son versiyanı quraşdırın
 pip install neonpay
-\`\`\`
 
-Xüsusi bot kitabxanaları üçün lazımi asılılıqları quraşdırın:
+# Və ya müəyyən versiyanı quraşdırın
+pip install neonpay==2.5.0
 
-\`\`\`bash
-# Pyrogram üçün
-pip install neonpay pyrogram
+# İsteğe bağlı asılılıqlarla quraşdırın
+pip install neonpay[all]  # Bütün bot kitabxanaları
+pip install neonpay[ptb]   # yalnız python-telegram-bot
+pip install neonpay[aiogram]  # yalnız Aiogram
+```
 
-# Aiogram üçün
-pip install neonpay aiogram
+### Əsas İstifadə
 
-# python-telegram-bot üçün
-pip install neonpay python-telegram-bot
-
-# pyTelegramBotAPI üçün
-pip install neonpay pyTelegramBotAPI
-\`\`\`
-
-## Sürətli başlanğıc
-
-### 1. İmport və inisializasiya
-
-\`\`\`python
+```python
 from neonpay import create_neonpay, PaymentStage
 
-# Avtomatik adapter aşkarlanması
-neonpay = create_neonpay(sizin_bot_nümunəniz)
-\`\`\`
+# Hər hansı bot kitabxanası ilə işləyir - avtomatik aşkarlama!
+neonpay = create_neonpay(your_bot_instance)
 
-### 2. Ödəniş mərhələsi yaradın
-
-\`\`\`python
+# Ödəniş mərhələsi yaradın
 stage = PaymentStage(
-    title="Premium giriş",
-    description="Premium funksiyaları açın",
+    title="Premium Xüsusiyyətlər",
+    description="Bütün premium xüsusiyyətləri açın",
     price=100,  # 100 Telegram Stars
     photo_url="https://example.com/logo.png"
 )
 
+# Ödəniş mərhələsini əlavə edin
 neonpay.create_payment_stage("premium", stage)
-\`\`\`
 
-### 3. Ödəniş göndərin
-
-\`\`\`python
+# İstifadəçiyə ödəniş göndərin
 await neonpay.send_payment(user_id=12345, stage_id="premium")
-\`\`\`
 
-### 4. Ödənişləri idarə edin
-
-\`\`\`python
+# Uğurlu ödənişləri idarə edin
 @neonpay.on_payment
 async def handle_payment(result):
-    print(f"İstifadəçi {result.user_id}-dən {result.amount} ulduz alındı")
-\`\`\`
+    print(f"Ödəniş alındı: {result.amount} stars istifadəçidən {result.user_id}")
+```
 
-## Kitabxana dəstəyi
+## 📚 Kitabxana Dəstəyi
 
-### Pyrogram inteqrasiyası
+NEONPAY avtomatik olaraq bot kitabxananızı aşkar edir və uyğun adapter yaradır:
 
-\`\`\`python
+### Pyrogram
+
+```python
 from pyrogram import Client
 from neonpay import create_neonpay
 
-app = Client("my_bot", bot_token="SİZİN_TOKENİNİZ")
+app = Client("my_bot", bot_token="YOUR_TOKEN")
 neonpay = create_neonpay(app)
+```
 
-@app.on_message()
-async def handle_message(client, message):
-    if message.text == "/al":
-        await neonpay.send_payment(message.from_user.id, "premium")
+### Aiogram
 
-app.run()
-\`\`\`
-
-### Aiogram inteqrasiyası
-
-\`\`\`python
-from aiogram import Bot, Dispatcher, Router
+```python
+from aiogram import Bot, Dispatcher
 from neonpay import create_neonpay
 
-bot = Bot(token="SİZİN_TOKENİNİZ")
+bot = Bot(token="YOUR_TOKEN")
 dp = Dispatcher()
-router = Router()
+neonpay = create_neonpay(bot, dp)  # Aiogram üçün dispatcher keçin
+```
 
+### python-telegram-bot
+
+```python
+from telegram.ext import Application
+from neonpay import create_neonpay
+
+application = Application.builder().token("YOUR_TOKEN").build()
+neonpay = create_neonpay(application)
+```
+
+### pyTelegramBotAPI
+
+```python
+import telebot
+from neonpay import create_neonpay
+
+bot = telebot.TeleBot("YOUR_TOKEN")
 neonpay = create_neonpay(bot)
+```
 
-@router.message(Command("al"))
-async def buy_handler(message: Message):
-    await neonpay.send_payment(message.from_user.id, "premium")
+### Raw Bot API
 
-dp.include_router(router)
-\`\`\`
+```python
+from neonpay import RawAPIAdapter, NeonPayCore
 
-## Əsas konsepsiyalar
+adapter = RawAPIAdapter("YOUR_TOKEN", webhook_url="https://yoursite.com/webhook")
+neonpay = NeonPayCore(adapter)
+```
 
-### Ödəniş mərhələləri
+## 🎯 Təkmilləşdirilmiş İstifadə
 
-Ödəniş mərhələləri istifadəçilərin nə aldığını müəyyən edir:
+### Fərdi Ödəniş Mərhələləri
 
-\`\`\`python
-stage = PaymentStage(
-    title="Məhsul adı",              # Məcburi: göstərilən ad
-    description="Məhsul təfərrüatı", # Məcburi: təsvir
-    price=100,                      # Məcburi: ulduzlarla qiymət
-    label="İndi al",                # İstəyə bağlı: düymə etiketi
-    photo_url="https://...",        # İstəyə bağlı: məhsul şəkli
-    payload={"custom": "data"},     # İstəyə bağlı: xüsusi məlumat
-    start_parameter="ref_code"      # İstəyə bağlı: dərin əlaqə parametri
+```python
+from neonpay import PaymentStage
+
+# Ətraflı ödəniş mərhələsi yaradın
+premium_stage = PaymentStage(
+    title="Premium Abunə",
+    description="Ekskluziv xüsusiyyətlərə və prioritet dəstəyə giriş əldə edin",
+    price=500,  # 500 Telegram Stars
+    label="Premium Plan",
+    photo_url="https://yoursite.com/premium-logo.png",
+    payload={"plan": "premium", "duration": "monthly"}
 )
-\`\`\`
 
-### Ödəniş nəticələri
+neonpay.create_payment_stage("premium_monthly", premium_stage)
+```
 
-Ödənişlər tamamlandıqda `PaymentResult` alırsınız:
+### Ödəniş Callback-ləri
 
-\`\`\`python
+```python
+from neonpay import PaymentResult, PaymentStatus
+
 @neonpay.on_payment
 async def handle_payment(result: PaymentResult):
-    print(f"İstifadəçi ID: {result.user_id}")
-    print(f"Məbləğ: {result.amount}")
-    print(f"Valyuta: {result.currency}")
-    print(f"Status: {result.status}")
-    print(f"Metadata: {result.metadata}")
-\`\`\`
+    if result.status == PaymentStatus.COMPLETED:
+        # Premium girişi verin
+        user_id = result.user_id
+        amount = result.amount
+        metadata = result.metadata
+        
+        print(f"İstifadəçi {user_id} {amount} stars ödədi")
+        print(f"Plan: {metadata.get('plan')}")
+        
+        # Burada biznes məntiqiniz
+        await grant_premium_access(user_id, metadata.get('plan'))
+```
 
-### Xəta idarəetməsi
+### Çoxlu Ödəniş Mərhələləri
 
-\`\`\`python
+```python
+# Çoxlu ödəniş seçimləri yaradın
+stages = {
+    "basic": PaymentStage("Əsas Plan", "Əsas xüsusiyyətlər", 100),
+    "premium": PaymentStage("Premium Plan", "Bütün xüsusiyyətlər + dəstək", 300),
+    "enterprise": PaymentStage("Enterprise", "Fərdi həllər", 1000)
+}
+
+for stage_id, stage in stages.items():
+    neonpay.create_payment_stage(stage_id, stage)
+
+# İstifadəçi seçiminə əsasən müxtəlif ödənişlər göndərin
+await neonpay.send_payment(user_id, "premium")
+```
+
+## 🔧 Konfiqurasiya
+
+### Xəta İdarəetməsi
+
+```python
 from neonpay import NeonPayError, PaymentError
 
 try:
-    await neonpay.send_payment(user_id, "stage_id")
+    await neonpay.send_payment(user_id, "nonexistent_stage")
 except PaymentError as e:
     print(f"Ödəniş xətası: {e}")
 except NeonPayError as e:
-    print(f"Sistem xətası: {e}")
-\`\`\`
+    print(f"NEONPAY xətası: {e}")
+```
 
-## API arayışı
+### Logging
 
-### NeonPayCore sinfi
-
-#### Metodlar
-
-- `create_payment_stage(stage_id: str, stage: PaymentStage)` - Ödəniş mərhələsi yarat
-- `get_payment_stage(stage_id: str)` - ID ilə ödəniş mərhələsini al
-- `list_payment_stages()` - Bütün ödəniş mərhələlərini al
-- `remove_payment_stage(stage_id: str)` - Ödəniş mərhələsini sil
-- `send_payment(user_id: int, stage_id: str)` - Ödəniş hesabı göndər
-- `on_payment(callback)` - Ödəniş callback-ini qeydiyyatdan keçir
-- `get_stats()` - Sistem statistikasını al
-
-### PaymentStage sinfi
-
-#### Parametrlər
-
-- `title: str` - Ödəniş başlığı (məcburi)
-- `description: str` - Ödəniş təsviri (məcburi)
-- `price: int` - Telegram Stars-da qiymət (məcburi)
-- `label: str` - Düymə etiketi (standart: "Payment")
-- `photo_url: str` - Məhsul şəkli URL-i (istəyə bağlı)
-- `payload: dict` - Xüsusi məlumat (istəyə bağlı)
-- `start_parameter: str` - Dərin əlaqə parametri (istəyə bağlı)
-
-## Nümunələr
-
-### E-ticarət botu
-
-\`\`\`python
-from neonpay import create_neonpay, PaymentStage
-
-# Məhsul kataloqu
-products = {
-    "coffee": PaymentStage("Qəhvə", "Premium qəhvə dənələri", 50),
-    "tea": PaymentStage("Çay", "Üzvi çay yarpaqları", 30),
-    "cake": PaymentStage("Tort", "Dadlı şokolad tortu", 100)
-}
-
-neonpay = create_neonpay(bot)
-
-# Bütün məhsulları əlavə et
-for product_id, stage in products.items():
-    neonpay.create_payment_stage(product_id, stage)
-
-# Sifarişləri emal et
-@neonpay.on_payment
-async def process_order(result):
-    user_id = result.user_id
-    product = result.metadata.get("product")
-    
-    # Sifarişi emal et
-    await fulfill_order(user_id, product)
-    await bot.send_message(user_id, "Sifariş təsdiqləndi! Təşəkkür edirik!")
-\`\`\`
-
-### Abunəlik xidməti
-
-\`\`\`python
-subscription_plans = {
-    "monthly": PaymentStage(
-        "Aylıq plan", 
-        "1 ay premium giriş", 
-        100,
-        payload={"duration": 30}
-    ),
-    "yearly": PaymentStage(
-        "İllik plan", 
-        "12 ay premium giriş (2 ay pulsuz!)", 
-        1000,
-        payload={"duration": 365}
-    )
-}
-
-@neonpay.on_payment
-async def handle_subscription(result):
-    user_id = result.user_id
-    duration = result.metadata.get("duration", 30)
-    
-    # Abunəlik ver
-    await grant_premium(user_id, days=duration)
-\`\`\`
-
-## Ən yaxşı təcrübələr
-
-### 1. Ödəniş məlumatlarını yoxlayın
-
-\`\`\`python
-@neonpay.on_payment
-async def handle_payment(result):
-    # Ödəniş məbləğini yoxla
-    expected_amount = get_expected_amount(result.metadata)
-    if result.amount != expected_amount:
-        logger.warning(f"Məbləğ uyğunsuzluğu: gözlənilən {expected_amount}, alınan {result.amount}")
-        return
-    
-    # Ödənişi emal et
-    await process_payment(result)
-\`\`\`
-
-### 2. Xətaları düzgün idarə edin
-
-\`\`\`python
-async def safe_send_payment(user_id, stage_id):
-    try:
-        await neonpay.send_payment(user_id, stage_id)
-    except PaymentError as e:
-        await bot.send_message(user_id, f"Ödəniş xətası: {e}")
-    except Exception as e:
-        logger.error(f"Gözlənilməz xəta: {e}")
-        await bot.send_message(user_id, "Nəsə səhv getdi. Yenidən cəhd edin.")
-\`\`\`
-
-## Problem həlli
-
-### Ümumi problemlər
-
-#### 1. "Payment stage not found"
-
-\`\`\`python
-# Mərhələnin mövcudluğunu yoxla
-stage = neonpay.get_payment_stage("my_stage")
-if not stage:
-    print("Mərhələ mövcud deyil!")
-    
-# Bütün mərhələlərin siyahısı
-stages = neonpay.list_payment_stages()
-print(f"Mövcud mərhələlər: {list(stages.keys())}")
-\`\`\`
-
-#### 2. "Failed to send invoice"
-
-- Bot tokeninin düzgünlüyünü yoxlayın
-- İstifadəçinin botu başlatdığından əmin olun
-- İstifadəçi ID-sinin etibarlılığını yoxlayın
-- Ödəniş mərhələsi konfiqurasiyasını yoxlayın
-
-### Debug rejimi
-
-\`\`\`python
+```python
 import logging
 
-# Debug loqlaşdırmasını aktiv et
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger("neonpay").setLevel(logging.DEBUG)
-\`\`\`
+# NEONPAY logging-i aktivləşdirin
+logging.getLogger("neonpay").setLevel(logging.INFO)
+```
 
-### Kömək almaq
+## 📖 Sənədləşmə
 
-Kömək lazımdırsa:
+- **[İngilis Sənədləşməsi](en/README.md)** - İngilis dilində tam bələdçi
+- **[Rus Sənədləşməsi](ru/README.md)** - Rus dilində tam bələdçi
+- **[Azərbaycan Sənədləşməsi](az/README.md)** - Azərbaycan dilində tam bələdçi
 
-1. [examples](../../examples/) qovluğunu yoxlayın
-2. [FAQ](FAQ.md)-ı oxuyun
-3. [GitHub](https://github.com/Abbasxan/neonpay/issues)-da issue yaradın
-4. Dəstəklə əlaqə saxlayın: [@neonsahib](https://t.me/neonsahib)
+## 🤝 Nümunələr
+
+Tam işləyən nümunələr üçün [examples](../examples/) qovluğuna baxın:
+
+- [Pyrogram Bot Nümunəsi](../examples/pyrogram_example.py)
+- [Aiogram Bot Nümunəsi](../examples/aiogram_example.py)
+- [python-telegram-bot Nümunəsi](../examples/ptb_example.py)
+- [pyTelegramBotAPI Nümunəsi](../examples/telebot_example.py)
+- [Raw API Nümunəsi](../examples/raw_api_example.py)
+
+## 🛠️ Tələblər
+
+- Python 3.9+
+- Dəstəklənən bot kitabxanalarından biri:
+  - `pyrogram>=2.0.106` Pyrogram üçün
+  - `aiogram>=3.0.0` Aiogram üçün
+  - `python-telegram-bot>=20.0` python-telegram-bot üçün
+  - `pyTelegramBotAPI>=4.0.0` pyTelegramBotAPI üçün
+  - `aiohttp>=3.8.0` Raw API üçün (isteğe bağlı)
+
+## 📄 Lisenziya
+
+Bu layihə MIT Lisenziyası altında lisenziyalaşdırılmışdır - ətraflı məlumat üçün [LICENSE](../../LICENSE) faylına baxın.
+
+## 🤝 Töhfə Vermə
+
+Töhfələr xoş gəlinir! Zəhmət olmasa Pull Request göndərməkdən çəkinməyin.
+
+## 📞 Dəstək
+
+- **Telegram**: [@neonsahib](https://t.me/neonsahib)
+- **Issues**: [GitHub Issues](https://github.com/Abbasxan/neonpay/issues)
+- **Email**: sultanov.abas@outlook.com
+
+## ⭐ Star Tarixi
+
+Əgər NEONPAY-i faydalı hesab edirsinizsə, zəhmət olmasa GitHub-da ona star verin!
 
 ---
 
-[← Əsas README-yə qayıt](../../README.md) | [English Documentation →](../en/README.md)
+[Abbas Sultanov](https://github.com/Abbasxan) tərəfindən ❤️ ilə hazırlanmışdır
+

@@ -1,200 +1,144 @@
-# Documentation Changelog
+# Changelog
 
-## Version 2.0 - Complete Documentation Update
+All notable changes to this project will be documented in this file.
 
-### 🎯 **Major Updates**
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0/).
 
-All documentation has been completely rewritten and updated to reflect the new NEONPAY 2.0 API and real-world examples.
+## [2.5.0] - 2025-01-15
 
-### 📋 **Updated Documentation**
+### Added
+- 🔒 Enhanced security features with improved validation mechanisms
+- 🚀 Optimized performance across all core modules
+- 📚 Updated documentation and improved examples
+- 🛡️ Strengthened webhook security mechanisms
+- 🔧 Better error messages and enhanced debugging support
+- ⚡ Added TgCrypto as core dependency for faster Pyrogram operations
 
-#### 1. **English Documentation** (`docs/en/`)
-- ✅ **README.md** - Complete rewrite with new API
-- ✅ **API.md** - Updated with factory function and new methods
-- ✅ **SECURITY.md** - New comprehensive security guide
+### Changed
+- Improved async/sync compatibility across all adapters
+- Streamlined error handling with clearer, more informative messages
+- Optimized memory usage and faster library initialization
+- Simplified webhook processing pipeline for better performance
 
-#### 2. **Russian Documentation** (`docs/ru/`)
-- ✅ **README.md** - Updated with new API and examples
-- ✅ **API.md** - Updated with factory function and new methods
+### Improved
+- Better separation of concerns in core modules
+- Enhanced debugging capabilities with more detailed error information
+- Reduced memory footprint and improved startup time
+- More robust validation and error recovery mechanisms
 
-#### 3. **Azerbaijani Documentation** (`docs/az/`)
-- ✅ **README.md** - Updated with new API and examples
-- ✅ **API.md** - Updated with factory function and new methods
+### Security
+- Enhanced input validation with stricter security checks
+- Improved webhook signature verification
+- Additional security layers for payment processing
+- Better protection against common attack vectors
 
-### 🔧 **Technical Improvements**
+### Migration Guide
+- Review error handling code for potential exception type changes
+- Update custom implementations to handle enhanced validation
+- Ensure webhook endpoints are compatible with new security checks
 
-#### **API Documentation**
-- ✅ Updated to use `neonpay.factory.create_neonpay()`
-- ✅ New import paths: `from neonpay.core import PaymentStage, PaymentStatus`
-- ✅ Real-world examples based on working bots
-- ✅ Production-ready code snippets
+## [2.4.0] - 2025-09-04
 
-#### **Security Documentation**
-- ✅ New comprehensive security guide
-- ✅ Token protection best practices
-- ✅ Payment validation guidelines
-- ✅ Data protection measures
-- ✅ Error handling security
-- ✅ Logging security
-- ✅ Production checklist
+### Added
+- 🆕 Official BotAPIAdapter for Telegram Bot API support
+- ✅ Full async and sync compatibility across all adapters
+- 🔒 Enhanced security with stricter input validation
+- 🛡️ Webhook signature verification and timestamp validation
+- 📚 Streamlined English-only documentation
+- ⚡ Further complexity reduction while maintaining security
 
-#### **Examples Integration**
-- ✅ All examples reference real working bots
-- ✅ Donation system examples (1⭐, 10⭐, 50⭐)
-- ✅ Digital store examples (Premium Access, Custom Theme, Priority Support)
-- ✅ Production deployment guides
+### Changed
+- Standardized adapters for both async and sync usage
+- Unified payload handling across all adapters
+- Improved error handling and performance across all modules
 
-### 📚 **Content Updates**
+### Breaking Changes
+- BotAPIAdapter introduces a slightly different async callback mechanism
+- All adapters now require explicit setup for payment handlers
+- PaymentStage validation stricter: title ≤ 32 chars, description ≤ 255 chars
 
-#### **Quick Start Guide**
-- ✅ Updated installation instructions
-- ✅ New factory function usage
-- ✅ Real-world payment stage examples
-- ✅ Proper error handling
+### Migration Guide
+- Use `BotAPIAdapter` for official Telegram Bot API integration
+- Ensure explicit registration of payment handlers for all adapters
+- Review updated PaymentStage validation rules
 
-#### **Library Support**
-- ✅ Aiogram integration (recommended)
-- ✅ Pyrogram integration
-- ✅ pyTelegramBotAPI integration
-- ✅ python-telegram-bot integration
-- ✅ Raw API integration
+## [2.3.0] - 2025-08-29
 
-#### **Real-world Examples**
-- ✅ Donation bot implementation
-- ✅ Digital store implementation
-- ✅ Payment validation
-- ✅ Auto-delivery system
+### Removed
+- **BREAKING**: Complete removal of localization system
+  - Removed `neonpay/localization.py` module
+  - Removed `LocalizationManager` class
+  - Removed `Language` enum
+  - Removed all translation files (`translations/az.json`, `translations/en.json`, `translations/ru.json`)
+  - Removed multilingual documentation (`docs/az/`, `docs/ru/`, `docs/en/`)
+- Removed language parameter from all adapters
+- Removed localization imports from base adapter and webhooks
+- Removed localization dependencies from tests and examples
 
-#### **Best Practices**
-- ✅ Payment data validation
-- ✅ Error handling
-- ✅ Meaningful stage IDs
-- ✅ Payment event logging
+### Changed
+- **BREAKING**: All error messages and user-facing text now in English only
+- Simplified `PaymentAdapter` base class (no language parameter)
+- Simplified all framework adapters (Aiogram, Pyrogram, PTB, Telebot)
+- Reduced library complexity by ~40% while maintaining all core functionality
+- Updated examples to use static English text instead of localization system
 
-#### **Production Deployment**
-- ✅ Environment variables
-- ✅ Database integration
-- ✅ Error monitoring
-- ✅ Health checks
-- ✅ Webhook setup
+### Improved
+- Faster library initialization (no translation loading)
+- Reduced memory footprint
+- Cleaner, more focused codebase
+- Better maintainability
 
-### 🚀 **New Features**
+### Migration Guide
+- Remove any `language` parameters from adapter constructors
+- Replace localized error handling with English-only messages
+- Update custom implementations that relied on localization features
 
-#### **Security Guide**
-- ✅ Token security
-- ✅ Payment validation
-- ✅ Data protection
-- ✅ Error handling
-- ✅ Logging security
-- ✅ Production checklist
-- ✅ Rate limiting
-- ✅ Monitoring and alerts
-- ✅ Incident response
+## [2.2.0] - 2025-04-018
 
-#### **Production Ready**
-- ✅ Environment variable support
-- ✅ Database integration examples
-- ✅ Error monitoring setup
-- ✅ Health check endpoints
-- ✅ Webhook configuration
+### Added
+- 🔒 Enhanced security with comprehensive input validation
+- 🛡️ Webhook signature verification and timestamp validation
+- ✅ Improved async/sync handling for all adapters
+- 🧪 Comprehensive security testing suite
+- 📚 Complete security documentation and guides
 
-### 📖 **Documentation Structure**
+### Changed
+- **BREAKING**: PaymentStage validation enforces stricter limits (title: 32 chars, description: 255 chars)
+- **BREAKING**: WebhookHandler now requires WebhookVerifier for security
+- **BREAKING**: NeonPayCore constructor parameters changed (max_stages, enable_logging)
 
-#### **English (`docs/en/`)**
-```
-README.md          - Main documentation
-API.md             - Complete API reference
-SECURITY.md        - Security best practices
-```
+### Improved
+- 🚀 Performance improvements and better error handling
+- Better async/sync compatibility across all adapters
 
-#### **Russian (`docs/ru/`)**
-```
-README.md          - Main documentation (Russian)
-API.md             - Complete API reference (Russian)
-```
+## [2.1.0] - 2024-12-18
 
-#### **Azerbaijani (`docs/az/`)**
-```
-README.md          - Main documentation (Azerbaijani)
-API.md             - Complete API reference (Azerbaijani)
-```
+### Added
+- Simplified architecture
+- Cleaner API design
 
-### 🔄 **Migration Guide**
+### Removed
+- Unnecessary complexity in core modules
 
-#### **From Old Documentation**
-1. **Update Imports**: Change from `neonpay` to `neonpay.factory`
-2. **Update Classes**: Use `PaymentStage` and `PaymentStatus` from `neonpay.core`
-3. **Update Examples**: Use real-world examples from `examples/` directory
-4. **Update Security**: Follow new security guidelines
+## [2.0.0] - 2024-12-17
 
-#### **Breaking Changes**
-- Import paths changed to `neonpay.factory`
-- Payment stage creation simplified
-- Error handling enhanced
-- Security guidelines updated
+### Added
+- Major security improvements
+- Enhanced validation system
+- Webhook security features
+- Comprehensive testing suite
 
-### 🐛 **Bug Fixes**
+### Changed
+- **BREAKING**: Enhanced security requirements
+- Improved error handling
 
-- ✅ Fixed import statements
-- ✅ Fixed API method signatures
-- ✅ Fixed example code
-- ✅ Fixed security guidelines
-- ✅ Fixed production deployment
+## [1.0.0] - 2024-12-16
 
-### 📈 **Performance**
+### Added
+- Initial release with basic functionality
+- Support for Aiogram, Pyrogram, python-telegram-bot, and pyTelegramBotAPI
+- Basic payment processing
+- Webhook handling
+- Multi-stage payment support
 
-- ✅ Faster payment processing examples
-- ✅ Better error recovery
-- ✅ Improved logging examples
-- ✅ Optimized callback handling
-- ✅ Reduced memory usage examples
-
-### 🔒 **Security**
-
-- ✅ Environment variable support
-- ✅ Secure token handling
-- ✅ Input validation examples
-- ✅ Error sanitization
-- ✅ Logging security
-
-### 🎉 **What's New**
-
-#### **Real-world Code**
-All documentation examples are now based on **actual working bots** that have processed real payments.
-
-#### **Production Ready**
-Every example can be deployed to production with minimal changes.
-
-#### **Comprehensive Security**
-- Token protection
-- Payment validation
-- Data protection
-- Error handling
-- Logging security
-- Production checklist
-
-#### **Better Documentation**
-- Detailed API reference
-- Code examples
-- Usage guides
-- Deployment guides
-- Security best practices
-
-### 🚀 **Next Steps**
-
-1. **Read** the updated documentation
-2. **Follow** the quick start guide
-3. **Use** the real-world examples
-4. **Implement** security best practices
-5. **Deploy** to production
-
-### 📞 **Support**
-
-- 📚 [Documentation](../README.md)
-- 💬 [Community](https://t.me/neonpay_community)
-- 🐛 [Issues](https://github.com/Abbasxan/neonpay/issues)
-- 📧 [Email](mailto:support@neonpay.com)
-
----
-
-**Happy coding with NEONPAY! 🚀**
