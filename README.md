@@ -7,12 +7,13 @@
 [![Build Status](https://github.com/Abbasxan/neonpay/workflows/CI/badge.svg)](https://github.com/Abbasxan/neonpay/actions)
 [![Code Quality](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Current Version: [2.5.0](https://pypi.org/project/neonpay/2.5.0/) - Published on PyPI** 🚀
+**Current Version: [2.6.0](https://pypi.org/project/neonpay/2.6.0/) - Published on PyPI** 🚀
 
 **NEONPAY** is a modern, universal payment processing library for Telegram bots that makes integrating Telegram Stars payments incredibly simple. With support for all major bot libraries and a clean, intuitive API, you can add payments to your bot in just a few lines of code.
 
 ## ✨ Features
 
+### Core Payment Features
 - 🚀 **Universal Support** - Works with Pyrogram, Aiogram, python-telegram-bot, pyTelegramBotAPI, and raw Bot API
 - 💫 **Telegram Stars Integration** - Native support for Telegram's XTR currency
 - 🎨 **Custom Payment Stages** - Create branded payment experiences with custom logos and descriptions
@@ -20,6 +21,16 @@
 - 📱 **Modern Architecture** - Built with async/await and type hints
 - 🛡️ **Error Handling** - Comprehensive error handling and validation
 - 📦 **Zero Dependencies** - Only requires your chosen bot library
+
+### 🆕 New in v2.6.0 - Enterprise Features
+- 🌐 **Web Analytics Dashboard** - Real-time bot performance monitoring via web interface
+- 🔄 **Web Sync Interface** - Multi-bot synchronization through REST API
+- 📊 **Advanced Analytics** - Comprehensive payment analytics and reporting
+- 🔔 **Notification System** - Multi-channel notifications (Email, Telegram, SMS, Webhook)
+- 💾 **Backup & Restore** - Automated data protection and recovery
+- 📋 **Template System** - Pre-built bot templates and generators
+- 🔗 **Multi-Bot Analytics** - Network-wide performance tracking
+- 📈 **Event Collection** - Centralized event management and processing
 
 ## 🚀 Quick Start
 
@@ -203,6 +214,66 @@ import logging
 logging.getLogger("neonpay").setLevel(logging.INFO)
 ```
 
+## 🆕 New Features in v2.6.0
+
+### Web Analytics Dashboard
+```python
+from neonpay import MultiBotAnalyticsManager, run_analytics_server
+
+# Initialize analytics
+analytics = MultiBotAnalyticsManager()
+
+# Start web dashboard
+await run_analytics_server(analytics, host="localhost", port=8081)
+# Access dashboard at http://localhost:8081
+```
+
+### Notification System
+```python
+from neonpay import NotificationManager, NotificationConfig
+
+# Configure notifications
+config = NotificationConfig(
+    telegram_bot_token="YOUR_ADMIN_BOT_TOKEN",
+    telegram_admin_chat_id="YOUR_CHAT_ID"
+)
+
+notifications = NotificationManager(config)
+await notifications.send_notification(message)
+```
+
+### Backup System
+```python
+from neonpay import BackupManager, BackupConfig
+
+# Setup automated backups
+backup_config = BackupConfig(
+    backup_type=BackupType.JSON,
+    schedule="daily"
+)
+
+backup_manager = BackupManager(backup_config)
+await backup_manager.create_backup()
+```
+
+### Template System
+```python
+from neonpay import TemplateManager
+
+# Generate bot from template
+templates = TemplateManager()
+await templates.generate_template("digital_store", output_file="my_bot.py")
+```
+
+### Multi-Bot Sync
+```python
+from neonpay import MultiBotSyncManager
+
+# Sync multiple bots
+sync_manager = MultiBotSyncManager()
+await sync_manager.sync_bots([bot1, bot2, bot3])
+```
+
 ## 📖 Documentation
 
 - **[English Documentation](docs/en/README.md)** - Complete guide in English
@@ -213,11 +284,18 @@ logging.getLogger("neonpay").setLevel(logging.INFO)
 
 Check out the [examples](examples/) directory for complete working examples:
 
+### Core Payment Examples
 - [Pyrogram Bot Example](examples/pyrogram_example.py)
 - [Aiogram Bot Example](examples/aiogram_example.py)
 - [python-telegram-bot Example](examples/ptb_example.py)
 - [pyTelegramBotAPI Example](examples/telebot_example.py)
 - [Raw API Example](examples/raw_api_example.py)
+
+### 🆕 New Feature Examples (v2.6.0)
+- [Advanced Features Example](examples/advanced_features_example.py) - Complete enterprise features demo
+- [Multi-Bot Analytics Example](examples/multi_bot_analytics_example.py) - Analytics dashboard setup
+- [Multi-Bot Sync Example](examples/multi_bot_sync_example.py) - Bot synchronization
+- [Webhook Server Example](examples/webhook_server_example.py) - Web interface setup
 
 ## 🛠️ Development Tools
 
