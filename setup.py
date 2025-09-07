@@ -119,8 +119,8 @@ setup(
     license_files=["LICENSE"],
     zip_safe=False,
     entry_points={
-        'console_scripts': [
-            'neonpay=neonpay.cli:main',
+        "console_scripts": [
+            "neonpay=neonpay.cli:main",
         ],
     },
 )
