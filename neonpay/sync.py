@@ -515,7 +515,17 @@ class SyncManager:
         ):
             promo_system = self.neonpay.promotions
 
-            for promo_data in target_data:  # type: ignore
+            # target_data should be a list of promo codes
+            if isinstance(target_data, list):
+                promo_list = target_data
+            elif isinstance(target_data, dict):
+                # If it's a dict, convert to list
+                promo_list = list(target_data.values())
+            else:
+                logger.warning(f"Invalid target_data format: {type(target_data)}")
+                return {"synced": 0, "conflicts": []}
+
+            for promo_data in promo_list:
                 if not isinstance(promo_data, dict):
                     logger.warning(f"Invalid promo data format: {promo_data}")
                     continue
