@@ -9,12 +9,12 @@ import json
 import logging
 import sys
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from .analytics import AnalyticsManager, AnalyticsPeriod
 from .backup import BackupConfig, BackupManager, BackupType
 from .notifications import NotificationConfig, NotificationManager
-from .templates import TemplateManager
+from .templates import TemplateConfig, TemplateManager
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -588,7 +588,8 @@ Examples:
 
     async def handle_sync(self, args: Any) -> None:
         """Handle sync commands"""
-        from .sync import SyncConfig, MultiBotSyncManager, SyncDirection
+        from .sync import MultiBotSyncManager, SyncDirection
+        from . import BotSyncConfig
 
         # This would need a real NEONPAY instance
         # For demo purposes, we'll create a mock one
