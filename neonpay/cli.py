@@ -9,12 +9,11 @@ import json
 import logging
 import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 from .analytics import AnalyticsManager, AnalyticsPeriod
 from .backup import BackupManager, BackupConfig, BackupType
-from .templates import TemplateManager, TemplateType
+from .templates import TemplateManager
 from .notifications import NotificationManager, NotificationConfig
 
 
@@ -68,7 +67,7 @@ Examples:
                                  default="full", help="Backup type")
         
         # List backups
-        list_parser = backup_subparsers.add_parser("list", help="List backups")
+        backup_subparsers.add_parser("list", help="List backups")
         
         # Restore backup
         restore_parser = backup_subparsers.add_parser("restore", help="Restore backup")
@@ -83,7 +82,7 @@ Examples:
         template_subparsers = template_parser.add_subparsers(dest="template_action", help="Template actions")
         
         # List templates
-        template_list_parser = template_subparsers.add_parser("list", help="List templates")
+        template_subparsers.add_parser("list", help="List templates")
         
         # Generate template
         template_generate_parser = template_subparsers.add_parser("generate", help="Generate bot code from template")
@@ -139,13 +138,13 @@ Examples:
         sync_bot_parser.add_argument("bot_name", help="Bot name to sync with")
         
         # Sync with all bots
-        sync_all_parser = sync_subparsers.add_parser("sync-all", help="Sync with all configured bots")
+        sync_subparsers.add_parser("sync-all", help="Sync with all configured bots")
         
         # List configured bots
-        list_bots_parser = sync_subparsers.add_parser("list-bots", help="List configured bots")
+        sync_subparsers.add_parser("list-bots", help="List configured bots")
         
         # Show sync stats
-        sync_stats_parser = sync_subparsers.add_parser("stats", help="Show sync statistics")
+        sync_subparsers.add_parser("stats", help="Show sync statistics")
         
         # Multi-bot analytics commands
         analytics_parser = subparsers.add_parser("multi-analytics", help="Multi-bot analytics commands")
@@ -176,7 +175,7 @@ Examples:
         export_parser.add_argument("--output", help="Output file path")
         
         # Analytics status
-        analytics_status_parser = analytics_subparsers.add_parser("status", help="Show analytics status")
+        analytics_subparsers.add_parser("status", help="Show analytics status")
         
         # Global options
         self.parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
@@ -289,7 +288,7 @@ Examples:
                 
             if conversion_data:
                 output_lines.extend([
-                    f"📈 Conversion:",
+                    "📈 Conversion:",
                     f"  Rate: {conversion_data.conversion_rate:.1f}%",
                     f"  Visitors: {conversion_data.total_visitors}",
                     f"  Purchases: {conversion_data.total_purchases}",
@@ -430,7 +429,7 @@ Examples:
             if success:
                 print(f"✅ Test notification sent via {args.type}")
             else:
-                print(f"❌ Failed to send test notification")
+                print("❌ Failed to send test notification")
                 
         elif args.notification_action == "send":
             from .notifications import NotificationMessage, NotificationType, NotificationPriority
@@ -449,7 +448,7 @@ Examples:
             if success:
                 print(f"✅ Notification sent to {args.recipient}")
             else:
-                print(f"❌ Failed to send notification")
+                print("❌ Failed to send notification")
                 
     async def handle_sync(self, args: Any) -> None:
         """Handle sync commands"""
@@ -482,7 +481,7 @@ Examples:
                 sync_interval_minutes=args.interval
             )
             
-            sync_manager = multi_sync.add_bot(config)
+            multi_sync.add_bot(config)
             print(f"✅ Bot '{args.name}' added for synchronization")
             print(f"   Token: {args.token[:10]}...")
             print(f"   Direction: {args.direction}")
@@ -546,7 +545,7 @@ Examples:
             
     async def handle_multi_analytics(self, args: Any) -> None:
         """Handle multi-bot analytics commands"""
-        from .multi_bot_analytics import MultiBotAnalyticsManager, AnalyticsPeriod
+        from .multi_bot_analytics import AnalyticsPeriod
         
         # This would need a real NEONPAY instance
         # For demo purposes, we'll create a mock one
