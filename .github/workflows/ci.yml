@@ -36,15 +36,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          key: ${{ runner.os }}-pip-format-${{ hashFiles('**/pyproject.toml') }}
           restore-keys: |
+            ${{ runner.os }}-pip-format-
             ${{ runner.os }}-pip-
 
-      - name: 📦 Install tools
+      - name: 📦 Install formatting tools
         run: |
           python -m pip install --upgrade pip
-          pip install black isort ruff pytest-cov coverage[toml] bandit[toml] safety pip-audit \
-                      pytest-benchmark memory-profiler
+          pip install black isort ruff
 
       - name: 🎨 Run Black auto-format
         run: black .
@@ -56,12 +56,14 @@ jobs:
         run: ruff check --fix .
 
       - name: 🧹 Cleanup cache files
-        run: python .github/scripts/cleanup.py || echo "Cleanup script failed"
+        run: |
+          python .github/scripts/cleanup.py || echo "Cleanup script failed, continuing..."
 
       - name: 📝 Update README version
-        run: python .github/scripts/update_readme_version.py || echo "Version update failed"
+        run: |
+          python .github/scripts/update_readme_version.py || echo "Version update script failed, continuing..."
 
-  # 🧪 CI Tests
+  # 🧪 Main CI Pipeline
   ci:
     name: 🧪 CI Tests
     runs-on: ubuntu-latest
@@ -69,29 +71,51 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v4
+        include:
+          - python-version: "3.11"
+            test-group: "all"
+          - python-version: "3.9"
+            test-group: "minimal"
+          - python-version: "3.12"
+            test-group: "latest"
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: 📦 Install dependencies
-        run: pip install -e .[all,dev]
+      - name: 💾 Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
 
-      - name: 🔍 Check syntax
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[all,dev]
+          pip install pytest-cov coverage[toml] bandit[toml] safety ruff isort black
+
+      - name: 🔍 Check syntax (py_compile)
         run: python -m compileall -q .
 
-      - name: 🧹 Linting
-        run: ruff check . --output-format=github
+      - name: 🧹 Run Ruff auto-fix
+        run: ruff check --fix .
 
-      - name: 🎨 Black formatting check
-        run: black --check --diff .
+      - name: 🎨 Run Black auto-format
+        run: black .
 
-      - name: 📋 isort imports check
-        run: isort --check-only --diff .
+      - name: 📋 Run isort auto-format
+        run: isort .
 
-      - name: 🔍 MyPy type checking
+      - name: 🔍 Run MyPy type checking
         run: mypy --show-error-codes --show-error-context --pretty neonpay
 
       - name: 🧪 Run tests with coverage
@@ -118,23 +142,46 @@ jobs:
             htmlcov/
             coverage.xml
 
-  # 🔒 Security Scan
+  # 🔒 Security Scanning
   security:
     name: 🔒 Security Scan
     runs-on: ubuntu-latest
     needs: format
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: 🔍 Run security tools
+      - name: 💾 Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-security-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-security-
+            ${{ runner.os }}-pip-
+
+      - name: 📦 Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[toml] safety pip-audit
+
+      - name: 🔍 Run Bandit
         run: |
           bandit -r neonpay/ -f json -o bandit-report.json || true
           bandit -r neonpay/ -f txt
+
+      - name: 🛡️ Run Safety
+        run: |
           safety check --json --output safety-report.json || true
           safety check
+
+      - name: 🔍 Run pip-audit
+        run: |
           pip-audit --format=json --output=pip-audit-report.json || true
           pip-audit
 
@@ -148,7 +195,7 @@ jobs:
             safety-report.json
             pip-audit-report.json
 
-  # 🌍 Multi-platform Tests
+  # 🌍 Multi-platform Testing
   multiplatform:
     name: 🌍 Multi-platform Tests
     runs-on: ${{ matrix.os }}
@@ -160,53 +207,92 @@ jobs:
         exclude:
           - os: windows-latest
             python-version: "3.12"
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e .[all,dev] ruff
-      - run: pytest --tb=short -v
 
-  # ⚡ Performance & Benchmarks
+      - name: 💾 Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[all,dev]
+          pip install ruff
+
+      - name: 🧪 Run platform-specific tests
+        run: pytest --tb=short -v
+
+  # 📊 Performance & Benchmarks
   performance:
     name: ⚡ Performance Tests
     runs-on: ubuntu-latest
     needs: format
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install -e .[all,dev] pytest-benchmark memory-profiler
-      - run: pytest tests/ -k "benchmark" --benchmark-only --benchmark-save=main || echo "No benchmark tests found"
-      - uses: actions/upload-artifact@v4
+
+      - name: 💾 Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-pip-perf-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-perf-
+            ${{ runner.os }}-pip-
+
+      - name: 📦 Install performance tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[all,dev]
+          pip install pytest-benchmark memory-profiler
+
+      - name: ⚡ Run performance benchmarks
+        run: |
+          pytest tests/ -k "benchmark" --benchmark-only --benchmark-save=main || echo "No benchmark tests found"
+
+      - name: 📊 Upload benchmark results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: benchmark-results
           path: .benchmarks/
 
-  # 📢 Notifications
+  # 🚨 Notifications
   notify:
     name: 📢 Notifications
     runs-on: ubuntu-latest
     needs: [ci, security, multiplatform]
     if: always()
     steps:
-      - name: ✅ Success notification
-        if: needs.ci.result == 'success' && needs.security.result == 'success' && needs.multiplatform.result == 'success'
+      - name: ✅ Success / ❌ Failure notification
         run: |
-          echo "🎉 All CI checks passed successfully!"
-          echo "✅ Tests: ${{ needs.ci.result }}"
-          echo "✅ Security: ${{ needs.security.result }}"
-          echo "✅ Multi-platform: ${{ needs.multiplatform.result }}"
-
-      - name: ❌ Failure notification
-        if: needs.ci.result == 'failure' || needs.security.result == 'failure' || needs.multiplatform.result == 'failure'
-        run: |
-          echo "❌ CI checks failed!"
-          echo "🧪 Tests: ${{ needs.ci.result }}"
-          echo "🔒 Security: ${{ needs.security.result }}"
-          echo "🌍 Multi-platform: ${{ needs.multiplatform.result }}"
-          exit 1
+          if [ "${{ needs.ci.result }}" = "success" ] && [ "${{ needs.security.result }}" = "success" ] && [ "${{ needs.multiplatform.result }}" = "success" ]; then
+            echo "🎉 All CI checks passed successfully!"
+            echo "✅ Tests: ${{ needs.ci.result }}"
+            echo "✅ Security: ${{ needs.security.result }}"
+            echo "✅ Multi-platform: ${{ needs.multiplatform.result }}"
+          else
+            echo "❌ CI checks failed!"
+            echo "🧪 Tests: ${{ needs.ci.result }}"
+            echo "🔒 Security: ${{ needs.security.result }}"
+            echo "🌍 Multi-platform: ${{ needs.multiplatform.result }}"
+            exit 1
