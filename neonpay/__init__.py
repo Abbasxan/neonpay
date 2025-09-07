@@ -48,6 +48,76 @@ from .subscriptions import (
     SubscriptionStatus,
 )
 
+# Analytics system
+from .analytics import (
+    AnalyticsManager,
+    AnalyticsPeriod,
+    AnalyticsDashboard,
+    RevenueData,
+    ConversionData,
+    ProductPerformance,
+)
+
+# Notifications system
+from .notifications import (
+    NotificationManager,
+    NotificationType,
+    NotificationPriority,
+    NotificationConfig,
+    NotificationMessage,
+)
+
+# Templates system
+from .templates import (
+    TemplateManager,
+    TemplateType,
+    ThemeConfig,
+    ThemeColor,
+    TemplateConfig,
+    TemplateProduct,
+    TemplateCategory,
+)
+
+# Backup system
+from .backup import (
+    BackupManager,
+    BackupType,
+    BackupStatus,
+    BackupConfig,
+    BackupInfo,
+    SyncManager,
+    SyncConfig,
+)
+
+# Sync system
+from .sync import (
+    SyncManager as BotSyncManager,
+    MultiBotSyncManager,
+    SyncConfig as BotSyncConfig,
+    SyncDirection,
+    SyncStatus,
+    ConflictResolution,
+    SyncResult,
+    SyncConflict,
+)
+
+# Multi-bot analytics system
+from .multi_bot_analytics import (
+    MultiBotAnalyticsManager,
+    MultiBotEvent,
+    BotAnalytics,
+    NetworkAnalytics,
+    EventType,
+)
+
+# Event collection system
+from .event_collector import (
+    MultiBotEventCollector,
+    EventCollectorConfig,
+    CentralEventCollector,
+    RealTimeEventCollector,
+)
+
 __author__ = "Abbas Sultanov"
 __email__ = "sultanov.abas@outlook.com"
 
@@ -142,6 +212,55 @@ __all__ = [
     "UserSecurityProfile",
     "ThreatLevel",
     "ActionType",
+    # Analytics
+    "AnalyticsManager",
+    "AnalyticsPeriod",
+    "AnalyticsDashboard",
+    "RevenueData",
+    "ConversionData",
+    "ProductPerformance",
+    # Notifications
+    "NotificationManager",
+    "NotificationType",
+    "NotificationPriority",
+    "NotificationConfig",
+    "NotificationMessage",
+    # Templates
+    "TemplateManager",
+    "TemplateType",
+    "ThemeConfig",
+    "ThemeColor",
+    "TemplateConfig",
+    "TemplateProduct",
+    "TemplateCategory",
+    # Backup
+    "BackupManager",
+    "BackupType",
+    "BackupStatus",
+    "BackupConfig",
+    "BackupInfo",
+    "SyncManager",
+    "SyncConfig",
+    # Bot Sync
+    "BotSyncManager",
+    "MultiBotSyncManager",
+    "BotSyncConfig",
+    "SyncDirection",
+    "SyncStatus",
+    "ConflictResolution",
+    "SyncResult",
+    "SyncConflict",
+    # Multi-bot Analytics
+    "MultiBotAnalyticsManager",
+    "MultiBotEvent",
+    "BotAnalytics",
+    "NetworkAnalytics",
+    "EventType",
+    # Event Collection
+    "MultiBotEventCollector",
+    "EventCollectorConfig",
+    "CentralEventCollector",
+    "RealTimeEventCollector",
     # Adapters (lazy loaded)
     "PyrogramAdapter",
     "AiogramAdapter",
