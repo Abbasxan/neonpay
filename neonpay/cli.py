@@ -508,14 +508,14 @@ Examples:
                 print()
 
         elif args.template_action == "generate":
-            template: Optional[TemplateConfig] = template_manager.get_template(
+            selected_template: Optional[TemplateConfig] = template_manager.get_template(
                 args.template_name
             )
-            if not template:
+            if not selected_template:
                 print(f"❌ Template not found: {args.template_name}")
                 return
 
-            bot_code = template_manager.generate_bot_code(template, args.library)
+            bot_code = template_manager.generate_bot_code(selected_template, args.library)
 
             if args.output:
                 with open(args.output, "w", encoding="utf-8") as f:
@@ -722,7 +722,7 @@ Examples:
 
         if args.analytics_action == "network":
             # Get network analytics
-            network_data = analytics.get_network_analytics(period, days)
+            network_data = analytics.get_network_analytics(period.value, days)
 
             if not network_data:
                 print("📊 **Network Analytics** (Demo Data)")
@@ -743,88 +743,12 @@ Examples:
                 print("3. Priority Support: 600 stars")
                 return
 
-            # Format output
-            if args.format == "json":
-                output = {
-                    "total_bots": network_data.total_bots,
-                    "total_events": network_data.total_events,
-                    "total_users": network_data.total_users,
-                    "total_revenue": network_data.total_revenue,
-                    "total_transactions": network_data.total_transactions,
-                    "network_conversion_rate": network_data.network_conversion_rate,
-                    "top_performing_bots": network_data.top_performing_bots,
-                    "top_products": network_data.top_products,
-                }
-                output_text = json.dumps(output, indent=2, ensure_ascii=False)
-
-            elif args.format == "csv":
-                output_lines = ["Metric,Value"]
-                output_lines.extend(
-                    [
-                        f"Total Bots,{network_data.total_bots}",
-                        f"Total Events,{network_data.total_events}",
-                        f"Total Users,{network_data.total_users}",
-                        f"Total Revenue,{network_data.total_revenue}",
-                        f"Total Transactions,{network_data.total_transactions}",
-                        f"Network Conversion Rate,{network_data.network_conversion_rate:.2f}%",
-                    ]
-                )
-                output_text = "\n".join(output_lines)
-
-            else:  # table format
-                output_lines = ["📊 **Network Analytics**", "=" * 50]
-                output_lines.extend(
-                    [
-                        f"Total Bots: {network_data.total_bots}",
-                        f"Total Events: {network_data.total_events:,}",
-                        f"Total Users: {network_data.total_users:,}",
-                        f"Total Revenue: {network_data.total_revenue:,} stars",
-                        f"Total Transactions: {network_data.total_transactions:,}",
-                        f"Network Conversion Rate: {network_data.network_conversion_rate:.1f}%",
-                        "",
-                    ]
-                )
-
-                if network_data.top_performing_bots:
-                    output_lines.extend(
-                        [
-                            "🏆 **Top Performing Bots:**",
-                            *[
-                                f"{i}. {bot['bot_name']}: {bot['revenue']} stars ({bot['transactions']} transactions)"
-                                for i, bot in enumerate(
-                                    network_data.top_performing_bots[:5], 1
-                                )
-                            ],
-                            "",
-                        ]
-                    )
-
-                if network_data.top_products:
-                    output_lines.extend(
-                        [
-                            "📈 **Top Products:**",
-                            *[
-                                f"{i}. {product['product_id']}: {product['revenue']} stars"
-                                for i, product in enumerate(
-                                    network_data.top_products[:5], 1
-                                )
-                            ],
-                        ]
-                    )
-
-                output_text = "\n".join(output_lines)
-
-            # Output result
-            if args.output:
-                with open(args.output, "w", encoding="utf-8") as f:
-                    f.write(output_text)
-                print(f"Network analytics exported to {args.output}")
-            else:
-                print(output_text)
+            # Since MockMultiBotAnalytics always returns None, this code is unreachable
+            # The demo data above is always shown instead
 
         elif args.analytics_action == "bot":
             # Get bot-specific analytics
-            bot_data = analytics.get_bot_analytics(args.bot_id, period, days)
+            bot_data = analytics.get_bot_analytics(args.bot_id, period.value, days)
 
             if not bot_data:
                 print(f"📊 **Bot Analytics: {args.bot_id}** (Demo Data)")
@@ -845,22 +769,13 @@ Examples:
                 print("• Custom Theme: 400 stars")
                 return
 
-            # Format output (similar to network analytics)
-            print(f"📊 **Bot Analytics: {bot_data.bot_name}**")
-            print("=" * 50)
-            print(f"Total Events: {bot_data.total_events:,}")
-            print(f"Total Users: {bot_data.total_users:,}")
-            print(f"Total Revenue: {bot_data.total_revenue:,} stars")
-            print(f"Total Transactions: {bot_data.total_transactions:,}")
-            print(f"Conversion Rate: {bot_data.conversion_rate:.1f}%")
-            if bot_data.last_activity:
-                last_activity = datetime.fromtimestamp(bot_data.last_activity)
-                print(f"Last Activity: {last_activity.strftime('%Y-%m-%d %H:%M')}")
+            # Since MockMultiBotAnalytics always returns None, this code is unreachable
+            # The demo data above is always shown instead
 
         elif args.analytics_action == "export":
             # Export analytics data
             exported_data = analytics.export_network_analytics(
-                format_type=args.format, period=period, days=days
+                format_type=args.format, period=period.value, days=days
             )
 
             if exported_data:
