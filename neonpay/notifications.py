@@ -417,6 +417,15 @@ class NotificationManager:
         if enable_notifications:
             logger.info("Notification system initialized")
 
+        # Mapping notification type -> notifier method name
+        self._notifier_methods = {
+            NotificationType.EMAIL: "send_email",
+            NotificationType.TELEGRAM: "send_telegram",
+            NotificationType.SMS: "send_sms",
+            NotificationType.WEBHOOK: "send_webhook",
+            NotificationType.SLACK: "send_slack",
+        }
+
     async def send_notification(self, message: NotificationMessage) -> bool:
         """Send notification using specified type"""
         if not self.enabled:
@@ -427,47 +436,18 @@ class NotificationManager:
             logger.error(f"No notifier found for type: {message.notification_type}")
             return False
 
-        notifier_any: Any = notifier
-
-        try:
-            if message.notification_type == NotificationType.EMAIL:
-                send = getattr(notifier_any, "send_email", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Email notifier does not have send_email method")
-                return False
-
-            elif message.notification_type == NotificationType.TELEGRAM:
-                send = getattr(notifier_any, "send_telegram", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Telegram notifier does not have send_telegram method")
-                return False
-
-            elif message.notification_type == NotificationType.SMS:
-                send = getattr(notifier_any, "send_sms", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("SMS notifier does not have send_sms method")
-                return False
-
-            elif message.notification_type == NotificationType.WEBHOOK:
-                send = getattr(notifier_any, "send_webhook", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Webhook notifier does not have send_webhook method")
-                return False
-
-            elif message.notification_type == NotificationType.SLACK:
-                send = getattr(notifier_any, "send_slack", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Slack notifier does not have send_slack method")
-                return False
-
-            # else-блок: только один return!
+        method_name = self._notifier_methods.get(message.notification_type)
+        if not method_name:
+            logger.error(f"No method mapping found for type: {message.notification_type}")
             return False
 
+        send_method = getattr(notifier, method_name, None)
+        if not callable(send_method):
+            logger.error(f"{message.notification_type.value} notifier does not have {method_name} method")
+            return False
+
+        try:
+            return bool(await send_method(message))
         except Exception as e:
             logger.error(f"Failed to send notification: {e}")
             return False
@@ -550,3 +530,4 @@ class NotificationManager:
             "webhook_configured": bool(self.config.webhook_url),
             "slack_configured": bool(self.config.slack_webhook_url),
         }
+
