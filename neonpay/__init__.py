@@ -7,6 +7,27 @@ Simple and powerful payment processing for Telegram bots
 # Version
 from ._version import __version__
 
+# Analytics system
+from .analytics import (
+    AnalyticsDashboard,
+    AnalyticsManager,
+    AnalyticsPeriod,
+    ConversionData,
+    ProductPerformance,
+    RevenueData,
+)
+
+# Backup system
+from .backup import (
+    BackupConfig,
+    BackupInfo,
+    BackupManager,
+    BackupStatus,
+    BackupType,
+    SyncConfig,
+    SyncManager,
+)
+
 # Core classes
 from .core import BotLibrary, NeonPayCore, PaymentResult, PaymentStage, PaymentStatus
 
@@ -20,8 +41,34 @@ from .errors import (
     ValidationError,
 )
 
+# Event collection system
+from .event_collector import (
+    CentralEventCollector,
+    EventCollectorConfig,
+    MultiBotEventCollector,
+    RealTimeEventCollector,
+)
+
 # Factory
 from .factory import create_neonpay
+
+# Multi-bot analytics system
+from .multi_bot_analytics import (
+    BotAnalytics,
+    EventType,
+    MultiBotAnalyticsManager,
+    MultiBotEvent,
+    NetworkAnalytics,
+)
+
+# Notifications system
+from .notifications import (
+    NotificationConfig,
+    NotificationManager,
+    NotificationMessage,
+    NotificationPriority,
+    NotificationType,
+)
 
 # Legacy compatibility
 from .payments import NeonStars
@@ -48,74 +95,31 @@ from .subscriptions import (
     SubscriptionStatus,
 )
 
-# Analytics system
-from .analytics import (
-    AnalyticsManager,
-    AnalyticsPeriod,
-    AnalyticsDashboard,
-    RevenueData,
-    ConversionData,
-    ProductPerformance,
+# Sync system
+from .sync import (
+    ConflictResolution,
+    MultiBotSyncManager,
 )
-
-# Notifications system
-from .notifications import (
-    NotificationManager,
-    NotificationType,
-    NotificationPriority,
-    NotificationConfig,
-    NotificationMessage,
+from .sync import SyncConfig as BotSyncConfig
+from .sync import (
+    SyncConflict,
+    SyncDirection,
+)
+from .sync import SyncManager as BotSyncManager
+from .sync import (
+    SyncResult,
+    SyncStatus,
 )
 
 # Templates system
 from .templates import (
-    TemplateManager,
-    TemplateType,
-    ThemeConfig,
-    ThemeColor,
-    TemplateConfig,
-    TemplateProduct,
     TemplateCategory,
-)
-
-# Backup system
-from .backup import (
-    BackupManager,
-    BackupType,
-    BackupStatus,
-    BackupConfig,
-    BackupInfo,
-    SyncManager,
-    SyncConfig,
-)
-
-# Sync system
-from .sync import (
-    SyncManager as BotSyncManager,
-    MultiBotSyncManager,
-    SyncConfig as BotSyncConfig,
-    SyncDirection,
-    SyncStatus,
-    ConflictResolution,
-    SyncResult,
-    SyncConflict,
-)
-
-# Multi-bot analytics system
-from .multi_bot_analytics import (
-    MultiBotAnalyticsManager,
-    MultiBotEvent,
-    BotAnalytics,
-    NetworkAnalytics,
-    EventType,
-)
-
-# Event collection system
-from .event_collector import (
-    MultiBotEventCollector,
-    EventCollectorConfig,
-    CentralEventCollector,
-    RealTimeEventCollector,
+    TemplateConfig,
+    TemplateManager,
+    TemplateProduct,
+    TemplateType,
+    ThemeColor,
+    ThemeConfig,
 )
 
 __author__ = "Abbas Sultanov"
