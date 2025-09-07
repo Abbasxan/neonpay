@@ -487,22 +487,22 @@ class NotificationManager:
         try:
             if message.notification_type == NotificationType.EMAIL:
                 if hasattr(notifier, "send_email"):
-                    return await notifier.send_email(message)
+                    return bool(await notifier.send_email(message))
             elif message.notification_type == NotificationType.TELEGRAM:
                 if hasattr(notifier, "send_telegram"):
-                    return await notifier.send_telegram(message)
+                    return bool(await notifier.send_telegram(message))
             elif message.notification_type == NotificationType.SMS:
                 if hasattr(notifier, "send_sms"):
-                    return await notifier.send_sms(message)
+                    return bool(await notifier.send_sms(message))
             elif message.notification_type == NotificationType.WEBHOOK:
                 if hasattr(notifier, "send_webhook"):
-                    return await notifier.send_webhook(message)
+                    return bool(await notifier.send_webhook(message))
             elif message.notification_type == NotificationType.SLACK:
                 if hasattr(notifier, "send_slack"):
-                    return await notifier.send_slack(message)
+                    return bool(await notifier.send_slack(message))
             elif message.notification_type == NotificationType.DISCORD:
                 if hasattr(notifier, "send_discord"):
-                    return await notifier.send_discord(message)
+                    return bool(await notifier.send_discord(message))
             else:
                 logger.error(
                     f"Unsupported notification type: {message.notification_type}"
