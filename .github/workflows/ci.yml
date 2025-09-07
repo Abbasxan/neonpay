@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main", "develop"]
   schedule:
-    - cron: '0 2 * * 1'  # Weekly security scans on Mondays at 2 AM UTC
+    - cron: '0 2 * * 1'
 
 env:
   PYTHON_VERSION: "3.11"
@@ -36,15 +36,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-format-${{ hashFiles('**/pyproject.toml') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-pip-format-
             ${{ runner.os }}-pip-
 
-      - name: 📦 Install formatting tools
+      - name: 📦 Install tools
         run: |
           python -m pip install --upgrade pip
-          pip install black isort ruff
+          pip install black isort ruff pytest-cov coverage[toml] bandit[toml] safety pip-audit \
+                      pytest-benchmark memory-profiler
 
       - name: 🎨 Run Black auto-format
         run: black .
@@ -53,40 +53,15 @@ jobs:
         run: isort .
 
       - name: 🔍 Run Ruff auto-fix
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff
-          ruff check --fix .
+        run: ruff check --fix .
 
       - name: 🧹 Cleanup cache files
-        run: |
-          python .github/scripts/cleanup.py || echo "Cleanup script failed, continuing..."
+        run: python .github/scripts/cleanup.py || echo "Cleanup script failed"
 
       - name: 📝 Update README version
-        run: |
-          python .github/scripts/update_readme_version.py || echo "Version update script failed, continuing..."
+        run: python .github/scripts/update_readme_version.py || echo "Version update failed"
 
-      - name: 💾 Commit formatting changes
-        run: |
-          git config --global user.name "🤖 GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add .
-          if git diff --staged --quiet; then
-            echo "No formatting changes to commit"
-          else
-            git commit -m "🎨 Auto-format code with black, isort, and ruff
-
-            - Applied Black formatting
-            - Applied isort import sorting  
-            - Applied Ruff linting fixes
-            - Cleaned up cache files and temporary data
-            - Updated README version information
-            
-            [skip ci]"
-            git push
-          fi
-
-  # 🧪 Main CI Pipeline
+  # 🧪 CI Tests
   ci:
     name: 🧪 CI Tests
     runs-on: ubuntu-latest
@@ -94,54 +69,29 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        include:
-          - python-version: "3.11"
-            test-group: "all"
-          - python-version: "3.9"
-            test-group: "minimal"
-          - python-version: "3.12"
-            test-group: "latest"
-
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: 💾 Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            ${{ runner.os }}-pip-
-
       - name: 📦 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[all,dev]
-          pip install pytest-cov coverage[toml] bandit[toml] safety ruff
+        run: pip install -e .[all,dev]
 
-      - name: 🔍 Check syntax (py_compile)
+      - name: 🔍 Check syntax
         run: python -m compileall -q .
 
-      - name: 🧹 Run Ruff linting
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff
-          ruff check . --output-format=github
+      - name: 🧹 Linting
+        run: ruff check . --output-format=github
 
-      - name: 🎨 Check Black formatting
+      - name: 🎨 Black formatting check
         run: black --check --diff .
 
-      - name: 📋 Check isort imports
+      - name: 📋 isort imports check
         run: isort --check-only --diff .
 
-      - name: 🔍 Run MyPy type checking
+      - name: 🔍 MyPy type checking
         run: mypy --show-error-codes --show-error-context --pretty neonpay
 
       - name: 🧪 Run tests with coverage
@@ -168,46 +118,23 @@ jobs:
             htmlcov/
             coverage.xml
 
-  # 🔒 Security Scanning
+  # 🔒 Security Scan
   security:
     name: 🔒 Security Scan
     runs-on: ubuntu-latest
     needs: format
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: 💾 Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-security-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-security-
-            ${{ runner.os }}-pip-
-
-      - name: 📦 Install security tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install bandit[toml] safety pip-audit
-
-      - name: 🔍 Run Bandit security linter
+      - name: 🔍 Run security tools
         run: |
           bandit -r neonpay/ -f json -o bandit-report.json || true
           bandit -r neonpay/ -f txt
-
-      - name: 🛡️ Run Safety vulnerability check
-        run: |
           safety check --json --output safety-report.json || true
           safety check
-
-      - name: 🔍 Run pip-audit
-        run: |
           pip-audit --format=json --output=pip-audit-report.json || true
           pip-audit
 
@@ -221,7 +148,7 @@ jobs:
             safety-report.json
             pip-audit-report.json
 
-  # 🌍 Multi-platform Testing
+  # 🌍 Multi-platform Tests
   multiplatform:
     name: 🌍 Multi-platform Tests
     runs-on: ${{ matrix.os }}
@@ -232,77 +159,35 @@ jobs:
         python-version: ["3.11", "3.12"]
         exclude:
           - os: windows-latest
-            python-version: "3.12"  # Reduce Windows 3.12 tests
-
+            python-version: "3.12"
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 🐍 Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - run: pip install -e .[all,dev] ruff
+      - run: pytest --tb=short -v
 
-      - name: 💾 Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-            ${{ runner.os }}-pip-
-
-      - name: 📦 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[all,dev]
-          pip install ruff  # на всякий случай, если понадобится
-
-      - name: 🧪 Run platform-specific tests
-        run: pytest --tb=short -v
-
-  # 📊 Performance & Benchmarks
+  # ⚡ Performance & Benchmarks
   performance:
     name: ⚡ Performance Tests
     runs-on: ubuntu-latest
     needs: format
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: 💾 Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-perf-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-perf-
-            ${{ runner.os }}-pip-
-
-      - name: 📦 Install performance tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[all,dev]
-          pip install pytest-benchmark memory-profiler
-
-      - name: ⚡ Run performance benchmarks
-        run: |
-          pytest tests/ -k "benchmark" --benchmark-only --benchmark-save=main || echo "No benchmark tests found"
-
-      - name: 📊 Upload benchmark results
-        uses: actions/upload-artifact@v4
+      - run: pip install -e .[all,dev] pytest-benchmark memory-profiler
+      - run: pytest tests/ -k "benchmark" --benchmark-only --benchmark-save=main || echo "No benchmark tests found"
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: benchmark-results
           path: .benchmarks/
 
-  # 🚨 Notifications
+  # 📢 Notifications
   notify:
     name: 📢 Notifications
     runs-on: ubuntu-latest
