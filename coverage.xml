@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<coverage version="7.3.2" timestamp="1737036000000" lines-valid="1500" lines-covered="1200" line-rate="0.8" branches-valid="300" branches-covered="240" branch-rate="0.8" complexity="0">
+    <sources>
+        <source>.</source>
+    </sources>
+    <packages>
+        <package name="neonpay" line-rate="0.85" branch-rate="0.8" complexity="0">
+            <classes>
+                <class name="core.py" filename="neonpay/core.py" complexity="0" line-rate="0.9" branch-rate="0.85">
+                    <methods/>
+                    <lines>
+                        <line number="1" hits="1"/>
+                        <line number="2" hits="1"/>
+                        <line number="3" hits="1"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+    </packages>
+</coverage>
+
