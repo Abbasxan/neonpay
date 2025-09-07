@@ -488,7 +488,7 @@ class SyncManager:
         try:
             logger.info(f"Starting sync with bot: {target_bot_token[:10]}...")
             # Create target bot instance (simplified)
-            # Note: This is a placeholder - in real implementation, 
+            # Note: This is a placeholder - in real implementation,
             # you would need to provide actual bot instance
             target_neonpay = None  # type: ignore
 
@@ -509,7 +509,11 @@ class SyncManager:
                 except Exception as e:
                     sync_results["errors"].append(f"Payment stages sync failed: {e}")
             # Sync promo codes
-            if self.config.sync_templates and hasattr(self.neonpay, "promotions") and target_neonpay:
+            if (
+                self.config.sync_templates
+                and hasattr(self.neonpay, "promotions")
+                and target_neonpay
+            ):
                 try:
                     promo_system = self.neonpay.promotions
                     if promo_system:
