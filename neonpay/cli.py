@@ -37,7 +37,7 @@ Examples:
   neonpay backup create --description "Weekly backup"
   neonpay template list
   neonpay template generate digital_store --output bot.py
-  neonpay notifications test --type telegram --telegram-bot-token YOUR_TOKEN --telegram-chat-id YOUR_CHAT_ID
+  neonpay notifications test --type telegram --telegram-bot-token ADMIN_BOT_TOKEN --telegram-chat-id ADMIN_CHAT_ID
             """,
         )
         self.setup_commands()
@@ -125,9 +125,9 @@ Examples:
         )
         template_create_parser.add_argument("--products", help="Products JSON file")
 
-        # Notification commands
+        # Notification commands (Admin feature)
         notification_parser = subparsers.add_parser(
-            "notifications", help="Notification commands"
+            "notifications", help="Admin notification commands (optional monitoring feature)"
         )
         notification_subparsers = notification_parser.add_subparsers(
             dest="notification_action", help="Notification actions"
@@ -144,8 +144,8 @@ Examples:
             help="Notification type",
         )
         test_parser.add_argument("--recipient", help="Recipient (email, chat_id, etc.)")
-        test_parser.add_argument("--telegram-bot-token", help="Telegram bot token (required for telegram type)")
-        test_parser.add_argument("--telegram-chat-id", help="Telegram chat ID (required for telegram type)")
+        test_parser.add_argument("--telegram-bot-token", help="Admin bot token for notifications (separate from main bot)")
+        test_parser.add_argument("--telegram-chat-id", help="Admin chat ID to receive notifications")
 
         # Send notification
         send_parser = notification_subparsers.add_parser(
@@ -160,8 +160,8 @@ Examples:
         send_parser.add_argument("--recipient", required=True, help="Recipient")
         send_parser.add_argument("--subject", help="Notification subject")
         send_parser.add_argument("--body", required=True, help="Notification body")
-        send_parser.add_argument("--telegram-bot-token", help="Telegram bot token (required for telegram type)")
-        send_parser.add_argument("--telegram-chat-id", help="Telegram chat ID (required for telegram type)")
+        send_parser.add_argument("--telegram-bot-token", help="Admin bot token for notifications (separate from main bot)")
+        send_parser.add_argument("--telegram-chat-id", help="Admin chat ID to receive notifications")
 
         # Sync commands
         sync_parser = subparsers.add_parser("sync", help="Bot synchronization commands")
@@ -537,17 +537,32 @@ Examples:
             print("  # ... create template code ...")
 
     async def handle_notifications(self, args: Any) -> None:
-        """Handle notification commands"""
-        # Validate required parameters for telegram notifications
+        """Handle notification commands - Admin feature for monitoring bot events"""
+        print("📢 NEONPAY Notifications - Admin Monitoring Feature")
+        print("This feature is for bot administrators to receive notifications about:")
+        print("  • Payment events and errors")
+        print("  • System status updates") 
+        print("  • Security alerts")
+        print("  • Analytics reports")
+        print()
+        print("⚠️  Note: This is an optional admin feature, not part of the core payment library.")
+        print("   The main NeonPay library works with your existing bot token.")
+        print()
+        
+        # Check if user provided notification credentials
         if args.type == "telegram":
             telegram_token = getattr(args, 'telegram_bot_token', None)
             telegram_chat_id = getattr(args, 'telegram_chat_id', None)
             
-            if not telegram_token:
-                print("❌ Error: --telegram-bot-token is required for telegram notifications")
-                return
-            if not telegram_chat_id:
-                print("❌ Error: --telegram-chat-id is required for telegram notifications")
+            if not telegram_token or not telegram_chat_id:
+                print("❌ Error: For telegram notifications, you need to provide:")
+                print("   --telegram-bot-token YOUR_ADMIN_BOT_TOKEN")
+                print("   --telegram-chat-id YOUR_ADMIN_CHAT_ID")
+                print()
+                print("💡 Tip: Create a separate admin bot for notifications:")
+                print("   1. Create new bot with @BotFather")
+                print("   2. Get your chat ID with @userinfobot")
+                print("   3. Use these credentials for admin notifications")
                 return
                 
             notification_config = NotificationConfig(
@@ -555,8 +570,9 @@ Examples:
                 telegram_admin_chat_id=telegram_chat_id
             )
         else:
-            # For other notification types, create minimal config
-            notification_config = NotificationConfig()
+            print(f"❌ Error: Notification type '{args.type}' requires additional configuration.")
+            print("   Please check the documentation for setup instructions.")
+            return
             
         notification_manager = NotificationManager(
             notification_config, enable_notifications=True
