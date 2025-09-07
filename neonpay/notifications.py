@@ -488,21 +488,39 @@ class NotificationManager:
             if message.notification_type == NotificationType.EMAIL:
                 if hasattr(notifier, "send_email"):
                     return bool(await notifier.send_email(message))
+                else:
+                    logger.error("Email notifier does not have send_email method")
+                    return False
             elif message.notification_type == NotificationType.TELEGRAM:
                 if hasattr(notifier, "send_telegram"):
                     return bool(await notifier.send_telegram(message))
+                else:
+                    logger.error("Telegram notifier does not have send_telegram method")
+                    return False
             elif message.notification_type == NotificationType.SMS:
                 if hasattr(notifier, "send_sms"):
                     return bool(await notifier.send_sms(message))
+                else:
+                    logger.error("SMS notifier does not have send_sms method")
+                    return False
             elif message.notification_type == NotificationType.WEBHOOK:
                 if hasattr(notifier, "send_webhook"):
                     return bool(await notifier.send_webhook(message))
+                else:
+                    logger.error("Webhook notifier does not have send_webhook method")
+                    return False
             elif message.notification_type == NotificationType.SLACK:
                 if hasattr(notifier, "send_slack"):
                     return bool(await notifier.send_slack(message))
+                else:
+                    logger.error("Slack notifier does not have send_slack method")
+                    return False
             elif message.notification_type == NotificationType.DISCORD:
                 if hasattr(notifier, "send_discord"):
                     return bool(await notifier.send_discord(message))
+                else:
+                    logger.error("Discord notifier does not have send_discord method")
+                    return False
             else:
                 logger.error(
                     f"Unsupported notification type: {message.notification_type}"
