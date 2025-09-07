@@ -215,8 +215,9 @@ class SyncWebHandler:
                             template_manager.import_template(template_json)
                             applied_count += 1
                         except Exception as e:
+                            sanitized_template_name = str(template_name).replace('\r', '').replace('\n', '')
                             logger.error(
-                                f"Failed to apply template {template_name}: {e}"
+                                f"Failed to apply template {sanitized_template_name}: {e}"
                             )
 
                 return web.json_response(
