@@ -5,6 +5,104 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0/).
 
+## [2.6.0] - 2025-09-07
+
+### 🚀 NEW FEATURES - Enhanced Library Capabilities
+
+This version adds significant new features and modules to the NeonPay library while maintaining backward compatibility.
+
+### 🌐 New Web Interfaces
+- **Web Analytics Dashboard** (`web_analytics.py`): Real-time bot performance monitoring via web interface
+- **Web Sync Interface** (`web_sync.py`): Multi-bot synchronization through REST API
+- **RESTful APIs**: Complete web API for all library features
+
+### 📊 Advanced Analytics System
+- **Analytics Module** (`analytics.py`): Comprehensive payment analytics and reporting
+- **Multi-Bot Analytics** (`multi_bot_analytics.py`): Network-wide performance tracking
+- **Event Collection** (`event_collector.py`): Centralized event management and processing
+- **Real-time Dashboards**: Live performance metrics and insights
+
+### 🔔 Enterprise Notification System
+- **Notification System** (`notifications.py`): Multi-channel notifications (Email, Telegram, SMS, Webhook)
+- **Template Engine**: Customizable notification templates
+- **Priority Levels**: Configurable notification priorities
+- **Admin Monitoring**: Separate admin bot for system notifications
+
+### 💾 Backup & Recovery System
+- **Backup Module** (`backup.py`): Automated data protection and recovery
+- **Multiple Formats**: JSON, SQLite, PostgreSQL backup support
+- **Scheduled Backups**: Automated backup scheduling
+- **Restore Capabilities**: Complete data restoration workflows
+
+### 📋 Template System
+- **Template Engine** (`templates.py`): Pre-built bot templates and generators
+- **Digital Store Templates**: Ready-to-use e-commerce bot templates
+- **Custom Templates**: User-defined template creation
+- **Template Marketplace**: Shareable template system
+
+### 🔗 Multi-Bot Management
+- **Sync System** (`sync.py`): Multi-bot synchronization and management
+- **Conflict Resolution**: Automated conflict handling
+- **Cross-Bot Analytics**: Network-wide performance insights
+- **Centralized Management**: Single interface for multiple bots
+
+### 🛡️ Security Enhancements
+- **Zero Vulnerabilities**: All Bandit security issues resolved
+- **Secure Defaults**: Web servers bind to localhost by default
+- **Credential Management**: Proper separation of admin and core credentials
+- **Production Ready**: Enterprise-grade security posture
+
+### ⚡ Performance & Scalability
+- **Enterprise Architecture**: Scalable, modular design
+- **Async/Sync Support**: Full compatibility across all modules
+- **Memory Optimization**: Efficient resource utilization
+- **High Performance**: Optimized for production workloads
+
+### 🔧 CLI Enhancements
+- **Enterprise Commands**: New CLI commands for all modules
+- **Admin Features**: Separate admin functionality
+- **Better Help**: Comprehensive command documentation
+- **Security Focus**: Secure-by-default configuration
+
+### Added
+- **New Modules**: 9 new modules for enhanced functionality
+- **Web Interfaces**: Analytics and sync dashboards
+- **CLI Commands**: New commands for all modules
+- **Backward Compatibility**: All existing functionality preserved
+
+### Changed
+- **CLI Help**: Updated to include new features
+- **Security Defaults**: Web servers use localhost binding by default
+- **Documentation**: Enhanced with new module information
+
+### Migration Guide
+- **Optional**: New modules are available for import but not required
+- **CLI Users**: New commands available for enhanced functionality
+- **Admin Setup**: Configure separate admin bot for notifications (optional)
+- **Web Interfaces**: Set up web dashboards for analytics and sync (optional)
+
+### New Module Structure
+```
+neonpay/
+├── analytics.py          # Advanced analytics system
+├── backup.py            # Backup & restore system
+├── event_collector.py   # Event collection & processing
+├── multi_bot_analytics.py # Multi-bot analytics
+├── notifications.py     # Enterprise notification system
+├── sync.py             # Multi-bot synchronization
+├── templates.py        # Template system
+├── web_analytics.py    # Web analytics dashboard
+└── web_sync.py         # Web sync interface
+```
+
+## [2.5.1] - 2025-09-07
+
+### Security Fixes
+- 🔒 **CRITICAL**: Removed hardcoded bot tokens from CLI commands
+- 🛡️ **CRITICAL**: Fixed network binding vulnerabilities in web servers
+- 🔐 **CRITICAL**: Eliminated hardcoded credentials in notification system
+- ✅ **CRITICAL**: All Bandit security issues resolved (0 vulnerabilities)
+
 ## [2.5.0] - 2025-01-15
 
 ### Added
