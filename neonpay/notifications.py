@@ -521,12 +521,14 @@ class NotificationManager:
                 else:
                     logger.error("Discord notifier does not have send_discord method")
                     return False
-
-            return False
+            else:
+                # fallback для будущих типов
+                return False
 
         except Exception as e:
             logger.error(f"Failed to send notification: {e}")
             return False
+
 
 
     async def send_template_notification(
@@ -608,4 +610,5 @@ class NotificationManager:
             "slack_configured": bool(self.config.slack_webhook_url),
             "discord_configured": bool(self.config.discord_webhook_url),
         }
+
 
