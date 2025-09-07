@@ -488,7 +488,7 @@ class SyncManager:
         try:
             logger.info(f"Starting sync with bot: {target_bot_token[:10]}...")
             # Create target bot instance (simplified)
-            # Note: This is a placeholder - in real implementation, 
+            # Note: This is a placeholder - in real implementation,
             # you would need to provide actual bot instance
             target_neonpay = None
 
@@ -508,17 +508,21 @@ class SyncManager:
                             target_neonpay.create_payment_stage(stage_id, stage)
                             sync_results["payment_stages"] += 1
                     except Exception as e:
-                        sync_results["errors"].append(f"Payment stages sync failed: {e}")
+                        sync_results["errors"].append(
+                            f"Payment stages sync failed: {e}"
+                        )
                 else:
                     sync_results["errors"].append("Target bot instance not available")
-            
+
             # Sync promo codes
             if self.config.sync_templates and hasattr(self.neonpay, "promotions"):
                 if target_neonpay:
                     try:
                         promo_system = self.neonpay.promotions
                         if promo_system:
-                            promo_codes = promo_system.list_promo_codes(active_only=False)
+                            promo_codes = promo_system.list_promo_codes(
+                                active_only=False
+                            )
                             for promo in promo_codes:
                                 target_neonpay.create_promo_code(
                                     code=promo.code,
