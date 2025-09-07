@@ -516,20 +516,16 @@ class SyncManager:
             promo_system = self.neonpay.promotions
 
             # target_data is a dict, extract promo codes
-            if isinstance(target_data, dict):
-                # Check if it's a dict of promo codes or a single promo code
-                if "promo_codes" in target_data:
-                    # If it has a promo_codes key, extract the list
-                    promo_list = target_data["promo_codes"]
-                    if not isinstance(promo_list, list):
-                        logger.warning("promo_codes is not a list")
-                        return {"synced": 0, "conflicts": []}
-                else:
-                    # If it's a single promo code dict, wrap it in a list
-                    promo_list = [target_data]
+            # Check if it's a dict of promo codes or a single promo code
+            if "promo_codes" in target_data:
+                # If it has a promo_codes key, extract the list
+                promo_list = target_data["promo_codes"]
+                if not isinstance(promo_list, list):
+                    logger.warning("promo_codes is not a list")
+                    return {"synced": 0, "conflicts": []}
             else:
-                logger.warning(f"Invalid target_data format: {type(target_data)}")
-                return {"synced": 0, "conflicts": []}
+                # If it's a single promo code dict, wrap it in a list
+                promo_list = [target_data]
 
             for promo_data in promo_list:
                 if not isinstance(promo_data, dict):
