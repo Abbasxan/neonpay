@@ -1,206 +1,88 @@
 # Examples Changelog
 
-## Version 2.0 - Real-world Examples Update
+This file documents changes to the NEONPAY examples.
 
-### 🎯 **Major Updates**
+## [2.5.0] - 2025-01-15
 
-All examples have been completely rewritten based on **real working bot implementations** and are now production-ready.
+### Added
+- Enhanced CLI example with comprehensive command demonstration
+- Improved error handling in all examples
+- Better documentation for each example
 
-### 📋 **Updated Examples**
+### Changed
+- Updated all examples to use latest NEONPAY features
+- Improved code structure and readability
+- Enhanced error handling and logging
 
-#### 1. **Aiogram Example** ⭐ **RECOMMENDED**
-- ✅ Complete donation bot with digital store
-- ✅ Real-world production code
-- ✅ Support system (1⭐, 10⭐, 50⭐)
-- ✅ Digital products (Premium Access, Custom Theme, Priority Support)
-- ✅ Auto-delivery system
-- ✅ Error handling and logging
+### Examples Updated
+- `aiogram_example.py` - Enhanced donation bot with digital store
+- `pyrogram_example.py` - Complete donation bot implementation
+- `telebot_example.py` - Simple bot with payment integration
+- `ptb_example.py` - Professional services marketplace
+- `raw_api_example.py` - Digital store with webhook integration
+- `cli_example.py` - Command line interface demonstration
 
-#### 2. **Pyrogram Example**
-- ✅ Complete donation bot with digital store
-- ✅ Real-world production code
-- ✅ Support system (1⭐, 10⭐, 50⭐)
-- ✅ Digital products (Premium Access, Custom Theme, Priority Support)
-- ✅ Auto-delivery system
-- ✅ Error handling and logging
+## [2.4.0] - 2025-09-04
 
-#### 3. **Telebot Example**
-- ✅ Complete donation bot with digital store
-- ✅ Real-world production code
-- ✅ Support system (1⭐, 10⭐, 50⭐)
-- ✅ Digital products (Premium Access, Custom Theme, Priority Support)
-- ✅ Auto-delivery system
-- ✅ Error handling and logging
+### Added
+- New BotAPIAdapter example
+- Enhanced security examples
+- Improved webhook handling examples
 
-#### 4. **PTB Example**
-- ✅ Complete donation bot with digital store
-- ✅ Real-world production code
-- ✅ Support system (1⭐, 10⭐, 50⭐)
-- ✅ Digital products (Premium Access, Custom Theme, Priority Support)
-- ✅ Auto-delivery system
-- ✅ Error handling and logging
+### Changed
+- Updated examples to use new BotAPIAdapter
+- Enhanced security validation in examples
+- Improved error handling
 
-#### 5. **Raw API Example**
-- ✅ Complete donation bot with digital store
-- ✅ Real-world production code
-- ✅ Support system (1⭐, 10⭐, 50⭐)
-- ✅ Digital products (Premium Access, Custom Theme, Priority Support)
-- ✅ Auto-delivery system
-- ✅ Error handling and logging
+## [2.3.0] - 2025-08-29
 
-### 🔧 **Technical Improvements**
+### Removed
+- Localization examples (English-only now)
+- Multilingual documentation examples
 
-#### **Code Quality**
-- ✅ All examples pass linting (Ruff)
-- ✅ Consistent code style
-- ✅ Proper error handling
-- ✅ Comprehensive logging
-- ✅ Type hints where applicable
+### Changed
+- All examples now use English-only text
+- Simplified example structure
+- Removed language parameters from examples
 
-#### **Real-world Features**
-- ✅ Donation system with multiple tiers
-- ✅ Digital product store
-- ✅ Instant product delivery
-- ✅ Payment confirmation system
-- ✅ User-friendly interface
-- ✅ Callback query handling
+## [2.2.0] - 2025-04-18
 
-#### **Production Ready**
-- ✅ Environment variable support
-- ✅ Database integration ready
-- ✅ Webhook support (Raw API)
-- ✅ Error recovery
-- ✅ Graceful shutdown
+### Added
+- Security-focused examples
+- Enhanced validation examples
+- Webhook security examples
 
-### 📚 **Documentation**
+### Changed
+- Updated examples with stricter validation
+- Enhanced security features in examples
+- Improved error handling
 
-#### **Updated README**
-- ✅ Real-world examples description
-- ✅ Quick start guide
-- ✅ Library comparison table
-- ✅ Customization guide
-- ✅ Production deployment tips
+## [2.1.0] - 2024-12-18
 
-#### **New Documentation**
-- ✅ `aiogram_example_README.md` - Detailed Aiogram guide
-- ✅ `CHANGELOG.md` - This changelog
-- ✅ Code comments and docstrings
+### Added
+- Simplified example structure
+- Cleaner example code
 
-### 🚀 **Getting Started**
+### Changed
+- Reduced complexity in examples
+- Improved readability
 
-#### **Quick Start**
-```bash
-# Install dependencies
-pip install aiogram neonpay
+## [2.0.0] - 2024-12-17
 
-# Configure bot
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+### Added
+- Security-enhanced examples
+- Comprehensive testing examples
+- Advanced error handling examples
 
-# Run example
-python aiogram_example.py
-```
+### Changed
+- Updated examples with new security features
+- Enhanced validation examples
 
-#### **Test Payments**
-1. Start conversation with bot
-2. Use `/donate` to test donations
-3. Use `/store` to test digital products
-4. Complete payment with Telegram Stars
+## [1.0.0] - 2024-12-16
 
-### 🎯 **Key Features**
+### Added
+- Initial examples for all supported libraries
+- Basic payment processing examples
+- Webhook handling examples
+- Multi-stage payment examples
 
-#### **Donation System**
-- 1⭐ - Basic support
-- 10⭐ - Feature development
-- 50⭐ - Big support
-
-#### **Digital Store**
-- 👑 Premium Access (25⭐)
-- 🎨 Custom Theme (15⭐)
-- ⚡ Priority Support (30⭐)
-
-#### **Payment Processing**
-- Native Telegram Stars
-- Instant confirmation
-- Auto-delivery
-- Error handling
-
-### 🔄 **Migration Guide**
-
-#### **From Old Examples**
-1. **Backup** your existing code
-2. **Replace** example files with new versions
-3. **Update** imports to use `neonpay.factory`
-4. **Test** payment flow
-5. **Deploy** to production
-
-#### **Breaking Changes**
-- Import paths changed to `neonpay.factory`
-- Payment stage creation simplified
-- Callback handling improved
-- Error handling enhanced
-
-### 🐛 **Bug Fixes**
-
-- ✅ Fixed payment stage creation
-- ✅ Fixed callback query handling
-- ✅ Fixed error handling
-- ✅ Fixed logging configuration
-- ✅ Fixed import statements
-
-### 📈 **Performance**
-
-- ✅ Faster payment processing
-- ✅ Better error recovery
-- ✅ Improved logging
-- ✅ Optimized callbacks
-- ✅ Reduced memory usage
-
-### 🔒 **Security**
-
-- ✅ Environment variable support
-- ✅ Secure token handling
-- ✅ Input validation
-- ✅ Error sanitization
-- ✅ Logging security
-
-### 🎉 **What's New**
-
-#### **Real-world Code**
-All examples are now based on **actual working bots** that have processed real payments.
-
-#### **Production Ready**
-Every example can be deployed to production with minimal changes.
-
-#### **Comprehensive Features**
-- Donation system
-- Digital store
-- Auto-delivery
-- Error handling
-- Logging
-- User management
-
-#### **Better Documentation**
-- Detailed README files
-- Code comments
-- Usage examples
-- Deployment guides
-
-### 🚀 **Next Steps**
-
-1. **Choose** your preferred library (Aiogram recommended)
-2. **Download** the example
-3. **Configure** your bot token
-4. **Test** the payment flow
-5. **Customize** for your needs
-6. **Deploy** to production
-
-### 📞 **Support**
-
-- 📚 [Documentation](../docs/en/README.md)
-- 💬 [Community](https://t.me/neonpay_community)
-- 🐛 [Issues](https://github.com/Abbasxan/neonpay/issues)
-- 📧 [Email](mailto:support@neonpay.com)
-
----
-
-**Happy coding with NEONPAY! 🚀**
