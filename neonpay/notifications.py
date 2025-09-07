@@ -26,7 +26,6 @@ class NotificationType(Enum):
     SMS = "sms"
     WEBHOOK = "webhook"
     SLACK = "slack"
-    DISCORD = "discord"
 
 
 class NotificationPriority(Enum):
@@ -78,9 +77,6 @@ class NotificationConfig:
     # Slack settings
     slack_webhook_url: Optional[str] = None
     slack_channel: Optional[str] = None
-
-    # Discord settings
-    discord_webhook_url: Optional[str] = None
 
 
 @dataclass
@@ -296,58 +292,6 @@ class SlackNotifier:
         return colors.get(priority, "#36a64f")
 
 
-class DiscordNotifier:
-    """Discord notification handler"""
-
-    def __init__(self, config: NotificationConfig) -> None:
-        self.config = config
-
-    async def send_discord(self, message: NotificationMessage) -> bool:
-        """Send Discord notification"""
-        if not self.config.discord_webhook_url:
-            logger.warning("Discord webhook URL not configured")
-            return False
-
-        try:
-            # Format message for Discord
-            discord_message = {
-                "embeds": [
-                    {
-                        "title": message.subject or "NEONPAY Notification",
-                        "description": message.body,
-                        "color": self._get_color_for_priority(message.priority),
-                        "timestamp": time.time(),
-                        "footer": {"text": f"Priority: {message.priority.value}"},
-                    }
-                ]
-            }
-
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.config.discord_webhook_url, json=discord_message
-                ) as response:
-                    if response.status in [200, 204]:
-                        logger.info("Discord notification sent")
-                        return True
-                    else:
-                        logger.error(f"Discord API error: {response.status}")
-                        return False
-
-        except Exception as e:
-            logger.error(f"Failed to send Discord notification: {e}")
-            return False
-
-    def _get_color_for_priority(self, priority: NotificationPriority) -> int:
-        """Get Discord color based on priority"""
-        colors = {
-            NotificationPriority.LOW: 0x00FF00,  # Green
-            NotificationPriority.NORMAL: 0x0099FF,  # Blue
-            NotificationPriority.HIGH: 0xFF9900,  # Orange
-            NotificationPriority.CRITICAL: 0xFF0000,  # Red
-        }
-        return colors.get(priority, 0x0099FF)
-
-
 class NotificationTemplateManager:
     """Manages notification templates"""
 
@@ -467,8 +411,7 @@ class NotificationManager:
             NotificationType.TELEGRAM: TelegramNotifier(config),
             NotificationType.SMS: SMSNotifier(config),
             NotificationType.WEBHOOK: WebhookNotifier(config),
-            NotificationType.SLACK: SlackNotifier(config),
-            NotificationType.DISCORD: DiscordNotifier(config),
+            NotificationType.SLACK: SlackNotifier(config)
         }
 
         if enable_notifications:
@@ -515,15 +458,6 @@ class NotificationManager:
                 else:
                     logger.error("Slack notifier does not have send_slack method")
                     return False
-            elif message.notification_type == NotificationType.DISCORD:
-                if hasattr(notifier, "send_discord"):
-                    return bool(await notifier.send_discord(message))
-                else:
-                    logger.error("Discord notifier does not have send_discord method")
-                    return False
-            else:
-                # fallback для будущих типов
-                return False
 
         except Exception as e:
             logger.error(f"Failed to send notification: {e}")
@@ -608,7 +542,4 @@ class NotificationManager:
             "telegram_configured": bool(self.config.telegram_bot_token),
             "webhook_configured": bool(self.config.webhook_url),
             "slack_configured": bool(self.config.slack_webhook_url),
-            "discord_configured": bool(self.config.discord_webhook_url),
         }
-
-
