@@ -514,7 +514,9 @@ Examples:
                 print(f"❌ Template not found: {args.template_name}")
                 return
 
-            bot_code = template_manager.generate_bot_code(selected_template, args.library)
+            bot_code = template_manager.generate_bot_code(
+                selected_template, args.library
+            )
 
             if args.output:
                 with open(args.output, "w", encoding="utf-8") as f:
