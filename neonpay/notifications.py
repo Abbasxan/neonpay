@@ -418,61 +418,59 @@ class NotificationManager:
             logger.info("Notification system initialized")
 
     async def send_notification(self, message: NotificationMessage) -> bool:
-        """Send notification using specified type"""
-        if not self.enabled:
+    """Send notification using specified type"""
+    if not self.enabled:
+        return False
+
+    notifier = self._notifiers.get(message.notification_type)
+    if not notifier:
+        logger.error(f"No notifier found for type: {message.notification_type}")
+        return False
+
+    notifier_any: Any = notifier
+
+    try:
+        if message.notification_type == NotificationType.EMAIL:
+            send = getattr(notifier_any, "send_email", None)
+            if callable(send):
+                return bool(await send(message))
+            logger.error("Email notifier does not have send_email method")
             return False
 
-        notifier = self._notifiers.get(message.notification_type)
-        if not notifier:
-            logger.error(f"No notifier found for type: {message.notification_type}")
+        elif message.notification_type == NotificationType.TELEGRAM:
+            send = getattr(notifier_any, "send_telegram", None)
+            if callable(send):
+                return bool(await send(message))
+            logger.error("Telegram notifier does not have send_telegram method")
             return False
 
-        # Treat notifier as Any to avoid overly-strict static narrowing by mypy
-        notifier_any: Any = notifier
-
-        try:
-            if message.notification_type == NotificationType.EMAIL:
-                send = getattr(notifier_any, "send_email", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Email notifier does not have send_email method")
-                return False
-
-            elif message.notification_type == NotificationType.TELEGRAM:
-                send = getattr(notifier_any, "send_telegram", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Telegram notifier does not have send_telegram method")
-                return False
-
-            elif message.notification_type == NotificationType.SMS:
-                send = getattr(notifier_any, "send_sms", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("SMS notifier does not have send_sms method")
-                return False
-
-            elif message.notification_type == NotificationType.WEBHOOK:
-                send = getattr(notifier_any, "send_webhook", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Webhook notifier does not have send_webhook method")
-                return False
-
-            elif message.notification_type == NotificationType.SLACK:
-                send = getattr(notifier_any, "send_slack", None)
-                if callable(send):
-                    return bool(await send(message))
-                logger.error("Slack notifier does not have send_slack method")
-                return False
-
-            else:
-                # fallback для любых будущих типов
-                return False
-
-        except Exception as e:
-            logger.error(f"Failed to send notification: {e}")
+        elif message.notification_type == NotificationType.SMS:
+            send = getattr(notifier_any, "send_sms", None)
+            if callable(send):
+                return bool(await send(message))
+            logger.error("SMS notifier does not have send_sms method")
             return False
+
+        elif message.notification_type == NotificationType.WEBHOOK:
+            send = getattr(notifier_any, "send_webhook", None)
+            if callable(send):
+                return bool(await send(message))
+            logger.error("Webhook notifier does not have send_webhook method")
+            return False
+
+        elif message.notification_type == NotificationType.SLACK:
+            send = getattr(notifier_any, "send_slack", None)
+            if callable(send):
+                return bool(await send(message))
+            logger.error("Slack notifier does not have send_slack method")
+            return False
+
+        # else-блок: только один return!
+        return False
+
+    except Exception as e:
+        logger.error(f"Failed to send notification: {e}")
+        return False
 
     async def send_template_notification(
         self,
@@ -552,3 +550,4 @@ class NotificationManager:
             "webhook_configured": bool(self.config.webhook_url),
             "slack_configured": bool(self.config.slack_webhook_url),
         }
+
