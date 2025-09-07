@@ -149,7 +149,7 @@ async def handle_payment(result):
 @router.message(Command("start"))
 async def start_command(message: Message):
     """Welcome message with sync status"""
-    user_id = message.from_user.id
+    # user_id = message.from_user.id  # Not used in this function
     
     welcome_text = (
         "🤖 Welcome to NEONPAY Multi-Bot Sync Demo!\n\n"
@@ -174,7 +174,7 @@ async def start_command(message: Message):
 @router.message(Command("sync"))
 async def sync_command(message: Message):
     """Show sync management interface"""
-    user_id = message.from_user.id
+    # user_id = message.from_user.id  # Not used in this function
     
     # Get sync stats
     all_stats = multi_sync.get_all_sync_stats()
@@ -203,7 +203,7 @@ async def sync_command(message: Message):
 @router.message(Command("store"))
 async def store_command(message: Message):
     """Show store with synced products"""
-    user_id = message.from_user.id
+    # user_id = message.from_user.id  # Not used in this function
     
     stages = neonpay.list_payment_stages()
     
@@ -267,7 +267,7 @@ async def sync_all_callback(callback: CallbackQuery):
             sync_text += f"  Status: {result.status.value}\n"
             
             if result.items_synced:
-                sync_text += f"  Items synced:\n"
+                sync_text += "  Items synced:\n"
                 for item_type, count in result.items_synced.items():
                     sync_text += f"    • {item_type}: {count}\n"
             
@@ -298,14 +298,14 @@ async def sync_stats_callback(callback: CallbackQuery):
     total_items = sum(stats.get('total_items_synced', 0) for stats in all_stats.values())
     total_conflicts = sum(stats.get('total_conflicts', 0) for stats in all_stats.values())
     
-    stats_text += f"📊 **Overall Statistics**\n"
+    stats_text += "📊 **Overall Statistics**\n"
     stats_text += f"  Total Syncs: {total_syncs}\n"
     stats_text += f"  Successful: {total_successful}\n"
     stats_text += f"  Success Rate: {(total_successful/total_syncs*100) if total_syncs > 0 else 0:.1f}%\n"
     stats_text += f"  Items Synced: {total_items}\n"
     stats_text += f"  Conflicts: {total_conflicts}\n\n"
     
-    stats_text += f"🤖 **Per-Bot Statistics**\n"
+    stats_text += "🤖 **Per-Bot Statistics**\n"
     for bot_name, stats in all_stats.items():
         stats_text += f"  {bot_name}:\n"
         stats_text += f"    Syncs: {stats.get('total_syncs', 0)}\n"
@@ -325,10 +325,10 @@ async def sync_config_callback(callback: CallbackQuery):
     
     for bot_name in configured_bots:
         config_text += f"🤖 **{bot_name}**\n"
-        config_text += f"  Direction: Bidirectional\n"
-        config_text += f"  Auto Sync: Enabled\n"
-        config_text += f"  Interval: 30 minutes\n"
-        config_text += f"  Conflict Resolution: Source Wins\n\n"
+        config_text += "  Direction: Bidirectional\n"
+        config_text += "  Auto Sync: Enabled\n"
+        config_text += "  Interval: 30 minutes\n"
+        config_text += "  Conflict Resolution: Source Wins\n\n"
     
     config_text += "💡 **Configuration Options**\n"
     config_text += "• Push: Send data to target bot\n"
