@@ -37,7 +37,7 @@ Examples:
   neonpay backup create --description "Weekly backup"
   neonpay template list
   neonpay template generate digital_store --output bot.py
-  neonpay notifications test --type telegram
+  neonpay notifications test --type telegram --telegram-bot-token YOUR_TOKEN --telegram-chat-id YOUR_CHAT_ID
             """,
         )
         self.setup_commands()
@@ -144,6 +144,8 @@ Examples:
             help="Notification type",
         )
         test_parser.add_argument("--recipient", help="Recipient (email, chat_id, etc.)")
+        test_parser.add_argument("--telegram-bot-token", help="Telegram bot token (required for telegram type)")
+        test_parser.add_argument("--telegram-chat-id", help="Telegram chat ID (required for telegram type)")
 
         # Send notification
         send_parser = notification_subparsers.add_parser(
@@ -158,6 +160,8 @@ Examples:
         send_parser.add_argument("--recipient", required=True, help="Recipient")
         send_parser.add_argument("--subject", help="Notification subject")
         send_parser.add_argument("--body", required=True, help="Notification body")
+        send_parser.add_argument("--telegram-bot-token", help="Telegram bot token (required for telegram type)")
+        send_parser.add_argument("--telegram-chat-id", help="Telegram chat ID (required for telegram type)")
 
         # Sync commands
         sync_parser = subparsers.add_parser("sync", help="Bot synchronization commands")
@@ -534,10 +538,26 @@ Examples:
 
     async def handle_notifications(self, args: Any) -> None:
         """Handle notification commands"""
-        # Mock notification config for demo
-        notification_config = NotificationConfig(
-            telegram_bot_token="YOUR_BOT_TOKEN", telegram_admin_chat_id="YOUR_CHAT_ID"
-        )
+        # Validate required parameters for telegram notifications
+        if args.type == "telegram":
+            telegram_token = getattr(args, 'telegram_bot_token', None)
+            telegram_chat_id = getattr(args, 'telegram_chat_id', None)
+            
+            if not telegram_token:
+                print("❌ Error: --telegram-bot-token is required for telegram notifications")
+                return
+            if not telegram_chat_id:
+                print("❌ Error: --telegram-chat-id is required for telegram notifications")
+                return
+                
+            notification_config = NotificationConfig(
+                telegram_bot_token=telegram_token,
+                telegram_admin_chat_id=telegram_chat_id
+            )
+        else:
+            # For other notification types, create minimal config
+            notification_config = NotificationConfig()
+            
         notification_manager = NotificationManager(
             notification_config, enable_notifications=True
         )
