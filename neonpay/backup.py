@@ -85,6 +85,7 @@ class DataCollector:
 
     def __init__(self, neonpay_instance: Any) -> None:
         self.neonpay = neonpay_instance
+
     async def collect_payment_data(self) -> Dict[str, Any]:
         """Collect payment-related data"""
         data: Dict[str, Any] = {
@@ -94,7 +95,7 @@ class DataCollector:
             "subscriptions": [],
             "security_data": {},
         }
-        
+
         # Collect payment stages
         if hasattr(self.neonpay, "list_payment_stages"):
             stages = self.neonpay.list_payment_stages()
@@ -108,7 +109,7 @@ class DataCollector:
                     "payload": stage.payload,
                     "start_parameter": stage.start_parameter,
                 }
-        
+
         # Collect promo codes
         if hasattr(self.neonpay, "promotions") and self.neonpay.promotions:
             promo_system = self.neonpay.promotions
@@ -130,7 +131,7 @@ class DataCollector:
                     }
                     for promo in promo_codes
                 ]
-        
+
         # Collect subscriptions
         if hasattr(self.neonpay, "subscriptions") and self.neonpay.subscriptions:
             subscription_manager = self.neonpay.subscriptions
@@ -147,13 +148,13 @@ class DataCollector:
                     }
                     for sub in subscriptions
                 ]
-        
+
         # Collect security data
         if hasattr(self.neonpay, "security") and self.neonpay.security:
             security_manager = self.neonpay.security
             if hasattr(security_manager, "get_security_stats"):
                 data["security_data"] = security_manager.get_security_stats()
-        
+
         return data
 
     async def collect_analytics_data(self) -> Dict[str, Any]:
@@ -164,7 +165,7 @@ class DataCollector:
             "product_views": {},
             "conversion_funnel": {},
         }
-        
+
         if hasattr(self.neonpay, "analytics") and self.neonpay.analytics:
             analytics = self.neonpay.analytics
             if hasattr(analytics, "collector"):
@@ -183,20 +184,20 @@ class DataCollector:
                     }
                     for event in events
                 ]
-                
+
                 # Collect user sessions
                 data["user_sessions"] = dict(collector._user_sessions)
                 # Collect product views
                 data["product_views"] = dict(collector._product_views)
                 # Collect conversion funnel
                 data["conversion_funnel"] = dict(collector._conversion_funnel)
-        
+
         return data
 
     async def collect_template_data(self) -> Dict[str, Any]:
         """Collect template data"""
         data: Dict[str, Any] = {"templates": {}, "custom_templates": []}
-        
+
         if hasattr(self.neonpay, "templates") and self.neonpay.templates:
             template_manager = self.neonpay.templates
             if hasattr(template_manager, "list_templates"):
@@ -233,7 +234,7 @@ class DataCollector:
                             for cat in template.categories
                         ],
                     }
-        
+
         return data
 
     async def collect_all_data(self) -> Dict[str, Any]:
@@ -266,6 +267,7 @@ class BackupManager:
         self._load_existing_backups()
         # Ensure backup directory exists
         os.makedirs(self.config.backup_directory, exist_ok=True)
+
     def _load_existing_backups(self) -> None:
         """Load existing backup information"""
         backup_info_file = os.path.join(
@@ -292,6 +294,7 @@ class BackupManager:
                         )
             except Exception as e:
                 logger.error(f"Failed to load backup info: {e}")
+
     def _save_backup_info(self) -> None:
         """Save backup information to file"""
         backup_info_file = os.path.join(
@@ -312,12 +315,13 @@ class BackupManager:
                 for backup in self._backups
             ]
         }
-        
+
         try:
             with open(backup_info_file, "w", encoding="utf-8") as f:
                 json.dump(backup_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             logger.error(f"Failed to save backup info: {e}")
+
     async def create_backup(
         self, backup_type: BackupType = BackupType.FULL, description: str = ""
     ) -> BackupInfo:
@@ -330,7 +334,7 @@ class BackupManager:
             created_at=datetime.now(),
             description=description,
         )
-        
+
         self._backups.append(backup_info)
         try:
             # Collect data
@@ -352,7 +356,7 @@ class BackupManager:
                 # Create uncompressed backup
                 async with aiofiles.open(backup_path, "w", encoding="utf-8") as f:
                     await f.write(json.dumps(data, indent=2, ensure_ascii=False))
-            
+
             # Update backup info
             backup_info.status = BackupStatus.COMPLETED
             backup_info.file_path = backup_path
@@ -367,6 +371,7 @@ class BackupManager:
             backup_info.status = BackupStatus.FAILED
             logger.error(f"Failed to create backup: {e}")
             raise
+
     async def restore_backup(self, backup_id: str) -> bool:
         """Restore from backup"""
         backup_info = next((b for b in self._backups if b.backup_id == backup_id), None)
@@ -385,7 +390,7 @@ class BackupManager:
                     backup_info.file_path, "r", encoding="utf-8"
                 ) as f:
                     data = json.loads(await f.read())
-            
+
             # Restore payment stages
             if "payment_data" in data and "payment_stages" in data["payment_data"]:
                 for stage_id, stage_data in data["payment_data"][
@@ -403,7 +408,7 @@ class BackupManager:
                         start_parameter=stage_data["start_parameter"],
                     )
                     self.neonpay.create_payment_stage(stage_id, stage)
-            
+
             # Restore promo codes
             if "payment_data" in data and "promo_codes" in data["payment_data"]:
                 if hasattr(self.neonpay, "promotions") and self.neonpay.promotions:
@@ -422,12 +427,13 @@ class BackupManager:
                             user_limit=promo_data["user_limit"],
                             description=promo_data["description"],
                         )
-            
+
             logger.info(f"Backup restored successfully: {backup_id}")
             return True
         except Exception as e:
             logger.error(f"Failed to restore backup: {e}")
             return False
+
     async def _cleanup_old_backups(self) -> None:
         """Clean up old backups based on max_backups setting"""
         if len(self._backups) <= self.config.max_backups:
@@ -444,12 +450,15 @@ class BackupManager:
                 logger.info(f"Removed old backup: {backup.backup_id}")
             except Exception as e:
                 logger.error(f"Failed to remove backup {backup.backup_id}: {e}")
+
     def list_backups(self) -> List[BackupInfo]:
         """List all available backups"""
         return sorted(self._backups, key=lambda b: b.created_at, reverse=True)
+
     def get_backup_info(self, backup_id: str) -> Optional[BackupInfo]:
         """Get backup information by ID"""
         return next((b for b in self._backups if b.backup_id == backup_id), None)
+
     async def delete_backup(self, backup_id: str) -> bool:
         """Delete a backup"""
         backup_info = self.get_backup_info(backup_id)
@@ -473,6 +482,7 @@ class SyncManager:
     def __init__(self, neonpay_instance: Any, config: SyncConfig) -> None:
         self.neonpay = neonpay_instance
         self.config = config
+
     async def sync_with_bot(self, target_bot_token: str) -> Dict[str, Any]:
         """Synchronize data with another bot"""
         try:
@@ -483,14 +493,14 @@ class SyncManager:
             target_neonpay = create_neonpay(
                 bot_instance=None
             )  # This would need proper bot instance
-            
+
             sync_results: Dict[str, Any] = {
                 "payment_stages": 0,
                 "promo_codes": 0,
                 "templates": 0,
                 "errors": [],
             }
-            
+
             # Sync payment stages
             if self.config.sync_payment_stages:
                 try:
@@ -521,6 +531,7 @@ class SyncManager:
         except Exception as e:
             logger.error(f"Sync failed: {e}")
             return {"errors": [str(e)]}
+
     async def export_data(self, format_type: str = "json") -> str:
         """Export data for external sync"""
         data_collector = DataCollector(self.neonpay)
@@ -529,6 +540,7 @@ class SyncManager:
             return json.dumps(data, indent=2, ensure_ascii=False)
         else:
             raise ValueError(f"Unsupported export format: {format_type}")
+
     async def import_data(self, data: str, format_type: str = "json") -> bool:
         """Import data from external source"""
         try:
@@ -556,10 +568,10 @@ class SyncManager:
                         start_parameter=stage_data["start_parameter"],
                     )
                     self.neonpay.create_payment_stage(stage_id, stage)
-            
+
             logger.info("Data imported successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"Import failed: {e}")
             return False
@@ -567,21 +579,21 @@ class SyncManager:
 
 class BackupScheduler:
     """Schedules automatic backups"""
-    
+
     def __init__(self, backup_manager: BackupManager) -> None:
         self.backup_manager = backup_manager
         self._running = False
         self._task: Optional[asyncio.Task] = None
-        
+
     async def start_scheduler(self) -> None:
         """Start automatic backup scheduler"""
         if self._running:
             return
-            
+
         self._running = True
         self._task = asyncio.create_task(self._scheduler_loop())
         logger.info("Backup scheduler started")
-        
+
     async def stop_scheduler(self) -> None:
         """Stop automatic backup scheduler"""
         self._running = False
@@ -592,16 +604,17 @@ class BackupScheduler:
             except asyncio.CancelledError:
                 pass
         logger.info("Backup scheduler stopped")
-        
+
     async def _scheduler_loop(self) -> None:
         """Main scheduler loop"""
         while self._running:
             try:
-                await asyncio.sleep(self.backup_manager.config.backup_interval_hours * 3600)
+                await asyncio.sleep(
+                    self.backup_manager.config.backup_interval_hours * 3600
+                )
                 if self._running:
                     await self.backup_manager.create_backup(
-                        backup_type=BackupType.FULL,
-                        description="Automatic backup"
+                        backup_type=BackupType.FULL, description="Automatic backup"
                     )
             except asyncio.CancelledError:
                 break
