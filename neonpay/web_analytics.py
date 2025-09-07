@@ -283,7 +283,7 @@ def create_analytics_app(
 async def run_analytics_server(
     multi_bot_analytics: Any,
     event_collector: Any,
-    host: str = "0.0.0.0",
+    host: str = "localhost",
     port: int = 8081,
     webhook_secret: Optional[str] = None,
 ) -> None:
