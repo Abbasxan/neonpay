@@ -259,7 +259,7 @@ class MultiBotAnalyticsEngine:
         # Calculate total users (unique across all bots)
         all_users: set[str] = set()
         for bot_id in self.collector._user_sessions:
-            all_users.update(self.collector._user_sessions[bot_id].keys())
+            all_users.update(list(self.collector._user_sessions[bot_id].keys()))
         total_users = len(all_users)
 
         # Calculate total revenue
