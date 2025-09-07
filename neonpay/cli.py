@@ -590,8 +590,8 @@ Examples:
 
     async def handle_sync(self, args: Any) -> None:
         """Handle sync commands"""
-        from .sync import MultiBotSyncManager, SyncDirection
         from . import BotSyncConfig
+        from .sync import MultiBotSyncManager, SyncDirection
 
         # This would need a real NEONPAY instance
         # For demo purposes, we'll create a mock one
