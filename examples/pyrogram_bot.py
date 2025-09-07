@@ -200,7 +200,7 @@ async def deliver_priority_support(user_id: int):
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
     """Handle /start command"""
-    user_id = message.from_user.id
+    # user_id = message.from_user.id  # Not used in this function
     
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("❤️ Support Developer", callback_data="donate")],
