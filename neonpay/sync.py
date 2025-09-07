@@ -9,7 +9,7 @@ import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 
@@ -527,12 +527,12 @@ class SyncManager:
         logger.info("Syncing subscriptions...")
         
         # Get local subscriptions
-        local_subs = []
+        # local_subs = []  # Not used
         if hasattr(self.neonpay, 'subscriptions') and self.neonpay.subscriptions:
             # This would need to be implemented in the subscription manager
             pass
             
-        local_data = self.serializer.serialize_subscriptions(local_subs)
+        # local_data = self.serializer.serialize_subscriptions(local_subs)  # Not used
         
         # Similar implementation to promo codes...
         return {"synced": 0, "conflicts": []}
@@ -668,9 +668,9 @@ class SyncManager:
             
         # Compare key fields
         key_fields = ["title", "description", "price", "code", "name"]
-        for field in key_fields:
-            if field in local_dict and field in target_item:
-                if local_dict[field] != target_item[field]:
+        for field_name in key_fields:
+            if field_name in local_dict and field_name in target_item:
+                if local_dict[field_name] != target_item[field_name]:
                     return True
                     
         return False
