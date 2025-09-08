@@ -59,9 +59,10 @@ class TestPaymentHelper:
         assert PaymentHelper.calculate_fee(100, 0.0) == pytest.approx(0.0)
         assert PaymentHelper.calculate_fee(1000, 2.5) == pytest.approx(25.0)
 
-    def test_generate_payment_description(self):
-        result = PaymentHelper.generate_payment_description("Test Product", 100)
-        assert result == "Test Product - 100 ⭐"
+    @pytest.mark.parametrize("amount", [1, 50, 100, 2500])
+    def test_generate_payment_description(self, amount):
+        result = PaymentHelper.generate_payment_description("Test Product", amount)
+        assert result == f"Test Product - {amount} ⭐"
 
     def test_extract_user_data(self):
         payment_data = {
