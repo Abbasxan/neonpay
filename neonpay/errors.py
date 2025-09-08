@@ -55,7 +55,7 @@ class PaymentError(NeonPayError):
         amount: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
-        # we prohibit fractional amounts
+        # запрещаем дробные суммы
         if amount is not None and not isinstance(amount, int):
             raise PaymentValidationError(
                 field="amount",
