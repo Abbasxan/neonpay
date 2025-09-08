@@ -1,6 +1,18 @@
 # NEONPAY Documentation
 
-This directory contains the multi-language documentation for NEONPAY.
+This directory contains the multi-language documentation for NEONPAY v2.6.0.
+
+## 🆕 New in v2.6.0
+
+The documentation now includes comprehensive guides for all new enterprise features:
+
+- **Web Analytics Dashboard** - Real-time monitoring via web interface
+- **Notification System** - Multi-channel notifications (Email, Telegram, SMS, Webhook)
+- **Backup & Restore** - Automated data protection
+- **Template System** - Pre-built bot templates
+- **Multi-Bot Analytics** - Network-wide performance tracking
+- **Event Collection** - Centralized event management
+- **Web Sync Interface** - Multi-bot synchronization via REST API
 
 ## Structure
 

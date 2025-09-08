@@ -7,6 +7,27 @@ Simple and powerful payment processing for Telegram bots
 # Version
 from ._version import __version__
 
+# Analytics system
+from .analytics import (
+    AnalyticsDashboard,
+    AnalyticsManager,
+    AnalyticsPeriod,
+    ConversionData,
+    ProductPerformance,
+    RevenueData,
+)
+
+# Backup system
+from .backup import (
+    BackupConfig,
+    BackupInfo,
+    BackupManager,
+    BackupStatus,
+    BackupType,
+    SyncConfig,
+    SyncManager,
+)
+
 # Core classes
 from .core import BotLibrary, NeonPayCore, PaymentResult, PaymentStage, PaymentStatus
 
@@ -20,8 +41,34 @@ from .errors import (
     ValidationError,
 )
 
+# Event collection system
+from .event_collector import (
+    CentralEventCollector,
+    EventCollectorConfig,
+    MultiBotEventCollector,
+    RealTimeEventCollector,
+)
+
 # Factory
 from .factory import create_neonpay
+
+# Multi-bot analytics system
+from .multi_bot_analytics import (
+    BotAnalytics,
+    EventType,
+    MultiBotAnalyticsManager,
+    MultiBotEvent,
+    NetworkAnalytics,
+)
+
+# Notifications system
+from .notifications import (
+    NotificationConfig,
+    NotificationManager,
+    NotificationMessage,
+    NotificationPriority,
+    NotificationType,
+)
 
 # Legacy compatibility
 from .payments import NeonStars
@@ -46,6 +93,33 @@ from .subscriptions import (
     SubscriptionPeriod,
     SubscriptionPlan,
     SubscriptionStatus,
+)
+
+# Sync system
+from .sync import (
+    ConflictResolution,
+    MultiBotSyncManager,
+)
+from .sync import SyncConfig as BotSyncConfig
+from .sync import (
+    SyncConflict,
+    SyncDirection,
+)
+from .sync import SyncManager as BotSyncManager
+from .sync import (
+    SyncResult,
+    SyncStatus,
+)
+
+# Templates system
+from .templates import (
+    TemplateCategory,
+    TemplateConfig,
+    TemplateManager,
+    TemplateProduct,
+    TemplateType,
+    ThemeColor,
+    ThemeConfig,
 )
 
 __author__ = "Abbas Sultanov"
@@ -142,6 +216,55 @@ __all__ = [
     "UserSecurityProfile",
     "ThreatLevel",
     "ActionType",
+    # Analytics
+    "AnalyticsManager",
+    "AnalyticsPeriod",
+    "AnalyticsDashboard",
+    "RevenueData",
+    "ConversionData",
+    "ProductPerformance",
+    # Notifications
+    "NotificationManager",
+    "NotificationType",
+    "NotificationPriority",
+    "NotificationConfig",
+    "NotificationMessage",
+    # Templates
+    "TemplateManager",
+    "TemplateType",
+    "ThemeConfig",
+    "ThemeColor",
+    "TemplateConfig",
+    "TemplateProduct",
+    "TemplateCategory",
+    # Backup
+    "BackupManager",
+    "BackupType",
+    "BackupStatus",
+    "BackupConfig",
+    "BackupInfo",
+    "SyncManager",
+    "SyncConfig",
+    # Bot Sync
+    "BotSyncManager",
+    "MultiBotSyncManager",
+    "BotSyncConfig",
+    "SyncDirection",
+    "SyncStatus",
+    "ConflictResolution",
+    "SyncResult",
+    "SyncConflict",
+    # Multi-bot Analytics
+    "MultiBotAnalyticsManager",
+    "MultiBotEvent",
+    "BotAnalytics",
+    "NetworkAnalytics",
+    "EventType",
+    # Event Collection
+    "MultiBotEventCollector",
+    "EventCollectorConfig",
+    "CentralEventCollector",
+    "RealTimeEventCollector",
     # Adapters (lazy loaded)
     "PyrogramAdapter",
     "AiogramAdapter",

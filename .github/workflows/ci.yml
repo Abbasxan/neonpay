@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main", "develop"]
   schedule:
-    - cron: '0 2 * * 1'  # Weekly security scans on Mondays at 2 AM UTC
+    - cron: '0 2 * * 1'
 
 env:
   PYTHON_VERSION: "3.11"
@@ -53,10 +53,7 @@ jobs:
         run: isort .
 
       - name: 🔍 Run Ruff auto-fix
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff
-          ruff check --fix .
+        run: ruff check --fix .
 
       - name: 🧹 Cleanup cache files
         run: |
@@ -65,26 +62,6 @@ jobs:
       - name: 📝 Update README version
         run: |
           python .github/scripts/update_readme_version.py || echo "Version update script failed, continuing..."
-
-      - name: 💾 Commit formatting changes
-        run: |
-          git config --global user.name "🤖 GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add .
-          if git diff --staged --quiet; then
-            echo "No formatting changes to commit"
-          else
-            git commit -m "🎨 Auto-format code with black, isort, and ruff
-
-            - Applied Black formatting
-            - Applied isort import sorting  
-            - Applied Ruff linting fixes
-            - Cleaned up cache files and temporary data
-            - Updated README version information
-            
-            [skip ci]"
-            git push
-          fi
 
   # 🧪 Main CI Pipeline
   ci:
@@ -124,22 +101,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[all,dev]
-          pip install pytest-cov coverage[toml] bandit[toml] safety ruff
+          pip install pytest-cov coverage[toml] bandit[toml] safety ruff isort black
 
       - name: 🔍 Check syntax (py_compile)
         run: python -m compileall -q .
 
-      - name: 🧹 Run Ruff linting
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff
-          ruff check . --output-format=github
+      - name: 🧹 Run Ruff auto-fix
+        run: ruff check --fix .
 
-      - name: 🎨 Check Black formatting
-        run: black --check --diff .
+      - name: 🎨 Run Black auto-format
+        run: black .
 
-      - name: 📋 Check isort imports
-        run: isort --check-only --diff .
+      - name: 📋 Run isort auto-format
+        run: isort .
 
       - name: 🔍 Run MyPy type checking
         run: mypy --show-error-codes --show-error-context --pretty neonpay
@@ -196,12 +170,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install bandit[toml] safety pip-audit
 
-      - name: 🔍 Run Bandit security linter
+      - name: 🔍 Run Bandit
         run: |
           bandit -r neonpay/ -f json -o bandit-report.json || true
           bandit -r neonpay/ -f txt
 
-      - name: 🛡️ Run Safety vulnerability check
+      - name: 🛡️ Run Safety
         run: |
           safety check --json --output safety-report.json || true
           safety check
@@ -232,7 +206,7 @@ jobs:
         python-version: ["3.11", "3.12"]
         exclude:
           - os: windows-latest
-            python-version: "3.12"  # Reduce Windows 3.12 tests
+            python-version: "3.12"
 
     steps:
       - name: 📥 Checkout repository
@@ -256,7 +230,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[all,dev]
-          pip install ruff  # на всякий случай, если понадобится
+          pip install ruff
 
       - name: 🧪 Run platform-specific tests
         run: pytest --tb=short -v
@@ -309,19 +283,17 @@ jobs:
     needs: [ci, security, multiplatform]
     if: always()
     steps:
-      - name: ✅ Success notification
-        if: needs.ci.result == 'success' && needs.security.result == 'success' && needs.multiplatform.result == 'success'
+      - name: ✅ Success / ❌ Failure notification
         run: |
-          echo "🎉 All CI checks passed successfully!"
-          echo "✅ Tests: ${{ needs.ci.result }}"
-          echo "✅ Security: ${{ needs.security.result }}"
-          echo "✅ Multi-platform: ${{ needs.multiplatform.result }}"
-
-      - name: ❌ Failure notification
-        if: needs.ci.result == 'failure' || needs.security.result == 'failure' || needs.multiplatform.result == 'failure'
-        run: |
-          echo "❌ CI checks failed!"
-          echo "🧪 Tests: ${{ needs.ci.result }}"
-          echo "🔒 Security: ${{ needs.security.result }}"
-          echo "🌍 Multi-platform: ${{ needs.multiplatform.result }}"
-          exit 1
+          if [ "${{ needs.ci.result }}" = "success" ] && [ "${{ needs.security.result }}" = "success" ] && [ "${{ needs.multiplatform.result }}" = "success" ]; then
+            echo "🎉 All CI checks passed successfully!"
+            echo "✅ Tests: ${{ needs.ci.result }}"
+            echo "✅ Security: ${{ needs.security.result }}"
+            echo "✅ Multi-platform: ${{ needs.multiplatform.result }}"
+          else
+            echo "❌ CI checks failed!"
+            echo "🧪 Tests: ${{ needs.ci.result }}"
+            echo "🔒 Security: ${{ needs.security.result }}"
+            echo "🌍 Multi-platform: ${{ needs.multiplatform.result }}"
+            exit 1
+          fi

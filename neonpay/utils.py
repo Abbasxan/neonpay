@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Any, Dict, Optional
 
-from .errors import PaymentValidationError
+from .errors import PaymentValidationError, ALLOWED_STAR_AMOUNTS
 
 
 class PaymentValidator:
@@ -19,6 +19,9 @@ class PaymentValidator:
 
         if amount > 2500:
             raise PaymentValidationError("Amount cannot exceed 2500 stars")
+
+        if amount not in ALLOWED_STAR_AMOUNTS:
+            raise PaymentValidationError(f"Amount {amount} is not in allowed amounts: {ALLOWED_STAR_AMOUNTS}")
 
         return True
 

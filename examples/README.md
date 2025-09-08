@@ -2,6 +2,15 @@
 
 This directory contains complete working examples for all supported Telegram bot libraries. All examples are based on real-world usage patterns and are ready to use in production.
 
+## 🆕 New in v2.6.0
+
+The examples now include comprehensive demonstrations of all new enterprise features:
+
+- **Advanced Features Example** - Complete enterprise features demo
+- **Multi-Bot Analytics Example** - Analytics dashboard setup
+- **Multi-Bot Sync Example** - Bot synchronization
+- **Webhook Server Example** - Web interface setup
+
 ## Available Examples
 
 ### 1. [Aiogram Example](aiogram_example.py) ⭐ **RECOMMENDED**
@@ -84,6 +93,64 @@ This directory contains complete working examples for all supported Telegram bot
 - Receipt generation
 - Customer support
 
+## 🆕 New Feature Examples (v2.6.0)
+
+### 6. [Advanced Features Example](advanced_features_example.py) 🚀 **ENTERPRISE**
+**Complete enterprise features demonstration**
+- 🌐 Web Analytics Dashboard
+- 🔔 Multi-channel Notifications
+- 💾 Automated Backup System
+- 📋 Template Generation
+- 🔗 Multi-Bot Management
+- 📈 Event Collection
+
+**Features:**
+- Real-time analytics dashboard
+- Email, Telegram, SMS notifications
+- Automated backup scheduling
+- Bot template generation
+- Cross-bot synchronization
+- Centralized event management
+
+### 7. [Multi-Bot Analytics Example](multi_bot_analytics_example.py)
+**Analytics dashboard setup**
+- 📊 Network-wide performance tracking
+- 📈 Real-time metrics
+- 📋 Export capabilities
+- 🔍 Detailed insights
+
+**Features:**
+- Multi-bot analytics collection
+- Web dashboard interface
+- Performance metrics
+- Revenue tracking
+
+### 8. [Multi-Bot Sync Example](multi_bot_sync_example.py)
+**Bot synchronization**
+- 🔄 Cross-bot data sync
+- ⚡ Conflict resolution
+- 📊 Unified analytics
+- 🛡️ Secure synchronization
+
+**Features:**
+- Automated bot synchronization
+- Conflict detection and resolution
+- Centralized data management
+- Secure sync protocols
+
+### 9. [Webhook Server Example](webhook_server_example.py)
+**Web interface setup**
+- 🌐 RESTful API endpoints
+- 📊 Web analytics interface
+- 🔄 Sync management
+- 🛡️ Security features
+
+**Features:**
+- Web-based management interface
+- REST API for external integration
+- Real-time monitoring
+- Secure authentication
+
 ## Quick Start
 
 ### 1. Choose Your Library
@@ -128,6 +195,21 @@ python pyrogram_example.py
 
 # Or Telebot example
 python telebot_example.py
+\`\`\`
+
+### 4. 🆕 Try New Features (v2.6.0)
+\`\`\`bash
+# Enterprise features demo
+python advanced_features_example.py
+
+# Analytics dashboard
+python multi_bot_analytics_example.py
+
+# Bot synchronization
+python multi_bot_sync_example.py
+
+# Web interface
+python webhook_server_example.py
 \`\`\`
 
 ## Common Features

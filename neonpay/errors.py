@@ -97,8 +97,13 @@ class ValidationError(NeonPayError):
 class PaymentValidationError(ValidationError):
     """raised when payment-specific validation fails"""
 
-    def __init__(self, field: Optional[str], message: str, **kwargs: Any) -> None:
-        super().__init__(field, message, **kwargs)
+    def __init__(self, field: Optional[str] = None, message: Optional[str] = None, **kwargs: Any) -> None:
+        # поддержка короткого вызова: только message
+        if message is None and isinstance(field, str) and not kwargs:
+            message = field
+            field = None
+
+        super().__init__(field, message or "invalid payment data", **kwargs)
         self.code = ErrorCode.payment_validation_error
 
 
