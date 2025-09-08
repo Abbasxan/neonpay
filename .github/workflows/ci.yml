@@ -296,3 +296,4 @@ jobs:
             echo "🔒 Security: ${{ needs.security.result }}"
             echo "🌍 Multi-platform: ${{ needs.multiplatform.result }}"
             exit 1
+          fi
