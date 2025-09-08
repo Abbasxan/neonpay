@@ -1,27 +1,19 @@
 import pytest
 
-from neonpay.errors import PaymentValidationError
+from neonpay.errors import PaymentValidationError, ALLOWED_STAR_AMOUNTS
 from neonpay.utils import NeonPayLogger, PaymentHelper, PaymentValidator
 
 
 class TestPaymentValidator:
     def test_validate_amount_success(self):
-        assert PaymentValidator.validate_amount(1)
-        assert PaymentValidator.validate_amount(100)
-        assert PaymentValidator.validate_amount(2500)
+        for amount in [1, 5, 10, 50, 100, 200, 500]:
+            assert PaymentValidator.validate_amount(amount)
 
     def test_validate_amount_failure(self):
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_amount(0)
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_amount(-1)
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_amount(2501)
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_amount("100")
+        invalid_amounts = [0, -1, 2501, 1.5, "100", 3]
+        for amt in invalid_amounts:
+            with pytest.raises(PaymentValidationError):
+                PaymentValidator.validate_amount(amt)
 
     def test_validate_stage_id_success(self):
         assert PaymentValidator.validate_stage_id("test_stage")
@@ -29,28 +21,20 @@ class TestPaymentValidator:
         assert PaymentValidator.validate_stage_id("STAGE_ID")
 
     def test_validate_stage_id_failure(self):
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_stage_id("")
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_stage_id("stage with spaces")
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_stage_id("stage@invalid")
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_stage_id("a" * 65)
+        invalid_ids = ["", "stage with spaces", "stage@invalid", "a" * 65]
+        for sid in invalid_ids:
+            with pytest.raises(PaymentValidationError):
+                PaymentValidator.validate_stage_id(sid)
 
     def test_validate_title_success(self):
         assert PaymentValidator.validate_title("Test Product")
         assert PaymentValidator.validate_title("A")
 
     def test_validate_title_failure(self):
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_title("")
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_title("A" * 33)
+        invalid_titles = ["", "A" * 33]
+        for t in invalid_titles:
+            with pytest.raises(PaymentValidationError):
+                PaymentValidator.validate_title(t)
 
     def test_validate_logo_url_success(self):
         assert PaymentValidator.validate_logo_url(None)
@@ -58,11 +42,10 @@ class TestPaymentValidator:
         assert PaymentValidator.validate_logo_url("http://localhost:8000/logo.jpg")
 
     def test_validate_logo_url_failure(self):
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_logo_url("invalid-url")
-
-        with pytest.raises(PaymentValidationError):
-            PaymentValidator.validate_logo_url("ftp://example.com/logo.png")
+        invalid_urls = ["invalid-url", "ftp://example.com/logo.png"]
+        for url in invalid_urls:
+            with pytest.raises(PaymentValidationError):
+                PaymentValidator.validate_logo_url(url)
 
 
 class TestPaymentHelper:
