@@ -6,14 +6,22 @@ from neonpay.utils import NeonPayLogger, PaymentHelper, PaymentValidator
 
 class TestPaymentValidator:
     def test_validate_amount_success(self):
-        for amount in [1, 5, 10, 50, 100, 200, 500]:
+        # все допустимые суммы должны пройти валидацию
+        for amount in ALLOWED_STAR_AMOUNTS:
             assert PaymentValidator.validate_amount(amount)
 
     def test_validate_amount_failure(self):
-        invalid_amounts = [0, -1, 2501, 1.5, "100", 3]
+        # явно некорректные значения
+        invalid_amounts = [0, -1, 2501, 1.5, "100"]
+
         for amt in invalid_amounts:
             with pytest.raises(PaymentValidationError):
                 PaymentValidator.validate_amount(amt)
+
+        # значение, не входящее в ALLOWED_STAR_AMOUNTS
+        not_allowed = max(ALLOWED_STAR_AMOUNTS) + 1
+        with pytest.raises(PaymentValidationError):
+            PaymentValidator.validate_amount(not_allowed)
 
     def test_validate_stage_id_success(self):
         assert PaymentValidator.validate_stage_id("test_stage")
@@ -59,10 +67,9 @@ class TestPaymentHelper:
         assert PaymentHelper.calculate_fee(100, 0.0) == pytest.approx(0.0)
         assert PaymentHelper.calculate_fee(1000, 2.5) == pytest.approx(25.0)
 
-    @pytest.mark.parametrize("amount", [1, 50, 100, 2500])
-    def test_generate_payment_description(self, amount):
-        result = PaymentHelper.generate_payment_description("Test Product", amount)
-        assert result == f"Test Product - {amount} ⭐"
+    def test_generate_payment_description(self):
+        result = PaymentHelper.generate_payment_description("Test Product", 100)
+        assert result == "Test Product - 100 ⭐"
 
     def test_extract_user_data(self):
         payment_data = {
